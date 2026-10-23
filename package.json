@@ -1,0 +1,40 @@
+{
+    "$schema": "https://www.schemastore.org/package.json",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "vite build",
+        "dev": "vite",
+        "lint": "eslint resources/js",
+        "lint:fix": "eslint resources/js --fix",
+        "format": "prettier --write resources/ tests/e2e/ *.config.{js,ts}",
+        "format:check": "prettier --check resources/ tests/e2e/ *.config.{js,ts}",
+        "typecheck": "vue-tsc --noEmit",
+        "test:e2e": "playwright test"
+    },
+    "devDependencies": {
+        "@eslint/js": "10.0.1",
+        "@inertiajs/vue3": "2.3.28",
+        "@playwright/test": "1.64.0",
+        "@tailwindcss/forms": "0.5.11",
+        "@tailwindcss/vite": "4.3.3",
+        "@vitejs/plugin-vue": "6.0.9",
+        "@vue/eslint-config-prettier": "10.2.0",
+        "@vue/eslint-config-typescript": "14.9.0",
+        "concurrently": "10.0.6",
+        "eslint": "10.12.0",
+        "eslint-plugin-vue": "10.11.1",
+        "laravel-vite-plugin": "3.2.0",
+        "prettier": "3.9.9",
+        "prettier-plugin-organize-imports": "4.3.0",
+        "prettier-plugin-tailwindcss": "0.8.1",
+        "tailwindcss": "4.3.3",
+        "typescript": "6.0.3",
+        "vite": "8.3.4",
+        "vue": "3.5.43",
+        "vue-tsc": "3.3.12"
+    },
+    "optionalDependencies": {
+        "@laravel/multiplex": "0.4.5"
+    }
+}
