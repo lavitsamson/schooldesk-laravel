@@ -104,6 +104,9 @@ docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/var/www/html" -w /var/www/htm
 
 The app runs at <http://localhost>. Mailpit runs at <http://localhost:8025>.
 
+> **Windows:** keep the project inside the WSL2 filesystem (e.g. `~/code/schooldesk`). Serving it
+> from a Windows-mounted folder (`/mnt/c/...`) makes every request take several seconds.
+>
 > Tip: add `alias sail='sh $([ -f sail ] && echo sail || echo vendor/bin/sail)'` to your shell profile.
 
 ## Testing and quality
@@ -116,6 +119,9 @@ The app runs at <http://localhost>. Mailpit runs at <http://localhost:8025>.
 ./vendor/bin/sail npm run typecheck      # vue-tsc
 E2E_BASE_URL=http://localhost npx playwright test   # Playwright against the running app
 ```
+
+Set `E2E_EXPECT_TIMEOUT=30000` if the local app is slow. Without `E2E_BASE_URL`, Playwright starts
+`php artisan serve` itself, which is what CI does.
 
 Pest runs against a real database (the `testing` database Sail creates), not SQLite, so behaviour
 matches production. CI runs the suite on both **MySQL 8.4** and **PostgreSQL 17**.
