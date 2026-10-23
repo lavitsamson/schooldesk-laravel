@@ -1,0 +1,15 @@
+{
+    "singleQuote": true,
+    "tabWidth": 4,
+    "plugins": [
+        "prettier-plugin-organize-imports",
+        "prettier-plugin-tailwindcss"
+    ],
+    "tailwindStylesheet": "./resources/css/app.css",
+    "overrides": [
+        {
+            "files": ["*.yml", "*.yaml", "*.json"],
+            "options": { "tabWidth": 2 }
+        }
+    ]
+}
