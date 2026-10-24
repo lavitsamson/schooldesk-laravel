@@ -35,10 +35,8 @@ final class SaveStudent
         $student = DB::transaction(function () use ($student, $data): Student {
             $student ??= new Student(['status' => StudentStatus::Active]);
 
-            $student->fill([
-                ...Arr::only($data, ['admission_no', 'first_name', 'last_name', 'date_of_birth', 'address']),
-                'gender' => $data['gender'] ?? null,
-            ])->save();
+            // Optional fields left out of $data (e.g. a column missing from an import) are kept.
+            $student->fill(Arr::only($data, ['admission_no', 'first_name', 'last_name', 'date_of_birth', 'gender', 'address']))->save();
 
             if (isset($data['class_id'])) {
                 $this->enrollStudent->handle($student, SchoolClass::query()->findOrFail($data['class_id']));

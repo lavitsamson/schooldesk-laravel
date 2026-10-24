@@ -6,6 +6,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\AcademicYearController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\GuardianController;
+use App\Http\Controllers\Web\ImportController;
 use App\Http\Controllers\Web\InvitationController;
 use App\Http\Controllers\Web\MemberController;
 use App\Http\Controllers\Web\PromotionController;
@@ -103,6 +104,14 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
             Route::put('/guardians/{guardian}', 'update')->name('guardians.update');
             Route::delete('/guardians/{guardian}', 'destroy')->name('guardians.destroy');
             Route::post('/guardians/{guardian}/invite', 'invite')->middleware('throttle:invitations')->name('guardians.invite');
+        });
+
+        Route::controller(ImportController::class)->group(function (): void {
+            Route::get('/imports', 'index')->name('imports.index');
+            Route::get('/imports/template', 'template')->name('imports.template');
+            Route::post('/imports', 'store')->middleware('throttle:imports')->name('imports.store');
+            Route::get('/imports/{importBatch}', 'show')->name('imports.show');
+            Route::get('/imports/{importBatch}/error-report', 'errorReport')->name('imports.error-report');
         });
 
         Route::get('/promotions/create', [PromotionController::class, 'create'])->name('promotions.create');

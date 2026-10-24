@@ -49,6 +49,11 @@ class Student extends Model
     use SoftDeletes;
 
     /**
+     * Letters, digits and - _ . / (e.g. "2026-0042" or "7A/12").
+     */
+    public const ADMISSION_NO_PATTERN = '/^[A-Za-z0-9][A-Za-z0-9\/._-]*$/';
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array

@@ -6,6 +6,7 @@ namespace Tests\Support;
 
 use App\Models\AcademicYear;
 use App\Models\Guardian;
+use App\Models\ImportBatch;
 use App\Models\Membership;
 use App\Models\School;
 use App\Models\SchoolClass;
@@ -32,6 +33,19 @@ final class CrossSchoolRoutes
         'storage.local' => 'Laravel local disk serving (signed URLs only)',
         'storage.local.upload' => 'Laravel local disk uploads (signed URLs only)',
     ];
+
+    /**
+     * Route name prefixes exempt as a whole.
+     */
+    public const EXEMPT_PREFIXES = [
+        'horizon.' => 'the queue dashboard is platform-wide and for platform admins only',
+    ];
+
+    public static function isExempt(string $name): bool
+    {
+        return array_key_exists($name, self::EXEMPT)
+            || array_filter(array_keys(self::EXEMPT_PREFIXES), fn (string $prefix): bool => str_starts_with($name, $prefix)) !== [];
+    }
 
     /**
      * @return array<string, Closure(School): array{0: string, 1: string}>
@@ -86,6 +100,11 @@ final class CrossSchoolRoutes
             'guardians.update' => fn (School $other): array => ['put', route('guardians.update', self::guardian($other))],
             'guardians.destroy' => fn (School $other): array => ['delete', route('guardians.destroy', self::guardian($other))],
             'guardians.invite' => fn (School $other): array => ['post', route('guardians.invite', self::guardian($other))],
+
+            'imports.show' => fn (School $other): array => ['get', route('imports.show', ImportBatch::factory()->for($other)->create())],
+            'imports.error-report' => fn (School $other): array => [
+                'get', route('imports.error-report', ImportBatch::factory()->for($other)->withErrorReport()->create()),
+            ],
         ];
     }
 

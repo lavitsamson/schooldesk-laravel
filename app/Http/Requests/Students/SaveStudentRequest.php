@@ -36,7 +36,7 @@ class SaveStudentRequest extends FormRequest
 
         return [
             'admission_no' => [
-                'required', 'string', 'max:30', 'regex:/^[A-Za-z0-9][A-Za-z0-9\/._-]*$/',
+                'required', 'string', 'max:30', 'regex:'.Student::ADMISSION_NO_PATTERN,
                 SchoolRule::unique('students', 'admission_no')->ignore($this->student()),
             ],
             'first_name' => ['required', 'string', 'max:100'],

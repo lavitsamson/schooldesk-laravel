@@ -36,7 +36,7 @@ it('has an isolation case or an exemption for every route with parameters', func
 
     $uncovered = $routes
         ->reject(fn (string $name): bool => array_key_exists($name, CrossSchoolRoutes::cases())
-            || array_key_exists($name, CrossSchoolRoutes::EXEMPT))
+            || CrossSchoolRoutes::isExempt($name))
         ->values()
         ->all();
 

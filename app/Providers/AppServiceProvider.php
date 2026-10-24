@@ -35,5 +35,8 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('invitations', fn (Request $request): Limit => Limit::perHour(50)
             ->by('school:'.($this->app->make(CurrentSchool::class)->idOrNull() ?? $request->ip())));
+
+        RateLimiter::for('imports', fn (Request $request): Limit => Limit::perHour(30)
+            ->by('imports:school:'.($this->app->make(CurrentSchool::class)->idOrNull() ?? $request->ip())));
     }
 }
