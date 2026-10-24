@@ -23,7 +23,8 @@ class GuardianFactory extends Factory
             'school_id' => School::factory(),
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
-            'phone' => fake()->phoneNumber(),
+            // Faker's phoneNumber() can return "555.123.4567 x890", which the phone rule rejects.
+            'phone' => fake()->numerify('+49 15# #######'),
             'relationship' => fake()->randomElement([GuardianRelationship::Mother, GuardianRelationship::Father]),
         ];
     }
