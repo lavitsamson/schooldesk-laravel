@@ -24,4 +24,19 @@ arch('form requests extend the framework request')
 
 arch('models extend eloquent')
     ->expect('App\Models')
-    ->toExtend('Illuminate\Database\Eloquent\Model');
+    ->classes()
+    ->toExtend('Illuminate\Database\Eloquent\Model')
+    ->ignoring(['App\Models\Scopes', 'App\Models\Concerns']);
+
+arch('actions are final and expose a handle method')
+    ->expect('App\Actions')
+    ->toBeFinal()
+    ->toHaveMethod('handle');
+
+arch('enums are backed enums')
+    ->expect('App\Enums')
+    ->toBeStringBackedEnums();
+
+arch('policies are suffixed with Policy')
+    ->expect('App\Policies')
+    ->toHaveSuffix('Policy');
