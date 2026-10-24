@@ -3,11 +3,20 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Web\AcademicYearController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\GuardianController;
 use App\Http\Controllers\Web\InvitationController;
 use App\Http\Controllers\Web\MemberController;
+use App\Http\Controllers\Web\PromotionController;
+use App\Http\Controllers\Web\SchoolClassController;
 use App\Http\Controllers\Web\SchoolSelectionController;
 use App\Http\Controllers\Web\SetupWizardController;
+use App\Http\Controllers\Web\StudentBulkActionController;
+use App\Http\Controllers\Web\StudentController;
+use App\Http\Controllers\Web\StudentGuardianController;
+use App\Http\Controllers\Web\StudentPhotoController;
+use App\Http\Controllers\Web\SubjectController;
 use App\Models\Membership;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -44,6 +53,60 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
         Route::post('/members', [MemberController::class, 'store'])->middleware('throttle:invitations')->name('members.store');
         Route::post('/members/{membership}/resend', [MemberController::class, 'resend'])->middleware('throttle:invitations')->name('members.resend');
         Route::delete('/members/{membership}', [MemberController::class, 'destroy'])->name('members.destroy');
+
+        // School structure
+        Route::controller(AcademicYearController::class)->group(function (): void {
+            Route::get('/academic-years', 'index')->name('academic-years.index');
+            Route::post('/academic-years', 'store')->name('academic-years.store');
+            Route::put('/academic-years/{academicYear}', 'update')->name('academic-years.update');
+            Route::post('/academic-years/{academicYear}/make-current', 'makeCurrent')->name('academic-years.make-current');
+            Route::delete('/academic-years/{academicYear}', 'destroy')->name('academic-years.destroy');
+        });
+
+        Route::controller(SchoolClassController::class)->group(function (): void {
+            Route::get('/classes', 'index')->name('classes.index');
+            Route::post('/classes', 'store')->name('classes.store');
+            Route::get('/classes/{schoolClass}', 'show')->name('classes.show');
+            Route::put('/classes/{schoolClass}', 'update')->name('classes.update');
+            Route::put('/classes/{schoolClass}/assignments', 'updateAssignments')->name('classes.assignments');
+            Route::delete('/classes/{schoolClass}', 'destroy')->name('classes.destroy');
+        });
+
+        Route::controller(SubjectController::class)->group(function (): void {
+            Route::get('/subjects', 'index')->name('subjects.index');
+            Route::post('/subjects', 'store')->name('subjects.store');
+            Route::put('/subjects/{subject}', 'update')->name('subjects.update');
+            Route::delete('/subjects/{subject}', 'destroy')->name('subjects.destroy');
+        });
+
+        // Students and guardians
+        Route::post('/students/bulk', StudentBulkActionController::class)->name('students.bulk');
+        Route::get('/students/{student}/photo', StudentPhotoController::class)->name('students.photo');
+        Route::controller(StudentController::class)->group(function (): void {
+            Route::get('/students', 'index')->name('students.index');
+            Route::get('/students/create', 'create')->name('students.create');
+            Route::post('/students', 'store')->name('students.store');
+            Route::get('/students/{student}', 'show')->name('students.show');
+            Route::get('/students/{student}/edit', 'edit')->name('students.edit');
+            Route::put('/students/{student}', 'update')->name('students.update');
+            Route::delete('/students/{student}', 'destroy')->name('students.destroy');
+        });
+
+        Route::controller(StudentGuardianController::class)->group(function (): void {
+            Route::post('/students/{student}/guardians', 'store')->name('students.guardians.store');
+            Route::put('/students/{student}/guardians/{guardian}/primary', 'update')->name('students.guardians.update');
+            Route::delete('/students/{student}/guardians/{guardian}', 'destroy')->name('students.guardians.destroy');
+        });
+
+        Route::controller(GuardianController::class)->group(function (): void {
+            Route::get('/guardians', 'index')->name('guardians.index');
+            Route::put('/guardians/{guardian}', 'update')->name('guardians.update');
+            Route::delete('/guardians/{guardian}', 'destroy')->name('guardians.destroy');
+            Route::post('/guardians/{guardian}/invite', 'invite')->middleware('throttle:invitations')->name('guardians.invite');
+        });
+
+        Route::get('/promotions/create', [PromotionController::class, 'create'])->name('promotions.create');
+        Route::post('/promotions', [PromotionController::class, 'store'])->name('promotions.store');
     });
 });
 

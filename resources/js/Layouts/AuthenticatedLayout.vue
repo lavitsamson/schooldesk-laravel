@@ -9,9 +9,52 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import SchoolSwitcher from '@/Components/SchoolSwitcher.vue';
 import { usePermissions } from '@/composables/usePermissions';
 import { Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 const showingNavigationDropdown = ref(false);
 const { can } = usePermissions();
+
+const links = computed(() =>
+    [
+        { label: 'Dashboard', route: 'dashboard', active: 'dashboard' },
+        {
+            label: 'Students',
+            route: 'students.index',
+            active: 'students.*',
+            permission: 'students.manage',
+        },
+        {
+            label: 'Guardians',
+            route: 'guardians.index',
+            active: 'guardians.*',
+            permission: 'students.manage',
+        },
+        {
+            label: 'Classes',
+            route: 'classes.index',
+            active: 'classes.*',
+            permission: 'school.manage',
+        },
+        {
+            label: 'Subjects',
+            route: 'subjects.index',
+            active: 'subjects.*',
+            permission: 'school.manage',
+        },
+        {
+            label: 'Academic years',
+            route: 'academic-years.index',
+            active: 'academic-years.*',
+            permission: 'school.manage',
+        },
+        {
+            label: 'Members',
+            route: 'members.index',
+            active: 'members.*',
+            permission: 'members.manage',
+        },
+    ].filter((link) => !link.permission || can(link.permission)),
+);
 </script>
 
 <template>
@@ -35,25 +78,20 @@ const { can } = usePermissions();
 
                             <!-- Navigation Links -->
                             <div
-                                class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex"
+                                class="hidden space-x-6 lg:-my-px lg:ms-8 lg:flex"
                             >
                                 <NavLink
-                                    :href="route('dashboard')"
-                                    :active="route().current('dashboard')"
+                                    v-for="link in links"
+                                    :key="link.route"
+                                    :href="route(link.route)"
+                                    :active="route().current(link.active)"
                                 >
-                                    Dashboard
-                                </NavLink>
-                                <NavLink
-                                    v-if="can('members.manage')"
-                                    :href="route('members.index')"
-                                    :active="route().current('members.*')"
-                                >
-                                    Members
+                                    {{ link.label }}
                                 </NavLink>
                             </div>
                         </div>
 
-                        <div class="hidden sm:ms-6 sm:flex sm:items-center">
+                        <div class="hidden lg:ms-6 lg:flex lg:items-center">
                             <SchoolSwitcher />
                             <!-- Settings Dropdown -->
                             <div class="relative ms-3">
@@ -101,8 +139,11 @@ const { can } = usePermissions();
                         </div>
 
                         <!-- Hamburger -->
-                        <div class="-me-2 flex items-center sm:hidden">
+                        <div class="-me-2 flex items-center lg:hidden">
                             <button
+                                type="button"
+                                aria-label="Menu"
+                                :aria-expanded="showingNavigationDropdown"
                                 class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-hidden dark:text-gray-500 dark:hover:bg-gray-900 dark:hover:text-gray-400 dark:focus:bg-gray-900 dark:focus:text-gray-400"
                                 @click="
                                     showingNavigationDropdown =
@@ -149,21 +190,16 @@ const { can } = usePermissions();
                         block: showingNavigationDropdown,
                         hidden: !showingNavigationDropdown,
                     }"
-                    class="sm:hidden"
+                    class="lg:hidden"
                 >
                     <div class="space-y-1 pt-2 pb-3">
                         <ResponsiveNavLink
-                            :href="route('dashboard')"
-                            :active="route().current('dashboard')"
+                            v-for="link in links"
+                            :key="link.route"
+                            :href="route(link.route)"
+                            :active="route().current(link.active)"
                         >
-                            Dashboard
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            v-if="can('members.manage')"
-                            :href="route('members.index')"
-                            :active="route().current('members.*')"
-                        >
-                            Members
+                            {{ link.label }}
                         </ResponsiveNavLink>
                     </div>
 
