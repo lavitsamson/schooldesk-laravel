@@ -51,7 +51,13 @@
 
 ## 6. Assessments & grades
 
-- [ ] Grade entry grid, grade scales, `CalculateReportCard` action
+- [x] Assessments (test, exam, assignment) per class-subject and term, with max marks and weight, for the subject teacher (or admins)
+- [x] Spreadsheet-like mark entry grid: autosave of changed rows, keyboard navigation, validation against max marks, decimal comma
+- [x] Gradebook per class-subject with each student's weighted result so far
+- [x] `CalculateReportCard` action: weighted percentage per subject, grade from the school's scale, overall result, attendance, as a snapshot (ADR 0006)
+- [x] Class results across subjects and a per-student result for class teachers and admins
+- [x] Grade scale editor (presets or adjusted bands, checked for gaps and overlaps)
+- [x] Demo seed: four assessments per class-subject in the current term, marks for those already held
 
 ## 7. Report cards & AI
 
