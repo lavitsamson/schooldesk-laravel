@@ -18,6 +18,7 @@ use App\Http\Resources\GuardianResource;
 use App\Http\Resources\StudentProfileResource;
 use App\Http\Resources\StudentResource;
 use App\Models\AcademicYear;
+use App\Models\ImportBatch;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Support\EnumOptions;
@@ -38,7 +39,10 @@ class StudentController extends Controller
             'classes' => $this->currentClasses(),
             'statuses' => EnumOptions::of(StudentStatus::class),
             'bulkActions' => EnumOptions::of(StudentBulkAction::class),
-            'can' => ['create' => $request->user()?->can('create', Student::class) ?? false],
+            'can' => [
+                'create' => $request->user()?->can('create', Student::class) ?? false,
+                'import' => $request->user()?->can('create', ImportBatch::class) ?? false,
+            ],
         ]);
     }
 

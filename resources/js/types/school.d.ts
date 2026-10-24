@@ -101,3 +101,36 @@ export interface StudentFormData {
     status: string;
     remove_photo: boolean;
 }
+
+export interface ImportBatch {
+    id: number;
+    type_label: string;
+    original_name: string;
+    status: 'pending' | 'processing' | 'completed' | 'failed';
+    status_label: string;
+    is_finished: boolean;
+    progress: number;
+    total_rows: number;
+    processed_rows: number;
+    failed_rows: number;
+    created_rows: number | null;
+    updated_rows: number | null;
+    failure_message: string | null;
+    error_report_url: string | null;
+    uploaded_by: string | null;
+    created_at: string;
+    finished_at: string | null;
+}
+
+export interface ImportColumn {
+    name: string;
+    required: boolean;
+    description: string;
+}
+
+export interface ImportFailure {
+    row: number;
+    admission_no: string | null;
+    name: string;
+    errors: string[];
+}

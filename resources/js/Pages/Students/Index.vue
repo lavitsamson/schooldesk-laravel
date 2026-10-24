@@ -29,7 +29,7 @@ const props = defineProps<{
     classes: IdName[];
     statuses: Option[];
     bulkActions: Option[];
-    can: { create: boolean };
+    can: { create: boolean; import: boolean };
 }>();
 
 const filters = reactive<Filters>({ ...props.filters });
@@ -94,9 +94,64 @@ const bulk = reactive({
     processing: false,
 });
 const confirmingLeave = ref(false);
+const exportError = ref<string | null>(null);
 const errors = computed(() => usePage().props.errors);
 
+const xsrfToken = () =>
+    decodeURIComponent(
+        document.cookie
+            .split('; ')
+            .find((c) => c.startsWith('XSRF-TOKEN='))
+            ?.slice('XSRF-TOKEN='.length) ?? '',
+    );
+
+// The export answers with a file, which an Inertia visit cannot receive: fetch it as a blob.
+const exportSelected = async () => {
+    bulk.processing = true;
+    exportError.value = null;
+
+    try {
+        const response = await fetch(route('students.bulk'), {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'X-XSRF-TOKEN': xsrfToken(),
+            },
+            body: JSON.stringify({
+                action: 'export',
+                student_ids: selected.value,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Export failed with status ${response.status}`);
+        }
+
+        const name =
+            /filename="?([^";]+)"?/.exec(
+                response.headers.get('Content-Disposition') ?? '',
+            )?.[1] ?? 'students.xlsx';
+        const url = URL.createObjectURL(await response.blob());
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = name;
+        link.click();
+        URL.revokeObjectURL(url);
+    } catch {
+        exportError.value = 'The export failed. Please try again.';
+    } finally {
+        bulk.processing = false;
+    }
+};
+
 const applyBulk = () => {
+    if (bulk.action === 'export') {
+        void exportSelected();
+        return;
+    }
+
     if (bulk.action === 'mark_as_left' && !confirmingLeave.value) {
         confirmingLeave.value = true;
         return;
@@ -139,13 +194,22 @@ const statusClasses: Record<StudentRow['status'], string> = {
                 >
                     Students
                 </h2>
-                <Link
-                    v-if="can.create"
-                    :href="route('students.create')"
-                    class="inline-flex items-center rounded-md bg-gray-800 px-4 py-2 text-xs font-semibold tracking-widest text-white uppercase hover:bg-gray-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-white"
-                >
-                    Add student
-                </Link>
+                <div class="flex flex-wrap gap-3">
+                    <Link
+                        v-if="can.import"
+                        :href="route('imports.index')"
+                        class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-semibold tracking-widest text-gray-700 uppercase shadow-xs hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden dark:border-gray-500 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                    >
+                        Import students
+                    </Link>
+                    <Link
+                        v-if="can.create"
+                        :href="route('students.create')"
+                        class="inline-flex items-center rounded-md bg-gray-800 px-4 py-2 text-xs font-semibold tracking-widest text-white uppercase hover:bg-gray-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-white"
+                    >
+                        Add student
+                    </Link>
+                </div>
             </div>
         </template>
 
@@ -262,7 +326,9 @@ const statusClasses: Record<StudentRow['status'], string> = {
                     </SecondaryButton>
                     <InputError
                         class="w-full"
-                        :message="errors.student_ids ?? errors.class_id"
+                        :message="
+                            errors.student_ids ?? errors.class_id ?? exportError
+                        "
                     />
                 </section>
 
