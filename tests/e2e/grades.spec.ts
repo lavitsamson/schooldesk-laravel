@@ -19,9 +19,7 @@ test('a teacher adds an assessment and enters marks in the grid', async ({
     await login(page, 'teacher@riverside.demo');
 
     await page.getByRole('link', { name: 'Grades' }).first().click();
-    await page
-        .getByRole('link', { name: 'Mathematics in Grade 7 A' })
-        .click();
+    await page.getByRole('link', { name: 'Mathematics in Grade 7 A' }).click();
     await expect(
         page.getByRole('heading', { name: 'Mathematics · Grade 7 A' }),
     ).toBeVisible();
@@ -72,7 +70,7 @@ test('a teacher adds an assessment and enters marks in the grid', async ({
     await expect(row.getByRole('cell', { name: /^2 \/ \d+$/ })).toBeVisible();
 });
 
-test('the class teacher reads the class results and a student\'s result', async ({
+test("the class teacher reads the class results and a student's result", async ({
     page,
 }) => {
     await login(page, 'teacher@riverside.demo');
