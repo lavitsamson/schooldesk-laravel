@@ -2,7 +2,26 @@ export interface User {
     id: number;
     name: string;
     email: string;
-    email_verified_at?: string;
+    email_verified_at: string | null;
+    is_platform_admin: boolean;
+}
+
+export interface CurrentSchool {
+    id: number;
+    name: string;
+    setup_completed: boolean;
+    roles: string[];
+    permissions: string[];
+}
+
+export interface SchoolSummary {
+    id: number;
+    name: string;
+}
+
+export interface Option {
+    value: string;
+    label: string;
 }
 
 export type PageProps<
@@ -10,5 +29,10 @@ export type PageProps<
 > = T & {
     auth: {
         user: User;
+    };
+    school: CurrentSchool | null;
+    schools: SchoolSummary[];
+    flash: {
+        status: string | null;
     };
 };

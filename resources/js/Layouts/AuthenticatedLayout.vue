@@ -3,11 +3,15 @@ import { ref } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
+import FlashMessage from '@/Components/FlashMessage.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import SchoolSwitcher from '@/Components/SchoolSwitcher.vue';
+import { usePermissions } from '@/composables/usePermissions';
 import { Link } from '@inertiajs/vue3';
 
 const showingNavigationDropdown = ref(false);
+const { can } = usePermissions();
 </script>
 
 <template>
@@ -39,10 +43,18 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     Dashboard
                                 </NavLink>
+                                <NavLink
+                                    v-if="can('members.manage')"
+                                    :href="route('members.index')"
+                                    :active="route().current('members.*')"
+                                >
+                                    Members
+                                </NavLink>
                             </div>
                         </div>
 
                         <div class="hidden sm:ms-6 sm:flex sm:items-center">
+                            <SchoolSwitcher />
                             <!-- Settings Dropdown -->
                             <div class="relative ms-3">
                                 <Dropdown align="right" width="48">
@@ -146,6 +158,17 @@ const showingNavigationDropdown = ref(false);
                         >
                             Dashboard
                         </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            v-if="can('members.manage')"
+                            :href="route('members.index')"
+                            :active="route().current('members.*')"
+                        >
+                            Members
+                        </ResponsiveNavLink>
+                    </div>
+
+                    <div class="px-4 pb-3">
+                        <SchoolSwitcher />
                     </div>
 
                     <!-- Responsive Settings Options -->
@@ -191,6 +214,7 @@ const showingNavigationDropdown = ref(false);
 
             <!-- Page Content -->
             <main>
+                <FlashMessage />
                 <slot />
             </main>
         </div>
