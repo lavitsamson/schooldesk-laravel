@@ -26,6 +26,8 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ env.PHP_VERSION }}
+          # PhpSpreadsheet (imports, exports) needs zip and gd; Horizon needs pcntl and posix.
+          extensions: zip, gd, pcntl, posix
           coverage: none
 
       - uses: ramsey/composer-install@v3
@@ -99,7 +101,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ env.PHP_VERSION }}
-          extensions: pdo_mysql, pdo_pgsql, redis
+          extensions: pdo_mysql, pdo_pgsql, redis, zip, gd, pcntl, posix
           coverage: pcov
 
       - uses: ramsey/composer-install@v3
@@ -157,7 +159,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ env.PHP_VERSION }}
-          extensions: pdo_mysql
+          extensions: pdo_mysql, zip, gd, pcntl, posix
           coverage: none
 
       - uses: ramsey/composer-install@v3
