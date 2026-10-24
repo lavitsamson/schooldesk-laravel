@@ -36,9 +36,9 @@ Available now:
 - **Students and guardians.** A server-paginated student list with search, class and status filters, sorting, and bulk actions (move to class, mark as left, export selected to Excel). Photos are stored privately and served only to authorised users. Siblings share guardians, each student has one primary contact, and guardians can be invited to the parent portal.
 - **Promotion.** At the end of the year, students move up class by class from a preview with suggested targets. Repeaters can be excluded, and the final grade graduates. Last year's enrolments stay as history.
 - **Bulk import.** Students and guardians from CSV or Excel, imported in queued chunks of 200 rows with a live progress bar. Valid rows import even when others fail; failed rows come back as a downloadable error report that can be fixed and uploaded again. The admission number is the key, so re-uploading a file only updates. Files saved by German Excel (semicolons, Windows-1252, `17.05.2014`) work as they are, and "export selected" writes the same format.
+- **Attendance.** Teachers pick a class and a day and get a grid where everyone starts as present, so marking takes one click per absent student. Teachers see their own classes only (class teacher or subject teacher); admins see all of them. Each new absence sends the primary guardian an email, and a notification in the parent portal if they have an account. The email is queued with a short delay, so a wrong click fixed straight away is never sent, and a guardian gets at most one per child and day. A monthly report per class shows a day-by-day grid, attendance rates and a chart, and exports to Excel.
 
 Planned for v1:
-- **Attendance.** A one-click grid, absence notifications to guardians, and monthly reports.
 - **Assessments and grades.** A spreadsheet-like grade entry grid, with A–F or German 1–6 grade scales.
 - **Report cards.** Batch generation, PDFs, an approval flow, and optional AI-drafted comments with data minimisation.
 - **Fees.** Scheduled term invoices, Stripe Checkout (test mode), webhooks and receipts.
@@ -89,7 +89,7 @@ Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) _(coming soon)_.
 | Area | Choice |
 |---|---|
 | Backend | Laravel 13, PHP 8.4, `declare(strict_types=1)` everywhere |
-| Frontend | Inertia.js, Vue 3, TypeScript, Tailwind CSS 4 (Laravel Breeze) |
+| Frontend | Inertia.js, Vue 3, TypeScript, Tailwind CSS 4 (Laravel Breeze), Chart.js via vue-chartjs |
 | Database | MySQL 8 and PostgreSQL (CI runs on both) |
 | Cache / queues / sessions | Redis, Laravel Horizon |
 | Auth | Breeze (session), Sanctum (parent API) |
@@ -112,7 +112,7 @@ docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/var/www/html" -w /var/www/htm
 
 The app runs at <http://localhost>. Mailpit runs at <http://localhost:8025>.
 
-Invitation emails and student imports are queued. Run the workers with
+Invitation emails, absence emails and student imports are queued. Run the workers with
 `./vendor/bin/sail artisan horizon`. Horizon has a separate supervisor for the `imports` queue,
 so a large import never delays emails. Its dashboard is at <http://localhost/horizon> (open to
 everyone locally, platform admins only elsewhere).
@@ -157,6 +157,7 @@ matches production. CI runs the suite on both **MySQL 8.4** and **PostgreSQL 17*
 | [0002 — Roles and permissions](docs/adr/0002-roles-and-permissions.md) | spatie/laravel-permission in teams mode, with the team id read from `CurrentSchool` so role checks can never target a different school than the data scope. Roles and permissions are enums, synced by a migration. |
 | [0003 — Enrolments and promotion](docs/adr/0003-enrolments-and-promotion.md) | A student's class is an enrolment per academic year, not a column on the student, so attendance and grades keep their class after students move up. Promotion creates next year's enrolments from a reviewed preview, and running it twice is harmless. |
 | [0004 — Student import](docs/adr/0004-student-import.md) | Queued chunks on their own queue, row-level validation, and a per-row outcome table that drives progress, cross-chunk duplicate checks and the error report. The admission number is the key, so re-uploads are idempotent. Uploads are deleted after the import and reports pruned after 30 days. |
+| [0005 — Attendance](docs/adr/0005-attendance.md) | One record per student and day, keeping the class it was taken in. The whole grid is saved in one transaction. Absence emails are delayed a few minutes, and the job claims the record under a row lock before it sends, so a guardian gets at most one per child and day. "Today" means today in the school's timezone. |
 
 ## Security and GDPR
 

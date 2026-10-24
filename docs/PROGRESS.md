@@ -44,7 +44,10 @@
 
 ## 5. Attendance
 
-- [ ] Attendance grid, absence notifications, monthly report and export
+- [x] Attendance grid per class and day (everyone starts as present), for own classes (class or subject teacher) or all classes (admins), in the school's timezone (ADR 0005)
+- [x] Absence notifications to the primary guardian (mail, plus the database notification for portal users): queued with a correction delay, at most once per student and day
+- [x] Monthly report per class (day grid, totals, rates, Chart.js chart) and XLSX export
+- [x] Demo seed: up to three months of attendance up to yesterday
 
 ## 6. Assessments & grades
 
