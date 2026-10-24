@@ -35,7 +35,7 @@ class StudentPolicy
     }
 
     /**
-     * Bulk actions on the student list (move to class, mark as left).
+     * Bulk actions on the student list (move to class, mark as left, export).
      */
     public function updateMany(User $user): bool
     {
