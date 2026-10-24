@@ -2,12 +2,15 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\EnsureSchoolMembership;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\SetCurrentSchool;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -17,11 +20,22 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
+            // Before Inertia, so the shared props can include the current school.
+            SetCurrentSchool::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        //
+        // Route model binding must already see the school, or school-owned records cannot be
+        // resolved (and another school's id must resolve to a 404, not an error).
+        $middleware->prependToPriorityList(
+            before: SubstituteBindings::class,
+            prepend: SetCurrentSchool::class,
+        );
+
+        $middleware->alias([
+            'school' => EnsureSchoolMembership::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
