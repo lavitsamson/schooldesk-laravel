@@ -28,7 +28,7 @@
 
 - [x] Academic years (terms kept by id, copy classes, make current), classes, subjects, subject-teacher assignments
 - [x] Students CRUD: search, filters, sorting, server-side pagination, private photos, soft delete
-- [x] Bulk actions: move to class, mark as left (export selected arrives with exports in milestone 4)
+- [x] Bulk actions: move to class, mark as left (export selected followed in milestone 4)
 - [x] Guardians: new or shared between siblings, primary contact, parent portal invitation
 - [x] Enrolments per academic year (ADR 0003)
 - [x] Promotion to next academic year with preview, exclusions and graduation
@@ -36,8 +36,11 @@
 
 ## 4. Bulk import
 
-- [ ] Queued, chunked import with progress and error report
-- [ ] Horizon
+- [x] Queued, chunked student import (CSV/XLSX, 200 rows per chunk) with row-level validation, progress polling and a downloadable error report (ADR 0004)
+- [x] Idempotent re-upload (admission number is the key), German Excel files (semicolons, Windows-1252, DD.MM.YYYY), downloadable template
+- [x] Bulk action "export selected" in the import format (export → edit → import round trip)
+- [x] Uploaded files deleted after the import; batches and error reports pruned after 30 days
+- [x] Horizon with a separate supervisor for the `imports` queue (dashboard for platform admins)
 
 ## 5. Attendance
 

@@ -33,11 +33,11 @@ Available now:
 - **Onboarding.** Signing up creates a school. A setup wizard then covers school details, academic year and terms, classes, subjects and the grade scale (A–F or German 1–6).
 - **Invitations.** Admins invite teachers, parents and other admins by email with signed links that expire. Re-sending a link invalidates the old one.
 - **School structure.** Academic years with terms, classes per year (optionally copied from last year), subjects, and a subject teacher for each class.
-- **Students and guardians.** A server-paginated student list with search, class and status filters, sorting, and bulk actions (move to class, mark as left). Photos are stored privately and served only to authorised users. Siblings share guardians, each student has one primary contact, and guardians can be invited to the parent portal.
+- **Students and guardians.** A server-paginated student list with search, class and status filters, sorting, and bulk actions (move to class, mark as left, export selected to Excel). Photos are stored privately and served only to authorised users. Siblings share guardians, each student has one primary contact, and guardians can be invited to the parent portal.
 - **Promotion.** At the end of the year, students move up class by class from a preview with suggested targets. Repeaters can be excluded, and the final grade graduates. Last year's enrolments stay as history.
+- **Bulk import.** Students and guardians from CSV or Excel, imported in queued chunks of 200 rows with a live progress bar. Valid rows import even when others fail; failed rows come back as a downloadable error report that can be fixed and uploaded again. The admission number is the key, so re-uploading a file only updates. Files saved by German Excel (semicolons, Windows-1252, `17.05.2014`) work as they are, and "export selected" writes the same format.
 
 Planned for v1:
-- **Bulk import.** A queued CSV/XLSX student import with progress and an error report, plus exports.
 - **Attendance.** A one-click grid, absence notifications to guardians, and monthly reports.
 - **Assessments and grades.** A spreadsheet-like grade entry grid, with A–F or German 1–6 grade scales.
 - **Report cards.** Batch generation, PDFs, an approval flow, and optional AI-drafted comments with data minimisation.
@@ -112,8 +112,10 @@ docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/var/www/html" -w /var/www/htm
 
 The app runs at <http://localhost>. Mailpit runs at <http://localhost:8025>.
 
-Invitation emails are queued. Until Horizon arrives in a later milestone, run a worker with
-`./vendor/bin/sail artisan queue:work` to send them.
+Invitation emails and student imports are queued. Run the workers with
+`./vendor/bin/sail artisan horizon`. Horizon has a separate supervisor for the `imports` queue,
+so a large import never delays emails. Its dashboard is at <http://localhost/horizon> (open to
+everyone locally, platform admins only elsewhere).
 
 > **Windows:** keep the project inside the WSL2 filesystem (e.g. `~/code/schooldesk`). Serving it
 > from a Windows-mounted folder (`/mnt/c/...`) makes every request take several seconds.
@@ -154,6 +156,7 @@ matches production. CI runs the suite on both **MySQL 8.4** and **PostgreSQL 17*
 | [0001 — Multi-tenancy](docs/adr/0001-multi-tenancy.md) | Shared database with `school_id` and a fail-closed `BelongsToSchool` global scope, instead of database-per-tenant. Simple to run on one VPS and works on MySQL and PostgreSQL. Isolation is proven by a cross-school 404 test suite. |
 | [0002 — Roles and permissions](docs/adr/0002-roles-and-permissions.md) | spatie/laravel-permission in teams mode, with the team id read from `CurrentSchool` so role checks can never target a different school than the data scope. Roles and permissions are enums, synced by a migration. |
 | [0003 — Enrolments and promotion](docs/adr/0003-enrolments-and-promotion.md) | A student's class is an enrolment per academic year, not a column on the student, so attendance and grades keep their class after students move up. Promotion creates next year's enrolments from a reviewed preview, and running it twice is harmless. |
+| [0004 — Student import](docs/adr/0004-student-import.md) | Queued chunks on their own queue, row-level validation, and a per-row outcome table that drives progress, cross-chunk duplicate checks and the error report. The admission number is the key, so re-uploads are idempotent. Uploads are deleted after the import and reports pruned after 30 days. |
 
 ## Security and GDPR
 
