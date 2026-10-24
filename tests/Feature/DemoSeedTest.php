@@ -2,15 +2,20 @@
 
 declare(strict_types=1);
 
+use App\Actions\Grades\BuildClassResults;
 use App\Enums\Role;
+use App\Models\Assessment;
 use App\Models\AttendanceRecord;
 use App\Models\Enrollment;
+use App\Models\Grade;
 use App\Models\Guardian;
 use App\Models\GuardianStudent;
 use App\Models\School;
+use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\TeachingAssignment;
+use App\Models\Term;
 use App\Models\User;
 use App\Support\CurrentSchool;
 use Database\Seeders\DemoSchoolsSeeder;
@@ -47,6 +52,21 @@ it('seeds two set-up demo schools with working logins', function (): void {
             ->and(AttendanceRecord::query()->min('date'))->toStartWith('2026-08-17')
             ->and($yesterday->whereNull('recorded_by'))->toBeEmpty()
             ->and(AttendanceRecord::query()->where('status', 'absent')->whereNull('guardian_notified_at')->exists())->toBeFalse();
+
+        // Four assessments per class-subject this term; marks for those held before today.
+        $assessments = Assessment::query()->get();
+        $held = $assessments->filter(fn (Assessment $a): bool => $a->held_on->lt('2026-10-14'));
+        expect($assessments)->toHaveCount(12 * 10 * 4)
+            ->and($held->pluck('name')->unique()->sort()->values()->all())->toBe(['Project', 'Test 1'])
+            ->and(Grade::query()->whereIn('assessment_id', $assessments->diff($held)->modelKeys())->exists())->toBeFalse()
+            ->and(Grade::query()->count())->toBe($held->count() * 32)
+            ->and(Grade::query()->whereNull('marks')->whereNull('remarks')->exists())->toBeFalse();
+
+        $class = SchoolClass::query()->where('name', 'Grade 7')->where('section', 'A')->sole();
+        $term = Term::query()->where('name', 'Autumn term')->sole();
+        $results = app(BuildClassResults::class)->handle($class, $term);
+        expect($results['subjects'])->toHaveCount(10)
+            ->and(collect($results['students'])->pluck('overall.grade')->filter()->count())->toBe(32);
     });
 
     $gymnasium = School::query()->where('slug', 'gymnasium-am-main')->sole();
