@@ -20,8 +20,8 @@ use App\Support\CurrentSchool;
 use Illuminate\Database\Seeder;
 
 /**
- * The two demo schools, set up through the same actions as the setup wizard.
- * Students, attendance and grades are added by later milestones.
+ * The two demo schools, set up through the same actions as the setup wizard, with teachers,
+ * students and guardians (DemoRosterSeeder). Attendance and grades come with later milestones.
  */
 class DemoSchoolsSeeder extends Seeder
 {
@@ -30,6 +30,7 @@ class DemoSchoolsSeeder extends Seeder
     public function __construct(
         private readonly CurrentSchool $currentSchool,
         private readonly GrantRole $grantRole,
+        private readonly DemoRosterSeeder $roster,
     ) {}
 
     public function run(): void
@@ -55,9 +56,29 @@ class DemoSchoolsSeeder extends Seeder
         ]);
 
         $this->member($riverside, 'admin@riverside.demo', 'Rachel Admin', Role::SchoolAdmin);
-        $this->member($riverside, 'teacher@riverside.demo', 'Tom Teacher', Role::Teacher);
-        $this->member($riverside, 'parent@riverside.demo', 'Paula Parent', Role::Parent);
+        $riversideTeachers = [
+            $this->member($riverside, 'teacher@riverside.demo', 'Tom Teacher', Role::Teacher),
+            $this->member($riverside, 's.okafor@riverside.demo', 'Sarah Okafor', Role::Teacher),
+            $this->member($riverside, 'd.weber@riverside.demo', 'Daniel Weber', Role::Teacher),
+            $this->member($riverside, 'm.rossi@riverside.demo', 'Maria Rossi', Role::Teacher),
+            $this->member($riverside, 'j.chen@riverside.demo', 'James Chen', Role::Teacher),
+            $this->member($riverside, 'e.novak@riverside.demo', 'Emma Novak', Role::Teacher),
+        ];
+        $parent = $this->member($riverside, 'parent@riverside.demo', 'Paula Parent', Role::Parent);
+
         $this->member($gymnasium, 'admin@gymnasium.demo', 'Anna Schulleitung', Role::SchoolAdmin);
+        $gymnasiumTeachers = [
+            $this->member($gymnasium, 'm.becker@gymnasium.demo', 'Markus Becker', Role::Teacher),
+            $this->member($gymnasium, 's.yilmaz@gymnasium.demo', 'Selin Yılmaz', Role::Teacher),
+            $this->member($gymnasium, 'k.hartmann@gymnasium.demo', 'Katrin Hartmann', Role::Teacher),
+        ];
+
+        // Paula's two children: one in Tom Teacher's class, one younger sibling.
+        $this->roster->seedSchool($riverside, 'RIS', 32, $riversideTeachers, 'MATH', [
+            'user' => $parent,
+            'children' => ['Pia' => 'Grade 7 A', 'Lotta' => 'Grade 5 B'],
+        ]);
+        $this->roster->seedSchool($gymnasium, 'GAM', 10, $gymnasiumTeachers, 'MA');
     }
 
     /**
@@ -107,7 +128,7 @@ class DemoSchoolsSeeder extends Seeder
         return $school;
     }
 
-    private function member(School $school, string $email, string $name, Role $role): void
+    private function member(School $school, string $email, string $name, Role $role): User
     {
         $user = User::query()->create([
             'name' => $name,
@@ -118,5 +139,7 @@ class DemoSchoolsSeeder extends Seeder
 
         $school->memberships()->create(['user_id' => $user->id, 'status' => MembershipStatus::Active]);
         $this->grantRole->handle($user, $school, $role);
+
+        return $user;
     }
 }
