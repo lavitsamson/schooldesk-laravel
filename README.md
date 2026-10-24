@@ -32,9 +32,12 @@ Available now:
 - **Roles.** School admin, teacher and parent, scoped per school (spatie teams mode) and enforced with policies. Platform admin is a separate flag.
 - **Onboarding.** Signing up creates a school. A setup wizard then covers school details, academic year and terms, classes, subjects and the grade scale (A–F or German 1–6).
 - **Invitations.** Admins invite teachers, parents and other admins by email with signed links that expire. Re-sending a link invalidates the old one.
+- **School structure.** Academic years with terms, classes per year (optionally copied from last year), subjects, and a subject teacher for each class.
+- **Students and guardians.** A server-paginated student list with search, class and status filters, sorting, and bulk actions (move to class, mark as left). Photos are stored privately and served only to authorised users. Siblings share guardians, each student has one primary contact, and guardians can be invited to the parent portal.
+- **Promotion.** At the end of the year, students move up class by class from a preview with suggested targets. Repeaters can be excluded, and the final grade graduates. Last year's enrolments stay as history.
 
 Planned for v1:
-- **Students and guardians.** Search, filters, bulk actions, a queued CSV/XLSX import with an error report, and promotion to the next year.
+- **Bulk import.** A queued CSV/XLSX student import with progress and an error report, plus exports.
 - **Attendance.** A one-click grid, absence notifications to guardians, and monthly reports.
 - **Assessments and grades.** A spreadsheet-like grade entry grid, with A–F or German 1–6 grade scales.
 - **Report cards.** Batch generation, PDFs, an approval flow, and optional AI-drafted comments with data minimisation.
@@ -128,6 +131,9 @@ Invitation emails are queued. Until Horizon arrives in a later milestone, run a 
 E2E_BASE_URL=http://localhost npx playwright test   # Playwright against the running app
 ```
 
+On a slow mount (Sail on a Windows folder), running Pest with the CLI opcache enabled is many
+times faster: `./vendor/bin/sail php -d opcache.enable_cli=1 vendor/bin/pest`.
+
 The E2E tests expect the demo seed (`migrate:fresh --seed`). If the local app is slow (Sail on a
 Windows-mounted folder), set `E2E_EXPECT_TIMEOUT=90000` and run with `--workers=1`: Sail's dev
 server handles one request at a time. Without `E2E_BASE_URL`, Playwright starts
@@ -147,6 +153,7 @@ matches production. CI runs the suite on both **MySQL 8.4** and **PostgreSQL 17*
 |---|---|
 | [0001 — Multi-tenancy](docs/adr/0001-multi-tenancy.md) | Shared database with `school_id` and a fail-closed `BelongsToSchool` global scope, instead of database-per-tenant. Simple to run on one VPS and works on MySQL and PostgreSQL. Isolation is proven by a cross-school 404 test suite. |
 | [0002 — Roles and permissions](docs/adr/0002-roles-and-permissions.md) | spatie/laravel-permission in teams mode, with the team id read from `CurrentSchool` so role checks can never target a different school than the data scope. Roles and permissions are enums, synced by a migration. |
+| [0003 — Enrolments and promotion](docs/adr/0003-enrolments-and-promotion.md) | A student's class is an enrolment per academic year, not a column on the student, so attendance and grades keep their class after students move up. Promotion creates next year's enrolments from a reviewed preview, and running it twice is harmless. |
 
 ## Security and GDPR
 

@@ -26,9 +26,13 @@
 
 ## 3. Structure & students
 
-- [ ] Academic years, terms, classes, subjects, teacher assignments
-- [ ] Students and guardians CRUD, enrollments
-- [ ] Promotion to next academic year
+- [x] Academic years (terms kept by id, copy classes, make current), classes, subjects, subject-teacher assignments
+- [x] Students CRUD: search, filters, sorting, server-side pagination, private photos, soft delete
+- [x] Bulk actions: move to class, mark as left (export selected arrives with exports in milestone 4)
+- [x] Guardians: new or shared between siblings, primary contact, parent portal invitation
+- [x] Enrolments per academic year (ADR 0003)
+- [x] Promotion to next academic year with preview, exclusions and graduation
+- [x] Demo seed: teachers with assignments, ~500 students with families and guardians
 
 ## 4. Bulk import
 
