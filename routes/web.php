@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\AcademicYearController;
+use App\Http\Controllers\Web\AssessmentController;
 use App\Http\Controllers\Web\AttendanceController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\GradeController;
+use App\Http\Controllers\Web\GradeScaleController;
 use App\Http\Controllers\Web\GuardianController;
 use App\Http\Controllers\Web\ImportController;
 use App\Http\Controllers\Web\InvitationController;
 use App\Http\Controllers\Web\MemberController;
 use App\Http\Controllers\Web\PromotionController;
+use App\Http\Controllers\Web\ResultController;
 use App\Http\Controllers\Web\SchoolClassController;
 use App\Http\Controllers\Web\SchoolSelectionController;
 use App\Http\Controllers\Web\SetupWizardController;
@@ -126,6 +130,23 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
             Route::get('/{schoolClass}/{date}', 'show')->where('date', '\d{4}-\d{2}-\d{2}')->name('attendance.show');
             Route::put('/{schoolClass}/{date}', 'update')->where('date', '\d{4}-\d{2}-\d{2}')->name('attendance.update');
         });
+
+        // Assessments, marks and results
+        Route::get('/grades', [GradeController::class, 'index'])->name('grades.index');
+        Route::get('/grades/{schoolClass}/{subject}', [GradeController::class, 'gradebook'])->name('grades.gradebook');
+        Route::controller(AssessmentController::class)->group(function (): void {
+            Route::post('/grades/{schoolClass}/{subject}/assessments', 'store')->name('assessments.store');
+            Route::put('/assessments/{assessment}', 'update')->name('assessments.update');
+            Route::delete('/assessments/{assessment}', 'destroy')->name('assessments.destroy');
+            Route::get('/assessments/{assessment}/grades', 'grades')->name('assessments.grades');
+            Route::put('/assessments/{assessment}/grades', 'saveGrades')->name('assessments.grades.update');
+        });
+
+        Route::get('/results/{schoolClass}', [ResultController::class, 'show'])->name('results.show');
+        Route::get('/results/{schoolClass}/{student}', [ResultController::class, 'student'])->name('results.student');
+
+        Route::get('/grade-scale', [GradeScaleController::class, 'edit'])->name('grade-scale.edit');
+        Route::put('/grade-scale', [GradeScaleController::class, 'update'])->name('grade-scale.update');
     });
 });
 

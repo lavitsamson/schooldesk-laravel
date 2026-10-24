@@ -23,6 +23,12 @@ final class DeleteClass
             ]);
         }
 
+        if ($class->assessments()->exists()) {
+            throw ValidationException::withMessages([
+                'class' => 'Assessments have been set in this class, so it is kept as history.',
+            ]);
+        }
+
         // Teaching assignments go with it (cascade).
         $class->delete();
     }

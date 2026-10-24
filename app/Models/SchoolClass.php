@@ -68,6 +68,17 @@ class SchoolClass extends Model
     }
 
     /**
+     * Whether the teacher is assigned to teach the subject in this class.
+     */
+    public function teachesSubject(User $teacher, Subject $subject): bool
+    {
+        return $this->teachingAssignments()
+            ->where('subject_id', $subject->id)
+            ->where('teacher_id', $teacher->id)
+            ->exists();
+    }
+
+    /**
      * @return BelongsTo<AcademicYear, $this>
      */
     public function academicYear(): BelongsTo
@@ -105,5 +116,13 @@ class SchoolClass extends Model
     public function attendanceRecords(): HasMany
     {
         return $this->hasMany(AttendanceRecord::class, 'class_id');
+    }
+
+    /**
+     * @return HasMany<Assessment, $this>
+     */
+    public function assessments(): HasMany
+    {
+        return $this->hasMany(Assessment::class, 'class_id');
     }
 }

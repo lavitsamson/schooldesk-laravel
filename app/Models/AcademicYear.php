@@ -58,6 +58,19 @@ class AcademicYear extends Model
     }
 
     /**
+     * The term to show by default on the date: the one it falls in, else the last one that
+     * has started (holidays between terms), else the first (before the year begins).
+     */
+    public function defaultTerm(CarbonImmutable $date): ?Term
+    {
+        $terms = $this->terms->sortBy('starts_on')->values();
+
+        return $terms->first(fn (Term $term): bool => $date->between($term->starts_on, $term->ends_on))
+            ?? $terms->last(fn (Term $term): bool => $term->starts_on->lte($date))
+            ?? $terms->first();
+    }
+
+    /**
      * @return HasMany<Term, $this>
      */
     public function terms(): HasMany

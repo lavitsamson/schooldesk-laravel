@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web;
 
+use App\Actions\Subjects\DeleteSubject;
 use App\Actions\Subjects\SaveSubject;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Subjects\SaveSubjectRequest;
@@ -51,14 +52,11 @@ class SubjectController extends Controller
         return back()->with('status', 'Subject saved.');
     }
 
-    /**
-     * Its teaching assignments are removed with it.
-     */
-    public function destroy(Subject $subject): RedirectResponse
+    public function destroy(Subject $subject, DeleteSubject $action): RedirectResponse
     {
         Gate::authorize('delete', $subject);
 
-        $subject->delete();
+        $action->handle($subject);
 
         return back()->with('status', "Subject {$subject->name} deleted.");
     }

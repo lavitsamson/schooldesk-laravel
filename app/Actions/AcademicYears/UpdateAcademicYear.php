@@ -7,6 +7,7 @@ namespace App\Actions\AcademicYears;
 use App\Models\AcademicYear;
 use App\Models\Term;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Updates a year and its terms. Terms are matched by id, so existing terms keep their identity
@@ -38,7 +39,17 @@ final class UpdateAcademicYear
                 $keep[] = $term->id;
             }
 
-            Term::query()->where('academic_year_id', $year->id)->whereNotIn('id', $keep)->delete();
+            $removed = Term::query()->where('academic_year_id', $year->id)->whereNotIn('id', $keep);
+
+            $withAssessments = (clone $removed)->whereHas('assessments')->pluck('name');
+            if ($withAssessments->isNotEmpty()) {
+                throw ValidationException::withMessages([
+                    'terms' => "Assessments have been set in {$withAssessments->join(', ', ' and ')}, so "
+                        .($withAssessments->count() === 1 ? 'it' : 'they').' cannot be removed.',
+                ]);
+            }
+
+            $removed->delete();
 
             return $year;
         });

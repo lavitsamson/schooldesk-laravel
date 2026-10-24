@@ -3,15 +3,23 @@
 declare(strict_types=1);
 
 use App\Actions\Members\GrantRole;
+use App\Actions\Setup\ApplyGradeScalePreset;
+use App\Enums\GradeScalePreset;
 use App\Enums\Role;
 use App\Http\Middleware\SetCurrentSchool;
 use App\Models\AcademicYear;
+use App\Models\Enrollment;
 use App\Models\Membership;
 use App\Models\School;
 use App\Models\SchoolClass;
+use App\Models\Student;
+use App\Models\Subject;
+use App\Models\TeachingAssignment;
+use App\Models\Term;
 use App\Models\User;
 use App\Support\CurrentSchool;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Collection;
 use Tests\TestCase;
 
 pest()->extend(TestCase::class)
@@ -69,4 +77,38 @@ function setUpSchool(): array
     $class = SchoolClass::factory()->for($school)->for($year)->create(['name' => 'Grade 7', 'section' => 'A']);
 
     return [$school, $year, $class];
+}
+
+/**
+ * setUpSchool() with the A–F grade scale, two terms, Mathematics taught in Grade 7 A by a
+ * teacher, and three students enrolled there (Ada, Ben, Cleo Test, roll numbers 1–3).
+ *
+ * @return array{school: School, year: AcademicYear, class: SchoolClass, term: Term, nextTerm: Term, subject: Subject, teacher: User, students: Collection<int, Student>}
+ */
+function setUpGradebook(): array
+{
+    [$school, $year, $class] = setUpSchool();
+
+    inSchool($school, fn () => app(ApplyGradeScalePreset::class)->handle(GradeScalePreset::LetterAToF));
+
+    $term = Term::factory()->for($year)->create(['name' => 'Autumn term', 'starts_on' => '2026-08-01', 'ends_on' => '2026-12-18']);
+    $nextTerm = Term::factory()->for($year)->create(['name' => 'Spring term', 'starts_on' => '2027-01-04', 'ends_on' => '2027-03-26']);
+    $subject = Subject::factory()->for($school)->create(['name' => 'Mathematics', 'code' => 'MATH']);
+    $teacher = memberOf($school, Role::Teacher);
+
+    TeachingAssignment::query()->create([
+        'school_id' => $school->id,
+        'class_id' => $class->id,
+        'subject_id' => $subject->id,
+        'teacher_id' => $teacher->id,
+    ]);
+
+    $students = collect(['Ada', 'Ben', 'Cleo'])->map(function (string $name, int $i) use ($school, $class): Student {
+        $student = Student::factory()->for($school)->create(['first_name' => $name, 'last_name' => 'Test']);
+        Enrollment::factory()->for($class, 'schoolClass')->for($student)->create(['roll_no' => $i + 1]);
+
+        return $student;
+    });
+
+    return compact('school', 'year', 'class', 'term', 'nextTerm', 'subject', 'teacher', 'students');
 }

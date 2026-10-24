@@ -7,8 +7,8 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, router, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, router, useForm, usePage } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
 interface Subject {
     id: number;
@@ -41,6 +41,8 @@ const save = () => {
         onSuccess: () => (editingId.value = null),
     });
 };
+
+const pageErrors = computed(() => usePage().props.errors);
 
 const deleting = ref<Subject | null>(null);
 const destroy = () => {
@@ -116,6 +118,8 @@ const destroy = () => {
                         </PrimaryButton>
                     </form>
                 </section>
+
+                <InputError :message="pageErrors.subject" />
 
                 <section
                     class="overflow-x-auto bg-white shadow-xs sm:rounded-lg dark:bg-gray-800"

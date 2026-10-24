@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\AssessmentType;
 use App\Enums\AttendanceStatus;
 use App\Enums\GradeScalePreset;
 use App\Enums\Permission;
@@ -45,6 +46,11 @@ it('counts present and late students as attended', function (): void {
         ->toBe([true, false, true, false])
         ->and(array_map(fn (AttendanceStatus $s): string => $s->code(), AttendanceStatus::cases()))
         ->toBe(['P', 'A', 'L', 'E']);
+});
+
+it('weights exams above tests and tests above assignments by default', function (): void {
+    expect(array_map(fn (AssessmentType $t): string => $t->defaultWeight(), AssessmentType::cases()))
+        ->toBe(['1.00', '2.00', '0.50']);
 });
 
 it('walks the setup steps in order', function (): void {

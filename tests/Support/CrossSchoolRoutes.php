@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Support;
 
 use App\Models\AcademicYear;
+use App\Models\Assessment;
 use App\Models\Guardian;
 use App\Models\ImportBatch;
 use App\Models\Membership;
@@ -12,6 +13,8 @@ use App\Models\School;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\Subject;
+use App\Models\TeachingAssignment;
+use App\Models\User;
 use Closure;
 
 /**
@@ -110,6 +113,17 @@ final class CrossSchoolRoutes
             'attendance.report' => fn (School $other): array => ['get', route('attendance.report', self::schoolClass($other))],
             'attendance.export' => fn (School $other): array => ['get', route('attendance.export', self::schoolClass($other))],
 
+            'grades.gradebook' => fn (School $other): array => ['get', route('grades.gradebook', self::classSubject($other))],
+            'assessments.store' => fn (School $other): array => ['post', route('assessments.store', self::classSubject($other))],
+            'assessments.update' => fn (School $other): array => ['put', route('assessments.update', self::assessment($other))],
+            'assessments.destroy' => fn (School $other): array => ['delete', route('assessments.destroy', self::assessment($other))],
+            'assessments.grades' => fn (School $other): array => ['get', route('assessments.grades', self::assessment($other))],
+            'assessments.grades.update' => fn (School $other): array => ['put', route('assessments.grades.update', self::assessment($other))],
+            'results.show' => fn (School $other): array => ['get', route('results.show', self::schoolClass($other))],
+            'results.student' => fn (School $other): array => [
+                'get', route('results.student', [self::schoolClass($other), self::student($other)]),
+            ],
+
             'imports.show' => fn (School $other): array => ['get', route('imports.show', ImportBatch::factory()->for($other)->create())],
             'imports.error-report' => fn (School $other): array => [
                 'get', route('imports.error-report', ImportBatch::factory()->for($other)->withErrorReport()->create()),
@@ -127,6 +141,32 @@ final class CrossSchoolRoutes
     private static function schoolClass(School $school): SchoolClass
     {
         return SchoolClass::factory()->for($school)->for(self::year($school))->create();
+    }
+
+    /**
+     * A class and a subject taught in it.
+     *
+     * @return array{0: SchoolClass, 1: Subject}
+     */
+    private static function classSubject(School $school): array
+    {
+        $class = self::schoolClass($school);
+        $subject = Subject::factory()->for($school)->create();
+        TeachingAssignment::query()->create([
+            'school_id' => $school->id,
+            'class_id' => $class->id,
+            'subject_id' => $subject->id,
+            'teacher_id' => User::factory()->create()->id,
+        ]);
+
+        return [$class, $subject];
+    }
+
+    private static function assessment(School $school): Assessment
+    {
+        [$class, $subject] = self::classSubject($school);
+
+        return Assessment::factory()->for($class, 'schoolClass')->for($subject)->create();
     }
 
     private static function student(School $school): Student

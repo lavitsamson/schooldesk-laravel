@@ -111,6 +111,14 @@ class Student extends Model
     }
 
     /**
+     * @return HasMany<Grade, $this>
+     */
+    public function grades(): HasMany
+    {
+        return $this->hasMany(Grade::class);
+    }
+
+    /**
      * @return BelongsToMany<Guardian, $this, GuardianStudent>
      */
     public function guardians(): BelongsToMany
