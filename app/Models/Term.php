@@ -6,7 +6,9 @@ namespace App\Models;
 
 use App\Models\Concerns\BelongsToSchool;
 use Carbon\CarbonImmutable;
+use Database\Factories\TermFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -22,6 +24,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Term extends Model
 {
     use BelongsToSchool;
+
+    /** @use HasFactory<TermFactory> */
+    use HasFactory;
 
     /**
      * @return array<string, string>

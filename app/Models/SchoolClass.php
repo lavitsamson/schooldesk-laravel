@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToSchool;
+use App\Policies\SchoolClassPolicy;
 use Database\Factories\SchoolClassFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * A class (e.g. "Grade 7", section "A") in one academic year. Named SchoolClass because
@@ -23,9 +26,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $class_teacher_id
  * @property-read AcademicYear $academicYear
  * @property-read User|null $classTeacher
+ * @property-read int|null $enrollments_count
+ * @property-read int|null $teaching_assignments_count
  */
 #[Table('classes')]
 #[Fillable(['school_id', 'academic_year_id', 'name', 'section', 'class_teacher_id'])]
+#[UsePolicy(SchoolClassPolicy::class)]
 class SchoolClass extends Model
 {
     use BelongsToSchool;
@@ -52,5 +58,21 @@ class SchoolClass extends Model
     public function classTeacher(): BelongsTo
     {
         return $this->belongsTo(User::class, 'class_teacher_id');
+    }
+
+    /**
+     * @return HasMany<Enrollment, $this>
+     */
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(Enrollment::class, 'class_id');
+    }
+
+    /**
+     * @return HasMany<TeachingAssignment, $this>
+     */
+    public function teachingAssignments(): HasMany
+    {
+        return $this->hasMany(TeachingAssignment::class, 'class_id');
     }
 }

@@ -26,4 +26,17 @@ class AcademicYearFactory extends Factory
             'is_current' => true,
         ];
     }
+
+    /**
+     * The year after the default one, not current yet (the target of a promotion).
+     */
+    public function next(): static
+    {
+        return $this->state(fn (): array => [
+            'name' => '2027/28',
+            'starts_on' => '2027-08-01',
+            'ends_on' => '2028-07-31',
+            'is_current' => false,
+        ]);
+    }
 }

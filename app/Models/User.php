@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\MembershipStatus;
+use App\Enums\Role;
+use App\Support\CurrentSchool;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -53,6 +57,21 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasPassword(): bool
     {
         return $this->password !== null;
+    }
+
+    /**
+     * Active members of the current school who hold the teacher role there. spatie reads the
+     * role's school from CurrentSchool, so this only works inside a school context.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function teachers(Builder $query): void
+    {
+        $query->whereHas('memberships', fn (Builder $q) => $q
+            ->where('school_id', app(CurrentSchool::class)->id())
+            ->where('status', MembershipStatus::Active))
+            ->role(Role::Teacher);
     }
 
     /**
