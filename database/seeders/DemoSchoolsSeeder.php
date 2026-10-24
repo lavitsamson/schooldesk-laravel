@@ -21,7 +21,8 @@ use Illuminate\Database\Seeder;
 
 /**
  * The two demo schools, set up through the same actions as the setup wizard, with teachers,
- * students and guardians (DemoRosterSeeder). Attendance and grades come with later milestones.
+ * students and guardians (DemoRosterSeeder) and attendance (DemoAttendanceSeeder). Grades
+ * come with a later milestone.
  */
 class DemoSchoolsSeeder extends Seeder
 {
@@ -31,6 +32,7 @@ class DemoSchoolsSeeder extends Seeder
         private readonly CurrentSchool $currentSchool,
         private readonly GrantRole $grantRole,
         private readonly DemoRosterSeeder $roster,
+        private readonly DemoAttendanceSeeder $attendance,
     ) {}
 
     public function run(): void
@@ -79,6 +81,9 @@ class DemoSchoolsSeeder extends Seeder
             'children' => ['Pia' => 'Grade 7 A', 'Lotta' => 'Grade 5 B'],
         ]);
         $this->roster->seedSchool($gymnasium, 'GAM', 10, $gymnasiumTeachers, 'MA');
+
+        $this->attendance->seedSchool($riverside);
+        $this->attendance->seedSchool($gymnasium);
     }
 
     /**
