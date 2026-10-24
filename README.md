@@ -10,7 +10,8 @@ Rebuilt from a school management system the author built in PHP and ran in a rea
 
 ## Live demo
 
-Coming with the release milestone. Demo logins (password `DemoPass123!`):
+Coming with the release milestone. Locally, `migrate:fresh --seed` creates these logins
+(password `DemoPass123!`):
 
 | Role | Email |
 |---|---|
@@ -25,10 +26,14 @@ _Coming soon._
 
 ## Features
 
-Planned for v1:
+Available now:
 
-- **Multi-school tenancy.** One database, strict per-school isolation, users who belong to several schools.
-- **Roles.** Platform admin, school admin, teacher and parent, enforced with policies.
+- **Multi-school tenancy.** One database, with strict per-school isolation that fails closed. Users can belong to several schools and switch between them.
+- **Roles.** School admin, teacher and parent, scoped per school (spatie teams mode) and enforced with policies. Platform admin is a separate flag.
+- **Onboarding.** Signing up creates a school. A setup wizard then covers school details, academic year and terms, classes, subjects and the grade scale (A–F or German 1–6).
+- **Invitations.** Admins invite teachers, parents and other admins by email with signed links that expire. Re-sending a link invalidates the old one.
+
+Planned for v1:
 - **Students and guardians.** Search, filters, bulk actions, a queued CSV/XLSX import with an error report, and promotion to the next year.
 - **Attendance.** A one-click grid, absence notifications to guardians, and monthly reports.
 - **Assessments and grades.** A spreadsheet-like grade entry grid, with A–F or German 1–6 grade scales.
@@ -104,6 +109,9 @@ docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/var/www/html" -w /var/www/htm
 
 The app runs at <http://localhost>. Mailpit runs at <http://localhost:8025>.
 
+Invitation emails are queued. Until Horizon arrives in a later milestone, run a worker with
+`./vendor/bin/sail artisan queue:work` to send them.
+
 > **Windows:** keep the project inside the WSL2 filesystem (e.g. `~/code/schooldesk`). Serving it
 > from a Windows-mounted folder (`/mnt/c/...`) makes every request take several seconds.
 >
@@ -120,8 +128,15 @@ The app runs at <http://localhost>. Mailpit runs at <http://localhost:8025>.
 E2E_BASE_URL=http://localhost npx playwright test   # Playwright against the running app
 ```
 
-Set `E2E_EXPECT_TIMEOUT=30000` if the local app is slow. Without `E2E_BASE_URL`, Playwright starts
+The E2E tests expect the demo seed (`migrate:fresh --seed`). If the local app is slow (Sail on a
+Windows-mounted folder), set `E2E_EXPECT_TIMEOUT=90000` and run with `--workers=1`: Sail's dev
+server handles one request at a time. Without `E2E_BASE_URL`, Playwright starts
 `php artisan serve` itself, which is what CI does.
+
+**Tenant isolation.** [`tests/Support/CrossSchoolRoutes.php`](tests/Support/CrossSchoolRoutes.php)
+lists, for every route with a parameter, a request for another school's record. Each must return 404.
+A guard test fails when a new route is neither listed nor explicitly exempted. A second guard
+checks that every model with a `school_id` column uses `BelongsToSchool`.
 
 Pest runs against a real database (the `testing` database Sail creates), not SQLite, so behaviour
 matches production. CI runs the suite on both **MySQL 8.4** and **PostgreSQL 17**.
@@ -131,6 +146,7 @@ matches production. CI runs the suite on both **MySQL 8.4** and **PostgreSQL 17*
 | ADR | Summary |
 |---|---|
 | [0001 — Multi-tenancy](docs/adr/0001-multi-tenancy.md) | Shared database with `school_id` and a fail-closed `BelongsToSchool` global scope, instead of database-per-tenant. Simple to run on one VPS and works on MySQL and PostgreSQL. Isolation is proven by a cross-school 404 test suite. |
+| [0002 — Roles and permissions](docs/adr/0002-roles-and-permissions.md) | spatie/laravel-permission in teams mode, with the team id read from `CurrentSchool` so role checks can never target a different school than the data scope. Roles and permissions are enums, synced by a migration. |
 
 ## Security and GDPR
 

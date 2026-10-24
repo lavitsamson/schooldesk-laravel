@@ -15,13 +15,14 @@
 
 ## 2. Tenancy & roles
 
-- [ ] Schools, memberships (`school_user`)
-- [ ] `BelongsToSchool` trait, `CurrentSchool`, `SetCurrentSchool` middleware
-- [ ] spatie/laravel-permission in teams mode
-- [ ] Policy skeletons
-- [ ] Invitations (signed, expiring links)
-- [ ] Setup wizard
-- [ ] Tenant isolation test harness
+- [x] Schools, memberships (`school_user`), school switcher
+- [x] `BelongsToSchool` trait (fail-closed), `CurrentSchool`, `SetCurrentSchool` + `EnsureSchoolMembership` middleware
+- [x] spatie/laravel-permission in teams mode, team id read from `CurrentSchool` (ADR 0002)
+- [x] Policy skeletons (`SchoolPolicy`, `MembershipPolicy`)
+- [x] Invitations (signed, expiring links; re-sending invalidates older links)
+- [x] Setup wizard (school details → academic year & terms → classes → subjects → grade scale)
+- [x] Tenant isolation test harness (cross-school 404 cases + a guard test for uncovered routes)
+- [x] Demo seed: Riverside International School and Gymnasium am Main with demo logins
 
 ## 3. Structure & students
 
