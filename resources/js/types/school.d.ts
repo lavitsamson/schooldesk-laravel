@@ -176,3 +176,104 @@ export interface ImportFailure {
     name: string;
     errors: string[];
 }
+
+export interface TermOption {
+    id: number;
+    name: string;
+    starts_on: string;
+    ends_on: string;
+}
+
+export type AssessmentType = 'test' | 'exam' | 'assignment';
+
+export interface GradebookClass {
+    id: number;
+    name: string;
+    is_class_teacher: boolean;
+    can_view_results: boolean;
+    subjects: {
+        id: number;
+        name: string;
+        code: string;
+        teacher: string | null;
+        assessments_count: number;
+    }[];
+}
+
+export interface AssessmentColumn {
+    id: number;
+    name: string;
+    type: AssessmentType;
+    type_label: string;
+    held_on: string;
+    max_marks: number;
+    weight: string;
+    graded_count: number;
+}
+
+/** A percentage with two decimals ("86.50") and its grade label, or nulls without marks. */
+export interface Result {
+    percentage: string | null;
+    grade: string | null;
+}
+
+export interface GradebookStudent extends Result {
+    id: number;
+    roll_no: number | null;
+    name: string;
+    /** Assessment id => marks. */
+    marks: Record<string, string | null>;
+}
+
+export interface GradeSheetStudent {
+    id: number;
+    roll_no: number | null;
+    name: string;
+    admission_no: string;
+    marks: string | null;
+    remarks: string | null;
+}
+
+export interface ClassResultsStudent {
+    id: number;
+    name: string;
+    admission_no: string;
+    /** Subject id => result. */
+    results: Record<string, Result>;
+    overall: Result;
+    attendance_rate: number | null;
+}
+
+export interface ReportCardSubject extends Result {
+    id: number;
+    name: string;
+    code: string;
+    graded: number;
+    assessments_count: number;
+    assessments: {
+        id: number;
+        name: string;
+        type: AssessmentType;
+        held_on: string;
+        max_marks: number;
+        weight: string;
+        marks: string | null;
+        remarks: string | null;
+    }[];
+}
+
+export interface ReportCardSnapshot {
+    student: {
+        id: number;
+        first_name: string;
+        last_name: string;
+        admission_no: string;
+    };
+    class: IdName | null;
+    term: TermOption;
+    subjects: ReportCardSubject[];
+    overall: Result;
+    attendance: AttendanceCounts & { days: number; rate: number | null };
+    grade_scale: { label: string; min_percent: string; max_percent: string }[];
+    calculated_at: string;
+}

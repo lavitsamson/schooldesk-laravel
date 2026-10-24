@@ -24,6 +24,12 @@ const links = computed(() =>
             permission: 'attendance.take',
         },
         {
+            label: 'Grades',
+            route: 'grades.index',
+            active: ['grades.*', 'assessments.*', 'results.*', 'grade-scale.*'],
+            permission: 'grades.enter',
+        },
+        {
             label: 'Students',
             route: 'students.index',
             active: 'students.*',
@@ -61,6 +67,9 @@ const links = computed(() =>
         },
     ].filter((link) => !link.permission || can(link.permission)),
 );
+
+const isActive = (patterns: string | string[]) =>
+    [patterns].flat().some((pattern) => route().current(pattern));
 </script>
 
 <template>
@@ -90,7 +99,7 @@ const links = computed(() =>
                                     v-for="link in links"
                                     :key="link.route"
                                     :href="route(link.route)"
-                                    :active="route().current(link.active)"
+                                    :active="isActive(link.active)"
                                 >
                                     {{ link.label }}
                                 </NavLink>
@@ -203,7 +212,7 @@ const links = computed(() =>
                             v-for="link in links"
                             :key="link.route"
                             :href="route(link.route)"
-                            :active="route().current(link.active)"
+                            :active="isActive(link.active)"
                         >
                             {{ link.label }}
                         </ResponsiveNavLink>
