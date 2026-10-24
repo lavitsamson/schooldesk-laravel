@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\AcademicYearController;
+use App\Http\Controllers\Web\AttendanceController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\GuardianController;
 use App\Http\Controllers\Web\ImportController;
@@ -116,6 +117,15 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 
         Route::get('/promotions/create', [PromotionController::class, 'create'])->name('promotions.create');
         Route::post('/promotions', [PromotionController::class, 'store'])->name('promotions.store');
+
+        // Attendance
+        Route::controller(AttendanceController::class)->prefix('attendance')->group(function (): void {
+            Route::get('/', 'index')->name('attendance.index');
+            Route::get('/{schoolClass}/report', 'report')->name('attendance.report');
+            Route::get('/{schoolClass}/report/export', 'export')->name('attendance.export');
+            Route::get('/{schoolClass}/{date}', 'show')->where('date', '\d{4}-\d{2}-\d{2}')->name('attendance.show');
+            Route::put('/{schoolClass}/{date}', 'update')->where('date', '\d{4}-\d{2}-\d{2}')->name('attendance.update');
+        });
     });
 });
 

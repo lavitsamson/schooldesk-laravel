@@ -16,4 +16,9 @@ return [
         'keep_days' => (int) env('IMPORT_KEEP_DAYS', 30),
     ],
 
+    'attendance' => [
+        // Absence mails wait this long, so a wrong mark corrected straight away is never sent.
+        'absence_notification_delay_minutes' => (int) env('ABSENCE_NOTIFICATION_DELAY_MINUTES', 10),
+    ],
+
 ];

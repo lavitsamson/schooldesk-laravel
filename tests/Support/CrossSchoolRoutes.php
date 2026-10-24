@@ -101,6 +101,15 @@ final class CrossSchoolRoutes
             'guardians.destroy' => fn (School $other): array => ['delete', route('guardians.destroy', self::guardian($other))],
             'guardians.invite' => fn (School $other): array => ['post', route('guardians.invite', self::guardian($other))],
 
+            'attendance.show' => fn (School $other): array => [
+                'get', route('attendance.show', [self::schoolClass($other), '2026-10-01']),
+            ],
+            'attendance.update' => fn (School $other): array => [
+                'put', route('attendance.update', [self::schoolClass($other), '2026-10-01']),
+            ],
+            'attendance.report' => fn (School $other): array => ['get', route('attendance.report', self::schoolClass($other))],
+            'attendance.export' => fn (School $other): array => ['get', route('attendance.export', self::schoolClass($other))],
+
             'imports.show' => fn (School $other): array => ['get', route('imports.show', ImportBatch::factory()->for($other)->create())],
             'imports.error-report' => fn (School $other): array => [
                 'get', route('imports.error-report', ImportBatch::factory()->for($other)->withErrorReport()->create()),

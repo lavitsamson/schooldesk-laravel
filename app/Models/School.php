@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\Locale;
 use App\Enums\MembershipStatus;
 use App\Policies\SchoolPolicy;
+use Carbon\CarbonImmutable;
 use Database\Factories\SchoolFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
@@ -51,6 +52,16 @@ class School extends Model
     public function isSetUp(): bool
     {
         return $this->setup_completed_at !== null;
+    }
+
+    /**
+     * Today in the school's timezone: just after midnight in Frankfurt it is already
+     * tomorrow there, while the server (UTC) still says today. Returned as midnight in the
+     * app timezone, so it compares directly with date columns.
+     */
+    public function today(): CarbonImmutable
+    {
+        return CarbonImmutable::parse(CarbonImmutable::now($this->timezone)->toDateString());
     }
 
     /**

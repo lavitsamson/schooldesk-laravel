@@ -17,6 +17,12 @@ final class DeleteClass
             ]);
         }
 
+        if ($class->attendanceRecords()->exists()) {
+            throw ValidationException::withMessages([
+                'class' => 'Attendance has been taken in this class, so it is kept as history.',
+            ]);
+        }
+
         // Teaching assignments go with it (cascade).
         $class->delete();
     }

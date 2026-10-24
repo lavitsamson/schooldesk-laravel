@@ -18,6 +18,12 @@ const links = computed(() =>
     [
         { label: 'Dashboard', route: 'dashboard', active: 'dashboard' },
         {
+            label: 'Attendance',
+            route: 'attendance.index',
+            active: 'attendance.*',
+            permission: 'attendance.take',
+        },
+        {
             label: 'Students',
             route: 'students.index',
             active: 'students.*',

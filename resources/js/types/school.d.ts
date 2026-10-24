@@ -128,6 +128,48 @@ export interface ImportColumn {
     description: string;
 }
 
+export type AttendanceStatus = 'present' | 'absent' | 'late' | 'excused';
+
+export interface AttendanceClass {
+    id: number;
+    name: string;
+    students_count: number;
+    recorded_count: number;
+    is_class_teacher: boolean;
+}
+
+export interface AttendanceStudent {
+    id: number;
+    roll_no: number | null;
+    name: string;
+    admission_no: string;
+    status: AttendanceStatus | null;
+    note: string | null;
+}
+
+export interface AttendanceCounts {
+    present: number;
+    absent: number;
+    late: number;
+    excused: number;
+}
+
+export interface AttendanceReport {
+    days: string[];
+    students: {
+        id: number;
+        roll_no: number | null;
+        name: string;
+        admission_no: string;
+        /** Date (YYYY-MM-DD) => status letter (P, A, L, E). */
+        statuses: Record<string, string>;
+        totals: AttendanceCounts;
+        rate: number | null;
+    }[];
+    daily: (AttendanceCounts & { date: string })[];
+    totals: AttendanceCounts & { rate: number | null };
+}
+
 export interface ImportFailure {
     row: number;
     admission_no: string | null;

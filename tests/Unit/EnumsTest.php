@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\AttendanceStatus;
 use App\Enums\GradeScalePreset;
 use App\Enums\Permission;
 use App\Enums\Role;
@@ -38,6 +39,13 @@ it('keeps teachers and parents away from school administration', function (Role 
         ->not->toContain(Permission::ManageFees)
         ->not->toContain(Permission::ViewAuditLog);
 })->with([Role::Teacher, Role::Parent]);
+
+it('counts present and late students as attended', function (): void {
+    expect(array_map(fn (AttendanceStatus $s): bool => $s->countsAsAttended(), AttendanceStatus::cases()))
+        ->toBe([true, false, true, false])
+        ->and(array_map(fn (AttendanceStatus $s): string => $s->code(), AttendanceStatus::cases()))
+        ->toBe(['P', 'A', 'L', 'E']);
+});
 
 it('walks the setup steps in order', function (): void {
     expect(SetupStep::SchoolDetails->next())->toBe(SetupStep::AcademicYear)

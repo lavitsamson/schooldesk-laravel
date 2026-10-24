@@ -8,6 +8,8 @@ use App\Models\Concerns\BelongsToSchool;
 use Carbon\CarbonImmutable;
 use Database\Factories\EnrollmentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -43,6 +45,33 @@ class Enrollment extends Model
             'enrolled_on' => 'immutable_date',
             'left_on' => 'immutable_date',
         ];
+    }
+
+    /**
+     * Enrolments a student attends on the date: started by then and not yet left (a student
+     * marked as left today is no longer expected today). Deleted students are left out.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function activeOn(Builder $query, CarbonImmutable $date): void
+    {
+        $query->where('enrolled_on', '<=', $date->toDateString())
+            ->where(fn (Builder $q) => $q->whereNull('left_on')->orWhere('left_on', '>', $date->toDateString()))
+            ->whereHas('student');
+    }
+
+    /**
+     * Enrolments active on at least one day between the two dates.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function activeBetween(Builder $query, CarbonImmutable $from, CarbonImmutable $to): void
+    {
+        $query->where('enrolled_on', '<=', $to->toDateString())
+            ->where(fn (Builder $q) => $q->whereNull('left_on')->orWhere('left_on', '>', $from->toDateString()))
+            ->whereHas('student');
     }
 
     /**
