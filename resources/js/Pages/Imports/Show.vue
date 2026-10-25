@@ -87,7 +87,7 @@ watch(
                         >
                             {{
                                 $t(
-                                    ':processed of :total rows processed (:progress %)',
+                                    ':processed of :total rows processed (:progress%)',
                                     {
                                         processed: String(batch.processed_rows),
                                         total: String(batch.total_rows),

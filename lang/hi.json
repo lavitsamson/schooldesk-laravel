@@ -21,7 +21,7 @@
     ":number · due :date": ":number · देय :date",
     ":overdue overdue": ":overdue बकाया",
     ":paid / :count paid": ":count में से :paid भुगतान",
-    ":processed of :total rows processed (:progress %)": ":total में से :processed पंक्तियाँ संसाधित (:progress %)",
+    ":processed of :total rows processed (:progress%)": ":total में से :processed पंक्तियाँ संसाधित (:progress %)",
     ":promoted promoted · :graduated graduate · :staying not promoted": ":promoted पदोन्नत · :graduated उत्तीर्ण · :staying पदोन्नत नहीं",
     ":recorded of :count recorded": ":count में से :recorded दर्ज",
     ":share % · :paid paid in full": ":share % · :paid पूरी तरह भुगतान",

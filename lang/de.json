@@ -21,7 +21,7 @@
     ":number · due :date": ":number · fällig am :date",
     ":overdue overdue": ":overdue überfällig",
     ":paid / :count paid": ":paid / :count bezahlt",
-    ":processed of :total rows processed (:progress %)": ":processed von :total Zeilen verarbeitet (:progress %)",
+    ":processed of :total rows processed (:progress%)": ":processed von :total Zeilen verarbeitet (:progress %)",
     ":promoted promoted · :graduated graduate · :staying not promoted": ":promoted versetzt · :graduated Abschluss · :staying nicht versetzt",
     ":recorded of :count recorded": ":recorded von :count erfasst",
     ":share % · :paid paid in full": ":share % · :paid vollständig bezahlt",
