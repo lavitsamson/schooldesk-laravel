@@ -77,6 +77,9 @@ class HandleInertiaRequests extends Middleware
             'id' => $school->id,
             'name' => $school->name,
             'setup_completed' => $school->isSetUp(),
+            // Money arrives as minor units; the frontend formats it in the school's currency.
+            'currency' => $school->currency,
+            'locale' => $school->locale->value,
             'roles' => $user->getRoleNames()
                 ->map(fn (string $name): string => Role::tryFrom($name)?->label() ?? $name)
                 ->values()

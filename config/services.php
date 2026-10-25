@@ -40,6 +40,16 @@ return [
         'timeout' => (int) env('ANTHROPIC_TIMEOUT', 30),
     ],
 
+    // Fee payments (test mode). Without a secret key, online payment is switched off and
+    // admins record cash and bank payments only. The webhook secret comes from the dashboard
+    // or from `stripe listen`.
+    'stripe' => [
+        'secret' => env('STRIPE_SECRET'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+        // Seconds a webhook signature stays valid (protects against replayed requests).
+        'webhook_tolerance' => (int) env('STRIPE_WEBHOOK_TOLERANCE', 300),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

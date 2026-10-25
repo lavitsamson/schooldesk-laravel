@@ -6,9 +6,12 @@ namespace Tests\Support;
 
 use App\Models\AcademicYear;
 use App\Models\Assessment;
+use App\Models\FeeStructure;
 use App\Models\Guardian;
 use App\Models\ImportBatch;
+use App\Models\Invoice;
 use App\Models\Membership;
+use App\Models\Payment;
 use App\Models\ReportCard;
 use App\Models\School;
 use App\Models\SchoolClass;
@@ -141,6 +144,19 @@ final class CrossSchoolRoutes
                 'get', URL::temporarySignedRoute('report-cards.pdf', now()->addMinutes(5), ['reportCard' => self::reportCard($other)]),
             ],
 
+            'fee-structures.update' => fn (School $other): array => ['put', route('fee-structures.update', FeeStructure::factory()->for(self::year($other))->create())],
+            'fee-structures.destroy' => fn (School $other): array => ['delete', route('fee-structures.destroy', FeeStructure::factory()->for(self::year($other))->create())],
+            'invoices.show' => fn (School $other): array => ['get', route('invoices.show', self::invoice($other))],
+            'invoices.void' => fn (School $other): array => ['post', route('invoices.void', self::invoice($other))],
+            'invoices.checkout' => fn (School $other): array => ['post', route('invoices.checkout', self::invoice($other))],
+            'invoices.payments.store' => fn (School $other): array => ['post', route('invoices.payments.store', self::invoice($other))],
+            'invoices.pdf' => fn (School $other): array => [
+                'get', URL::temporarySignedRoute('invoices.pdf', now()->addMinutes(5), ['invoice' => self::invoice($other)]),
+            ],
+            'payments.receipt' => fn (School $other): array => [
+                'get', URL::temporarySignedRoute('payments.receipt', now()->addMinutes(5), ['payment' => Payment::factory()->for(self::invoice($other))->create()]),
+            ],
+
             'imports.show' => fn (School $other): array => ['get', route('imports.show', ImportBatch::factory()->for($other)->create())],
             'imports.error-report' => fn (School $other): array => [
                 'get', route('imports.error-report', ImportBatch::factory()->for($other)->withErrorReport()->create()),
@@ -189,6 +205,11 @@ final class CrossSchoolRoutes
     private static function reportCard(School $school): ReportCard
     {
         return ReportCard::factory()->for(self::schoolClass($school), 'schoolClass')->create();
+    }
+
+    private static function invoice(School $school): Invoice
+    {
+        return Invoice::factory()->for(self::student($school))->create();
     }
 
     private static function student(School $school): Student

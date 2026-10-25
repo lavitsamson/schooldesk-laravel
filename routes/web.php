@@ -7,12 +7,17 @@ use App\Http\Controllers\Web\AcademicYearController;
 use App\Http\Controllers\Web\AssessmentController;
 use App\Http\Controllers\Web\AttendanceController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\FamilyInvoiceController;
+use App\Http\Controllers\Web\FeeController;
+use App\Http\Controllers\Web\FeeStructureController;
 use App\Http\Controllers\Web\GradeController;
 use App\Http\Controllers\Web\GradeScaleController;
 use App\Http\Controllers\Web\GuardianController;
 use App\Http\Controllers\Web\ImportController;
 use App\Http\Controllers\Web\InvitationController;
+use App\Http\Controllers\Web\InvoiceController;
 use App\Http\Controllers\Web\MemberController;
+use App\Http\Controllers\Web\PaymentController;
 use App\Http\Controllers\Web\PromotionController;
 use App\Http\Controllers\Web\ReportCardCommentController;
 use App\Http\Controllers\Web\ReportCardController;
@@ -169,6 +174,26 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
         Route::post('/report-cards/{reportCard}/ai-draft', [ReportCardCommentController::class, 'draft'])
             ->middleware('throttle:ai-drafts')
             ->name('report-cards.ai-draft');
+
+        // Fees and payments
+        Route::get('/fees', [FeeController::class, 'index'])->name('fees.index');
+        Route::post('/fees/generate', [FeeController::class, 'generate'])->name('fees.generate');
+        Route::controller(FeeStructureController::class)->prefix('fees/structures')->group(function (): void {
+            Route::get('/', 'index')->name('fee-structures.index');
+            Route::post('/', 'store')->name('fee-structures.store');
+            Route::put('/{feeStructure}', 'update')->name('fee-structures.update');
+            Route::delete('/{feeStructure}', 'destroy')->name('fee-structures.destroy');
+        });
+        Route::get('/family/invoices', FamilyInvoiceController::class)->name('family.invoices');
+        Route::controller(InvoiceController::class)->prefix('invoices')->group(function (): void {
+            Route::get('/', 'index')->name('invoices.index');
+            Route::get('/{invoice}', 'show')->name('invoices.show');
+            Route::get('/{invoice}/pdf', 'pdf')->middleware('signed')->name('invoices.pdf');
+            Route::post('/{invoice}/void', 'void')->name('invoices.void');
+            Route::post('/{invoice}/checkout', 'checkout')->middleware('throttle:checkout')->name('invoices.checkout');
+        });
+        Route::post('/invoices/{invoice}/payments', [PaymentController::class, 'store'])->name('invoices.payments.store');
+        Route::get('/payments/{payment}/receipt', [PaymentController::class, 'receipt'])->middleware('signed')->name('payments.receipt');
     });
 });
 

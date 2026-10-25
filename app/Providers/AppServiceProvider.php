@@ -7,6 +7,7 @@ namespace App\Providers;
 use App\Services\Llm\AnthropicLlmClient;
 use App\Services\Llm\FakeLlmClient;
 use App\Services\Llm\LlmClient;
+use App\Services\StripeService;
 use App\Support\CurrentSchool;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
@@ -46,6 +47,13 @@ class AppServiceProvider extends ServiceProvider
                 $config['timeout'],
             );
         });
+
+        $this->app->singleton(StripeService::class, function (): StripeService {
+            /** @var array{secret: string|null, webhook_secret: string|null, webhook_tolerance: int} $config */
+            $config = config('services.stripe');
+
+            return new StripeService($config['secret'], $config['webhook_secret'], $config['webhook_tolerance']);
+        });
     }
 
     /**
@@ -63,6 +71,10 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('imports', fn (Request $request): Limit => Limit::perHour(30)
             ->by('imports:school:'.($this->app->make(CurrentSchool::class)->idOrNull() ?? $request->ip())));
+
+        // Every attempt creates a Stripe Checkout session.
+        RateLimiter::for('checkout', fn (Request $request): Limit => Limit::perMinute(10)
+            ->by('checkout:user:'.($request->user()?->getAuthIdentifier() ?? $request->ip())));
 
         RateLimiter::for('ai-drafts', fn (Request $request): Limit => Limit::perHour((int) config('schooldesk.report_cards.ai_drafts_per_hour'))
             ->by('ai-drafts:school:'.($this->app->make(CurrentSchool::class)->idOrNull() ?? $request->ip())));

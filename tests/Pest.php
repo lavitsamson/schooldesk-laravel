@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Actions\Fees\GenerateTermInvoices;
 use App\Actions\Members\GrantRole;
 use App\Actions\ReportCards\SaveReportCardSnapshot;
 use App\Actions\Setup\ApplyGradeScalePreset;
@@ -11,7 +12,9 @@ use App\Http\Middleware\SetCurrentSchool;
 use App\Models\AcademicYear;
 use App\Models\Assessment;
 use App\Models\Enrollment;
+use App\Models\FeeStructure;
 use App\Models\Grade;
+use App\Models\Guardian;
 use App\Models\Membership;
 use App\Models\ReportCard;
 use App\Models\School;
@@ -24,6 +27,7 @@ use App\Models\User;
 use App\Support\CurrentSchool;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 pest()->extend(TestCase::class)
@@ -135,6 +139,67 @@ function setUpReportCards(): array
     Grade::factory()->for($assessment)->for($setup['students'][1])->create(['marks' => '12']);
 
     return [...$setup, 'classTeacher' => $classTeacher, 'assessment' => $assessment];
+}
+
+/**
+ * setUpSchool() with fees: two terms (autumn starting 2026-08-17, spring 2027-01-04), a second
+ * class (Grade 8 A), a tuition fee of 1,200.00 per term for every class, and three students:
+ * Ada and Ben in Grade 7 A, Cleo in Grade 8 A. Ada's primary guardian has a parent account.
+ *
+ * @return array{school: School, year: AcademicYear, class: SchoolClass, otherClass: SchoolClass, term: Term, nextTerm: Term, tuition: FeeStructure, admin: User, parent: User, students: Collection<int, Student>}
+ */
+function setUpFees(): array
+{
+    [$school, $year, $class] = setUpSchool();
+    $otherClass = SchoolClass::factory()->for($school)->for($year)->create(['name' => 'Grade 8', 'section' => 'A']);
+    $term = Term::factory()->for($year)->create(['name' => 'Autumn term', 'starts_on' => '2026-08-17', 'ends_on' => '2026-12-18']);
+    $nextTerm = Term::factory()->for($year)->create(['name' => 'Spring term', 'starts_on' => '2027-01-04', 'ends_on' => '2027-03-26']);
+    $tuition = FeeStructure::factory()->for($year)->create(['name' => 'Tuition', 'amount' => 120_000, 'due_day_offset' => 14]);
+    $admin = memberOf($school, Role::SchoolAdmin);
+    $parent = memberOf($school, Role::Parent);
+
+    $students = collect([['Ada', $class], ['Ben', $class], ['Cleo', $otherClass]])->map(function (array $row, int $i) use ($school): Student {
+        [$name, $schoolClass] = $row;
+        $student = Student::factory()->for($school)->create(['first_name' => $name, 'last_name' => 'Test']);
+        Enrollment::factory()->for($schoolClass, 'schoolClass')->for($student)->create(['roll_no' => $i + 1, 'enrolled_on' => '2026-08-17']);
+
+        return $student;
+    });
+
+    $students[0]->guardians()->attach(
+        Guardian::factory()->for($school)->create(['user_id' => $parent->id, 'email' => $parent->email]),
+        ['is_primary' => true],
+    );
+
+    return compact('school', 'year', 'class', 'otherClass', 'term', 'nextTerm', 'tuition', 'admin', 'parent', 'students');
+}
+
+/**
+ * Generates a term's invoices as the daily run would, without queueing notifications.
+ */
+function generateInvoices(School $school, Term $term): int
+{
+    return inSchool($school, fn () => app(GenerateTermInvoices::class)->handle($term, notify: false));
+}
+
+/**
+ * Posts a Stripe event to the webhook, signed with the configured secret as Stripe would.
+ *
+ * @param  array<string, mixed>  $event
+ */
+function stripeWebhook(array $event, ?string $secret = null, ?int $timestamp = null): TestResponse
+{
+    $payload = (string) json_encode($event);
+    $timestamp ??= time();
+    $signature = hash_hmac('sha256', "{$timestamp}.{$payload}", $secret ?? (string) config('services.stripe.webhook_secret'));
+
+    /** @var TestCase $test */
+    $test = test();
+
+    return $test->call('POST', route('webhooks.stripe'), [], [], [], [
+        'CONTENT_TYPE' => 'application/json',
+        'HTTP_STRIPE_SIGNATURE' => "t={$timestamp},v1={$signature}",
+    ], $payload);
 }
 
 /**

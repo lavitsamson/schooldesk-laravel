@@ -28,4 +28,13 @@ return [
         'ai_drafts_per_hour' => (int) env('AI_DRAFTS_PER_HOUR', 100),
     ],
 
+    'fees' => [
+        // The daily run invoices terms that start within this many days.
+        'generate_days_ahead' => (int) env('FEES_GENERATE_DAYS_AHEAD', 14),
+        // Overdue reminders go out this many days after the due date (once each).
+        'reminder_days' => [3, 10],
+        // Invoice numbers: SD-2026-000123.
+        'invoice_prefix' => env('FEES_INVOICE_PREFIX', 'SD'),
+    ],
+
 ];
