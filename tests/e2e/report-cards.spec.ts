@@ -86,6 +86,11 @@ test('parents cannot open the staff report card pages', async ({ page }) => {
     await login(page, 'parent@riverside.demo');
 
     // Parents read published report cards in the portal (parent-portal.spec.ts).
+    await expect(
+        page
+            .getByRole('navigation', { name: 'Main' })
+            .getByRole('link', { name: 'Report cards' }),
+    ).toHaveCount(0);
     const response = await page.goto('/report-cards');
     expect(response?.status()).toBe(403);
 });

@@ -78,7 +78,13 @@ test('a teacher reads the monthly report of their class', async ({ page }) => {
 test('parents cannot take attendance', async ({ page }) => {
     await login(page, 'parent@riverside.demo');
 
-    await expect(page.getByRole('link', { name: 'Attendance' })).toHaveCount(0);
+    // The main navigation has no attendance taking; the family overview links to each
+    // child's own attendance calendar instead.
+    await expect(
+        page
+            .getByRole('navigation', { name: 'Main' })
+            .getByRole('link', { name: 'Attendance' }),
+    ).toHaveCount(0);
     const response = await page.goto('/attendance');
     expect(response?.status()).toBe(403);
 });
