@@ -10,6 +10,7 @@
         "format": "prettier --write resources/ tests/e2e/ *.config.{js,ts}",
         "format:check": "prettier --check resources/ tests/e2e/ *.config.{js,ts}",
         "typecheck": "vue-tsc --noEmit",
+        "i18n:check": "node scripts/check-translations.mjs",
         "test:e2e": "playwright test"
     },
     "devDependencies": {
