@@ -61,7 +61,13 @@
 
 ## 7. Report cards & AI
 
-- [ ] Batch generation, PDF, approval flow, AI drafts with data minimisation
+- [x] Report cards as stored snapshots: draft → approved (frozen, PDF rendered) → published; reopen until published (ADR 0007)
+- [x] Class batch generation on the `reports` queue (Laravel job batch, one job per student) with polled progress
+- [x] Comment editor with previous/next student, recalculation of drafts, publish one or all approved (guardians notified)
+- [x] PDF with dompdf on the private disk, signed and authorised downloads, watermarked draft preview
+- [x] AI comment drafts behind `LlmClient` (Anthropic via the HTTP client, `FakeLlmClient` without a key): off per school by default, minimised payload (tested), drafts beside the comment, token usage stored, 100/hour/school
+- [x] Demo seed: Grade 7 A report cards at every stage, AI drafts on for Riverside
+- [x] Fix: per-school rate limits now see the current school (middleware priority)
 
 ## 8. Fees & payments
 

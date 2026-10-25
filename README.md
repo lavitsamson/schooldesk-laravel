@@ -38,9 +38,10 @@ Available now:
 - **Bulk import.** Students and guardians from CSV or Excel, imported in queued chunks of 200 rows with a live progress bar. Valid rows import even when others fail; failed rows come back as a downloadable error report that can be fixed and uploaded again. The admission number is the key, so re-uploading a file only updates. Files saved by German Excel (semicolons, Windows-1252, `17.05.2014`) work as they are, and "export selected" writes the same format.
 - **Attendance.** Teachers pick a class and a day and get a grid where everyone starts as present, so marking takes one click per absent student. Teachers see their own classes only (class teacher or subject teacher); admins see all of them. Each new absence sends the primary guardian an email, and a notification in the parent portal if they have an account. The email is queued with a short delay, so a wrong click fixed straight away is never sent, and a guardian gets at most one per child and day. A monthly report per class shows a day-by-day grid, attendance rates and a chart, and exports to Excel.
 - **Assessments and grades.** Subject teachers set tests, exams and assignments for the classes they teach, each with its own maximum marks and weight. Marks go into a spreadsheet-like grid that saves as you type: Enter moves to the next student, invalid marks are flagged in the cell, and a decimal comma works. The gradebook shows each student's weighted result so far. Class teachers and admins see a class's results across all subjects, with attendance, and what each student's report card will say. Results are calculated with exact decimals and graded with the school's scale (A–F, German 1–6, or adjusted bands, checked for gaps and overlaps).
+- **Report cards.** The class teacher generates a whole class's report cards as a queued batch with a live progress bar. They write a comment per student, moving from one student to the next, and approve each card. Approval freezes the results and renders a PDF (dompdf) with the logo, grades, attendance and comment. Publishing notifies the guardians. Drafts can be recalculated when marks change, approved cards can be reopened until they are published, and PDFs are served only through signed, authorised links.
+- **AI comment drafts (optional).** A school admin can turn on AI drafts for the school. "Draft comment" then suggests 2–3 sentences in the school's language, shown beside the editor. The teacher decides whether to use the draft, edits it, and approves the card. The model only gets the first name, grades, attendance and a trend word: never the surname, date of birth, address or free-text remarks. Drafts are rate limited per school, and their token usage is stored.
 
 Planned for v1:
-- **Report cards.** Batch generation, PDFs, an approval flow, and optional AI-drafted comments with data minimisation.
 - **Fees.** Scheduled term invoices, Stripe Checkout (test mode), webhooks and receipts.
 - **Parent portal and REST API** (Sanctum) for a future mobile app.
 - **GDPR.** Data export, right to erasure (anonymisation) and retention settings.
@@ -112,9 +113,15 @@ docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/var/www/html" -w /var/www/htm
 
 The app runs at <http://localhost>. Mailpit runs at <http://localhost:8025>.
 
-Invitation emails, absence emails and student imports are queued. Run the workers with
-`./vendor/bin/sail artisan horizon`. Horizon has a separate supervisor for the `imports` queue,
-so a large import never delays emails. Its dashboard is at <http://localhost/horizon> (open to
+Invitation emails, absence emails, student imports and report-card batches are queued. Run the
+workers with `./vendor/bin/sail artisan horizon`. Horizon has a separate supervisor for long jobs
+(the `imports` and `reports` queues), so a large import never delays emails.
+
+**AI comment drafts** need no setup for the demo. Without `ANTHROPIC_API_KEY` in `.env`, a
+built-in fake (`FakeLlmClient`) writes a simple draft from the same data, and nothing leaves the
+server. To use Claude, set `ANTHROPIC_API_KEY` (and optionally `ANTHROPIC_MODEL`, which defaults
+to `claude-opus-5-5`). Riverside has AI drafts turned on in the seed. Other schools turn them on
+under Report cards. Its dashboard is at <http://localhost/horizon> (open to
 everyone locally, platform admins only elsewhere).
 
 > **Windows:** keep the project inside the WSL2 filesystem (e.g. `~/code/schooldesk`). Serving it
@@ -159,6 +166,7 @@ matches production. CI runs the suite on both **MySQL 8.4** and **PostgreSQL 17*
 | [0004 — Student import](docs/adr/0004-student-import.md) | Queued chunks on their own queue, row-level validation, and a per-row outcome table that drives progress, cross-chunk duplicate checks and the error report. The admission number is the key, so re-uploads are idempotent. Uploads are deleted after the import and reports pruned after 30 days. |
 | [0005 — Attendance](docs/adr/0005-attendance.md) | One record per student and day, keeping the class it was taken in. The whole grid is saved in one transaction. Absence emails are delayed a few minutes, and the job claims the record under a row lock before it sends, so a guardian gets at most one per child and day. "Today" means today in the school's timezone. |
 | [0006 — Assessments and grade calculation](docs/adr/0006-assessments-and-grade-calculation.md) | A subject's result is the weighted mean of its marked assessments (missing marks are left out, not counted as zero), and overall is the mean of the rounded subject results. All arithmetic uses exact decimals (bcmath), so boundary cases always land in the same band. The mark grid autosaves changed rows as JSON. |
+| [0007 — Report cards and AI comment drafts](docs/adr/0007-report-cards-and-ai-comment-drafts.md) | A report card stores the calculated snapshot, and approval freezes it and renders the PDF, so parents always read what was signed off. Class generation is a Laravel job batch with one job per student. AI drafts are off by default, sit beside the comment instead of in it, and get only a minimised, test-enforced payload. |
 
 ## Security and GDPR
 
