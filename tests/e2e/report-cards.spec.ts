@@ -82,12 +82,10 @@ test('the class teacher drafts a comment with AI, approves and publishes a repor
     expect(pdf.headers()['content-type']).toBe('application/pdf');
 });
 
-test('parents cannot open report cards before the portal', async ({ page }) => {
+test('parents cannot open the staff report card pages', async ({ page }) => {
     await login(page, 'parent@riverside.demo');
 
-    await expect(page.getByRole('link', { name: 'Report cards' })).toHaveCount(
-        0,
-    );
+    // Parents read published report cards in the portal (parent-portal.spec.ts).
     const response = await page.goto('/report-cards');
     expect(response?.status()).toBe(403);
 });
