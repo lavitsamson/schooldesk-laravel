@@ -5,16 +5,18 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Enums\Permission;
+use App\Enums\ReportCardStatus;
 use App\Models\ReportCard;
 use App\Models\SchoolClass;
+use App\Models\Student;
 use App\Models\User;
 use App\Support\CurrentSchool;
 
 /**
  * Report cards are written by the class teacher, for their own class, and by school admins
  * for every class: the same people who see the class results (GradePolicy). Subject teachers
- * and parents do not see drafts. Records of other schools are never found (school scope), so
- * they 404 before this is asked.
+ * do not see them, parents only once published. Records of other schools are never found
+ * (school scope), so they 404 before this is asked.
  */
 class ReportCardPolicy
 {
@@ -37,6 +39,25 @@ class ReportCardPolicy
     public function view(User $user, ReportCard $reportCard): bool
     {
         return $this->manageClass($user, $reportCard->schoolClass);
+    }
+
+    /**
+     * The PDF: for those who write the report card, and once published for the student's
+     * guardians (the parent portal and the API).
+     */
+    public function download(User $user, ReportCard $reportCard): bool
+    {
+        return $this->view($user, $reportCard) || $this->viewAsGuardian($user, $reportCard);
+    }
+
+    /**
+     * Parents only ever see published report cards of their own children.
+     */
+    public function viewAsGuardian(User $user, ReportCard $reportCard): bool
+    {
+        return $reportCard->status === ReportCardStatus::Published
+            && $user->hasPermissionTo(Permission::ViewOwnChildren)
+            && Student::query()->childrenOf($user)->whereKey($reportCard->student_id)->exists();
     }
 
     public function update(User $user, ReportCard $reportCard): bool

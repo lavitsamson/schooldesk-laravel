@@ -34,6 +34,8 @@ export type PageProps<
     };
     school: CurrentSchool | null;
     schools: SchoolSummary[];
+    /** Unread notifications in the current school (navigation badge). */
+    unreadNotifications: number;
     flash: {
         status: string | null;
     };

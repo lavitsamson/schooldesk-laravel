@@ -90,6 +90,18 @@ class Student extends Model
     }
 
     /**
+     * The children of a parent: students one of the parent's guardian records is linked to.
+     * The only way the parent portal and the API find a parent's children.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function childrenOf(Builder $query, User $parent): void
+    {
+        $query->whereHas('guardians', fn (Builder $q) => $q->where('user_id', $parent->id));
+    }
+
+    /**
      * @return HasMany<Enrollment, $this>
      */
     public function enrollments(): HasMany

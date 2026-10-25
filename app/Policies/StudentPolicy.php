@@ -9,8 +9,10 @@ use App\Models\Student;
 use App\Models\User;
 
 /**
- * Student records are managed by school admins. Teacher access (own classes) arrives with
- * attendance and grades; parent access (own children) with the parent portal.
+ * Student records are managed by school admins. Parents see their own children only, in the
+ * parent portal and the API (viewAsGuardian). Teachers reach students through their classes
+ * (AttendancePolicy, GradePolicy). Students of other schools are never found (school scope),
+ * so they 404 before this is asked.
  */
 class StudentPolicy
 {
@@ -22,6 +24,23 @@ class StudentPolicy
     public function view(User $user, Student $student): bool
     {
         return $user->hasPermissionTo(Permission::ManageStudents);
+    }
+
+    /**
+     * The parent portal and the API: a parent's list of their own children.
+     */
+    public function viewFamily(User $user): bool
+    {
+        return $user->hasPermissionTo(Permission::ViewOwnChildren);
+    }
+
+    /**
+     * One of the parent's own children: attendance, results and report cards.
+     */
+    public function viewAsGuardian(User $user, Student $student): bool
+    {
+        return $user->hasPermissionTo(Permission::ViewOwnChildren)
+            && Student::query()->childrenOf($user)->whereKey($student->id)->exists();
     }
 
     public function create(User $user): bool

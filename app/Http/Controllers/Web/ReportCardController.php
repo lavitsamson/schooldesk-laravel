@@ -6,10 +6,10 @@ namespace App\Http\Controllers\Web;
 
 use App\Actions\ReportCards\ApproveReportCard;
 use App\Actions\ReportCards\BuildClassReportCards;
+use App\Actions\ReportCards\DownloadReportCardPdf;
 use App\Actions\ReportCards\GenerateClassReportCards;
 use App\Actions\ReportCards\ListReportCardClasses;
 use App\Actions\ReportCards\PublishReportCards;
-use App\Actions\ReportCards\RenderReportCardPdf;
 use App\Actions\ReportCards\ReopenReportCard;
 use App\Actions\ReportCards\SaveReportCardSnapshot;
 use App\Enums\ReportCardStatus;
@@ -26,9 +26,7 @@ use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -177,24 +175,13 @@ class ReportCardController extends Controller
 
     /**
      * The stored PDF of an approved card; for a draft, a preview rendered on the fly. Signed
-     * links only (from the report card page), and authorised again here.
+     * links only (from the report card pages, also the parent portal's), authorised again here.
      */
-    public function pdf(ReportCard $reportCard, RenderReportCardPdf $render): HttpResponse
+    public function pdf(ReportCard $reportCard, DownloadReportCardPdf $download): HttpResponse
     {
-        Gate::authorize('view', $reportCard);
+        Gate::authorize('download', $reportCard);
 
-        $name = Str::slug('report-card '.$reportCard->data['student']['first_name'].' '.$reportCard->data['student']['last_name'].' '.$reportCard->data['term']['name']).'.pdf';
-        $headers = ['Content-Type' => 'application/pdf', 'Cache-Control' => 'private, no-store'];
-        $disk = Storage::disk(ReportCard::DISK);
-
-        if ($reportCard->pdf_path !== null && $disk->exists($reportCard->pdf_path)) {
-            return $disk->download($reportCard->pdf_path, $name, $headers);
-        }
-
-        return response($render->handle($reportCard), 200, [
-            ...$headers,
-            'Content-Disposition' => 'inline; filename="draft-'.$name.'"',
-        ]);
+        return $download->handle($reportCard);
     }
 
     /**

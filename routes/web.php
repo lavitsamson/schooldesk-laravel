@@ -7,6 +7,7 @@ use App\Http\Controllers\Web\AcademicYearController;
 use App\Http\Controllers\Web\AssessmentController;
 use App\Http\Controllers\Web\AttendanceController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\FamilyController;
 use App\Http\Controllers\Web\FamilyInvoiceController;
 use App\Http\Controllers\Web\FeeController;
 use App\Http\Controllers\Web\FeeStructureController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Web\ImportController;
 use App\Http\Controllers\Web\InvitationController;
 use App\Http\Controllers\Web\InvoiceController;
 use App\Http\Controllers\Web\MemberController;
+use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\PaymentController;
 use App\Http\Controllers\Web\PromotionController;
 use App\Http\Controllers\Web\ReportCardCommentController;
@@ -194,6 +196,18 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
         });
         Route::post('/invoices/{invoice}/payments', [PaymentController::class, 'store'])->name('invoices.payments.store');
         Route::get('/payments/{payment}/receipt', [PaymentController::class, 'receipt'])->middleware('signed')->name('payments.receipt');
+
+        // Parent portal (the family overview is the parents' dashboard)
+        Route::controller(FamilyController::class)->prefix('family/children/{student}')->group(function (): void {
+            Route::get('/attendance', 'attendance')->name('family.attendance');
+            Route::get('/results', 'results')->name('family.results');
+            Route::get('/report-cards', 'reportCards')->name('family.report-cards');
+        });
+        Route::controller(NotificationController::class)->prefix('notifications')->group(function (): void {
+            Route::get('/', 'index')->name('notifications.index');
+            Route::post('/read', 'readAll')->name('notifications.read-all');
+            Route::post('/{notification}/read', 'read')->name('notifications.read');
+        });
     });
 });
 

@@ -6,8 +6,8 @@ namespace App\Policies;
 
 use App\Enums\InvoiceStatus;
 use App\Enums\Permission;
-use App\Models\Guardian;
 use App\Models\Invoice;
+use App\Models\Student;
 use App\Models\User;
 
 /**
@@ -67,9 +67,6 @@ class InvoicePolicy
     private function isGuardianOf(User $user, Invoice $invoice): bool
     {
         return $user->hasPermissionTo(Permission::ViewOwnChildren)
-            && Guardian::query()
-                ->where('user_id', $user->id)
-                ->whereHas('students', fn ($query) => $query->whereKey($invoice->student_id))
-                ->exists();
+            && Student::query()->childrenOf($user)->whereKey($invoice->student_id)->exists();
     }
 }

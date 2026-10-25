@@ -19,21 +19,26 @@ use Illuminate\Database\Eloquent\Collection;
 final class ListFamilyInvoices
 {
     /**
+     * The query, for the API to paginate.
+     *
+     * @return Builder<Invoice>
+     */
+    public function query(User $parent): Builder
+    {
+        return Invoice::query()
+            ->with(['student', 'term'])
+            ->withPaidAmount()
+            ->whereIn('student_id', Student::query()->childrenOf($parent)->select('id'))
+            ->where('status', '!=', InvoiceStatus::Void)
+            ->orderByDesc('issued_at')
+            ->orderByDesc('id');
+    }
+
+    /**
      * @return Collection<int, Invoice>
      */
     public function handle(User $parent): Collection
     {
-        $children = Student::query()
-            ->whereHas('guardians', fn (Builder $q) => $q->where('user_id', $parent->id))
-            ->select('id');
-
-        return Invoice::query()
-            ->with(['student', 'term'])
-            ->withPaidAmount()
-            ->whereIn('student_id', $children)
-            ->where('status', '!=', InvoiceStatus::Void)
-            ->orderByDesc('issued_at')
-            ->orderByDesc('id')
-            ->get();
+        return $this->query($parent)->get();
     }
 }

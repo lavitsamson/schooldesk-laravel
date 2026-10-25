@@ -8,15 +8,28 @@ import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import SchoolSwitcher from '@/Components/SchoolSwitcher.vue';
 import { usePermissions } from '@/composables/usePermissions';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 const showingNavigationDropdown = ref(false);
 const { can } = usePermissions();
+const unread = computed(() => usePage().props.unreadNotifications);
 
-const links = computed(() =>
+interface NavItem {
+    label: string;
+    route: string;
+    active: string | string[];
+    permission?: string;
+    badge?: number;
+}
+
+const links = computed<NavItem[]>(() =>
     [
-        { label: 'Dashboard', route: 'dashboard', active: 'dashboard' },
+        {
+            label: 'Dashboard',
+            route: 'dashboard',
+            active: ['dashboard', 'family.*'],
+        },
         {
             label: 'Attendance',
             route: 'attendance.index',
@@ -46,6 +59,13 @@ const links = computed(() =>
             route: 'family.invoices',
             active: ['family.invoices', 'invoices.show'],
             permission: 'children.view',
+        },
+        {
+            label: 'Notifications',
+            route: 'notifications.index',
+            active: 'notifications.*',
+            permission: 'children.view',
+            badge: unread.value,
         },
         {
             label: 'Students',
@@ -120,6 +140,13 @@ const isActive = (patterns: string | string[]) =>
                                     :active="isActive(link.active)"
                                 >
                                     {{ link.label }}
+                                    <span
+                                        v-if="link.badge"
+                                        class="ms-1.5 rounded-full bg-indigo-600 px-1.5 py-0.5 text-xs font-semibold text-white tabular-nums"
+                                    >
+                                        {{ link.badge }}
+                                        <span class="sr-only">unread</span>
+                                    </span>
                                 </NavLink>
                             </div>
                         </div>
@@ -233,6 +260,9 @@ const isActive = (patterns: string | string[]) =>
                             :active="isActive(link.active)"
                         >
                             {{ link.label }}
+                            <span v-if="link.badge" class="tabular-nums">
+                                ({{ link.badge }} unread)
+                            </span>
                         </ResponsiveNavLink>
                     </div>
 

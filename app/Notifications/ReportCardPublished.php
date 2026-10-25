@@ -34,7 +34,9 @@ class ReportCardPublished extends Notification
             ->subject("{$name}'s report card for the {$term}")
             ->line("{$this->reportCard->school->name} has published {$name}'s report card for the {$term}.")
             ->line('You can read and download it in the parent portal.')
-            ->action('Open the parent portal', route('dashboard'));
+            ->action('Open the parent portal', $notifiable instanceof User
+                ? route('family.report-cards', $this->reportCard->student_id)
+                : route('dashboard'));
     }
 
     /**

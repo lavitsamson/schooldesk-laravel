@@ -33,6 +33,7 @@ class InvoiceResource extends JsonResource
             'total' => $this->total,
             'paid' => $this->paidMoney()->minor,
             'balance' => $this->balanceMoney()->minor,
+            'currency' => $this->currency(),
             'status' => $this->status->value,
             'status_label' => $this->status->label(),
             'overdue' => $this->isOverdueOn($today),

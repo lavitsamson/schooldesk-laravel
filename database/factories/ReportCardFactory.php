@@ -53,6 +53,14 @@ class ReportCardFactory extends Factory
     }
 
     /**
+     * Published to parents. No stored PDF: downloads render it on the fly.
+     */
+    public function published(): static
+    {
+        return $this->approved()->state(['status' => ReportCardStatus::Published, 'published_at' => now()]);
+    }
+
+    /**
      * @param  array<string, mixed>  $attributes
      */
     private function schoolClass(array $attributes): SchoolClass

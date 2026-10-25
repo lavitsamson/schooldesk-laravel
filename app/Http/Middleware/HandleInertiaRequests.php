@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Actions\Family\ListNotifications;
 use App\Enums\Role;
 use App\Models\School;
 use App\Models\User;
@@ -20,7 +21,10 @@ class HandleInertiaRequests extends Middleware
      */
     protected $rootView = 'app';
 
-    public function __construct(private readonly CurrentSchool $currentSchool) {}
+    public function __construct(
+        private readonly CurrentSchool $currentSchool,
+        private readonly ListNotifications $notifications,
+    ) {}
 
     /**
      * Determine the current asset version.
@@ -56,6 +60,10 @@ class HandleInertiaRequests extends Middleware
                     ->map(fn (School $school): array => ['id' => $school->id, 'name' => $school->name])
                     ->all()
                 : [],
+            // The unread badge in the navigation (notifications of the current school).
+            'unreadNotifications' => fn (): int => $user instanceof User && $this->currentSchool->check()
+                ? $this->notifications->unreadCount($user)
+                : 0,
             'flash' => [
                 'status' => fn (): mixed => $request->session()->get('status'),
             ],
