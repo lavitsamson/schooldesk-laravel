@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Models\PersonalAccessToken;
 use App\Models\School;
 use App\Models\User;
 use App\Support\CurrentSchool;
@@ -12,9 +13,12 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Resolves the school a web request acts for from the membership the user selected (kept in
- * the session). Never from request input. A user with exactly one school gets it selected
- * automatically. The Sanctum (token) variant arrives with the parent API.
+ * Resolves the school a request acts for. Never from request input:
+ * - web: the membership the user selected (kept in the session). A user with exactly one
+ *   school gets it selected automatically;
+ * - API: the school the Sanctum token was issued for (ADR 0009).
+ *
+ * Either way the membership must still be active, so removing a member takes effect at once.
  */
 class SetCurrentSchool
 {
@@ -28,21 +32,37 @@ class SetCurrentSchool
 
         $user = $request->user();
 
-        if ($user instanceof User && $request->hasSession()) {
-            $school = $this->resolve($user, $request->session()->get(self::SESSION_KEY));
+        if ($user instanceof User) {
+            // Null on web requests: Sanctum's docblock says otherwise.
+            /** @var PersonalAccessToken|null $token */
+            $token = $user->currentAccessToken();
 
-            if ($school !== null) {
-                $this->currentSchool->set($school);
-                $request->session()->put(self::SESSION_KEY, $school->id);
+            if ($token instanceof PersonalAccessToken) {
+                $this->select($user, $user->activeSchools()->whereKey($token->school_id)->first());
+            } elseif ($request->hasSession()) {
+                $school = $this->select($user, $this->resolve($user, $request->session()->get(self::SESSION_KEY)));
 
-                // Roles loaded earlier on this user instance may belong to another school.
-                $user->unsetRelation('roles')->unsetRelation('permissions');
-            } else {
-                $request->session()->forget(self::SESSION_KEY);
+                if ($school !== null) {
+                    $request->session()->put(self::SESSION_KEY, $school->id);
+                } else {
+                    $request->session()->forget(self::SESSION_KEY);
+                }
             }
         }
 
         return $next($request);
+    }
+
+    private function select(User $user, ?School $school): ?School
+    {
+        if ($school !== null) {
+            $this->currentSchool->set($school);
+
+            // Roles loaded earlier on this user instance may belong to another school.
+            $user->unsetRelation('roles')->unsetRelation('permissions');
+        }
+
+        return $school;
     }
 
     private function resolve(User $user, mixed $selectedId): ?School

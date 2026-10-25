@@ -37,4 +37,16 @@ return [
         'invoice_prefix' => env('FEES_INVOICE_PREFIX', 'SD'),
     ],
 
+    'api' => [
+        // Parent API tokens (one per device and school) expire after this many days.
+        'token_days' => (int) env('API_TOKEN_DAYS', 90),
+        // Requests per minute and token (or IP address, before signing in).
+        'requests_per_minute' => (int) env('API_REQUESTS_PER_MINUTE', 60),
+        // Sign-in attempts per minute and email address plus IP address.
+        'token_attempts_per_minute' => 5,
+        // Cursor pagination: default and largest page size.
+        'per_page' => 25,
+        'max_per_page' => 100,
+    ],
+
 ];

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Models\PersonalAccessToken;
+use App\Notifications\Channels\SchoolDatabaseChannel;
 use App\Services\Llm\AnthropicLlmClient;
 use App\Services\Llm\FakeLlmClient;
 use App\Services\Llm\LlmClient;
@@ -14,9 +16,11 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Channels\DatabaseChannel;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -48,6 +52,9 @@ class AppServiceProvider extends ServiceProvider
             );
         });
 
+        // Database notifications remember their school (ADR 0009).
+        $this->app->bind(DatabaseChannel::class, SchoolDatabaseChannel::class);
+
         $this->app->singleton(StripeService::class, function (): StripeService {
             /** @var array{secret: string|null, webhook_secret: string|null, webhook_tolerance: int} $config */
             $config = config('services.stripe');
@@ -65,6 +72,20 @@ class AppServiceProvider extends ServiceProvider
 
         Model::preventLazyLoading(! $this->app->isProduction());
         Model::preventSilentlyDiscardingAttributes(! $this->app->isProduction());
+
+        Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+
+        // Parent API: per token once signed in, per IP address before.
+        RateLimiter::for('api', function (Request $request): Limit {
+            $token = $request->user()?->currentAccessToken();
+
+            return Limit::perMinute((int) config('schooldesk.api.requests_per_minute'))
+                ->by($token instanceof PersonalAccessToken ? "api:token:{$token->id}" : "api:ip:{$request->ip()}");
+        });
+
+        // Signing in: per email address and IP address, against password guessing.
+        RateLimiter::for('api-token', fn (Request $request): Limit => Limit::perMinute((int) config('schooldesk.api.token_attempts_per_minute'))
+            ->by('api-token:'.mb_strtolower($request->string('email')->trim()->value()).'|'.$request->ip()));
 
         RateLimiter::for('invitations', fn (Request $request): Limit => Limit::perHour(50)
             ->by('school:'.($this->app->make(CurrentSchool::class)->idOrNull() ?? $request->ip())));

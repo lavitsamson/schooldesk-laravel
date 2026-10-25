@@ -9,6 +9,7 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 use Laravel\Horizon\Console\SnapshotCommand;
+use Laravel\Sanctum\Console\Commands\PruneExpired;
 
 Artisan::command('inspire', function (): void {
     $this->comment(Inspiring::quote());
@@ -20,6 +21,9 @@ Schedule::command(PruneCommand::class)->daily()->onOneServer();
 // Fees: invoices for terms starting within 14 days at night, payment reminders in the morning.
 Schedule::command(GenerateTermInvoicesCommand::class)->dailyAt('02:00')->onOneServer()->withoutOverlapping();
 Schedule::command(SendOverdueRemindersCommand::class)->dailyAt('07:00')->onOneServer()->withoutOverlapping();
+
+// Expired parent API tokens are deleted a day after they expire.
+Schedule::command(PruneExpired::class, ['--hours' => 24])->daily()->onOneServer();
 
 // Horizon's metrics (throughput, runtime) need regular snapshots.
 Schedule::command(SnapshotCommand::class)->everyFiveMinutes();

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Exceptions\ApiExceptionRenderer;
 use App\Http\Middleware\EnsureSchoolMembership;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetCurrentSchool;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         then: function (): void {
@@ -30,6 +32,11 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
+        // The parent API: the school comes from the Sanctum token (ADR 0009).
+        $middleware->api(append: [
+            SetCurrentSchool::class,
+        ]);
+
         // Route model binding must already see the school, or school-owned records cannot be
         // resolved (and another school's id must resolve to a 404, not an error). Rate limits
         // are per school, so throttling must see it too; ThrottleRequests runs before
@@ -37,6 +44,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->prependToPriorityList(
             before: ThrottleRequests::class,
             prepend: SetCurrentSchool::class,
+        );
+        // Without a school, the `school` guard answers (school picker, or 403 for the API)
+        // before route binding touches school-owned records.
+        $middleware->prependToPriorityList(
+            before: ThrottleRequests::class,
+            prepend: EnsureSchoolMembership::class,
         );
 
         $middleware->alias([
@@ -47,4 +60,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // One error shape for the parent API: { message, code, errors? }.
+        $exceptions->render(new ApiExceptionRenderer);
     })->create();
