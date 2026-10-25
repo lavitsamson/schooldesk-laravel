@@ -42,6 +42,22 @@ test('plural translations have as many forms as the English key', function (stri
     }
 })->with(['de', 'hi']);
 
+test('framework language files have every English key', function (string $locale, string $group): void {
+    $flatten = function (array $lines, string $prefix = '') use (&$flatten): array {
+        $keys = [];
+        foreach ($lines as $key => $value) {
+            $keys = is_array($value) && $key !== 'attributes'
+                ? [...$keys, ...$flatten($value, "{$prefix}{$key}.")]
+                : [...$keys, "{$prefix}{$key}"];
+        }
+
+        return $keys;
+    };
+    $load = fn (string $lang): array => require dirname(__DIR__, 2)."/lang/{$lang}/{$group}.php";
+
+    expect($flatten($load($locale)))->toEqualCanonicalizing($flatten($load('en')));
+})->with(['de', 'hi'])->with(['auth', 'pagination', 'passwords', 'validation']);
+
 test('translations are not empty', function (string $locale): void {
     foreach (jsonTranslations($locale) as $english => $translated) {
         expect(trim($translated))->not->toBe('', "{$locale}: \"{$english}\"");
