@@ -17,7 +17,9 @@ defineProps<{
 </script>
 
 <template>
-    <Head :title="`Results ${child.first_name}`" />
+    <Head
+        :title="$t('Results :first_name', { first_name: child.first_name })"
+    />
 
     <AuthenticatedLayout>
         <template #header>

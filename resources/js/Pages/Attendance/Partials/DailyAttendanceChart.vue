@@ -11,6 +11,7 @@ import {
     type ChartData,
     type ChartOptions,
 } from 'chart.js';
+import { trans } from 'laravel-vue-i18n';
 import { computed } from 'vue';
 import { Bar } from 'vue-chartjs';
 
@@ -20,10 +21,10 @@ const props = defineProps<{ daily: AttendanceReport['daily'] }>();
 
 // The same colours as the status buttons on the attendance grid.
 const series = [
-    { key: 'present', label: 'Present', color: '#16a34a' },
-    { key: 'late', label: 'Late', color: '#f59e0b' },
-    { key: 'excused', label: 'Excused', color: '#0284c7' },
-    { key: 'absent', label: 'Absent', color: '#dc2626' },
+    { key: 'present', label: () => trans('Present'), color: '#16a34a' },
+    { key: 'late', label: () => trans('Late'), color: '#f59e0b' },
+    { key: 'excused', label: () => trans('Excused'), color: '#0284c7' },
+    { key: 'absent', label: () => trans('Absent'), color: '#dc2626' },
 ] as const;
 
 const dark =
@@ -37,14 +38,14 @@ const data = computed<ChartData<'bar'>>(() => ({
         formatDate(d.date, { weekday: 'short', day: 'numeric' }),
     ),
     datasets: series.map((s) => ({
-        label: s.label,
+        label: s.label(),
         data: props.daily.map((d) => d[s.key]),
         backgroundColor: s.color,
         stack: 'students',
     })),
 }));
 
-const options: ChartOptions<'bar'> = {
+const options = computed<ChartOptions<'bar'>>(() => ({
     responsive: true,
     maintainAspectRatio: false,
     animation: false,
@@ -59,18 +60,24 @@ const options: ChartOptions<'bar'> = {
             beginAtZero: true,
             ticks: { color: textColor, precision: 0 },
             grid: { color: gridColor },
-            title: { display: true, text: 'Students', color: textColor },
+            title: {
+                display: true,
+                text: trans('Students'),
+                color: textColor,
+            },
         },
     },
     plugins: {
         legend: { labels: { color: textColor } },
     },
-};
+}));
 
 // The canvas is not readable by screen readers; the table below has the same data.
-const summary = computed(
-    () =>
-        `Stacked bar chart of daily attendance on ${props.daily.length} days. The table below lists every day.`,
+const summary = computed(() =>
+    trans(
+        'Stacked bar chart of daily attendance on :count days. The table below lists every day.',
+        { count: String(props.daily.length) },
+    ),
 );
 </script>
 

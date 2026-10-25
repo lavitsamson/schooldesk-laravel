@@ -22,12 +22,12 @@ const tabs: { route: ChildPage; label: string }[] = [
 </script>
 
 <template>
-    <nav aria-label="Breadcrumb" class="text-sm">
+    <nav :aria-label="$t('Breadcrumb')" class="text-sm">
         <Link
             :href="route('dashboard')"
             class="text-gray-600 hover:underline dark:text-gray-400"
         >
-            My family
+            {{ $t('My family') }}
         </Link>
     </nav>
     <div class="mt-1 flex flex-wrap items-baseline justify-between gap-3">
@@ -44,7 +44,7 @@ const tabs: { route: ChildPage; label: string }[] = [
         </h2>
         <nav
             v-if="children.length > 1"
-            aria-label="Children"
+            :aria-label="$t('Children')"
             class="flex flex-wrap gap-2"
         >
             <Link
@@ -64,7 +64,7 @@ const tabs: { route: ChildPage; label: string }[] = [
         </nav>
     </div>
     <nav
-        aria-label="Child pages"
+        :aria-label="$t('Child pages')"
         class="mt-4 flex gap-6 border-b border-gray-200 dark:border-gray-700"
     >
         <Link

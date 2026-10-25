@@ -91,7 +91,7 @@ const destroy = () => {
 </script>
 
 <template>
-    <Head title="Fee structures" />
+    <Head :title="$t('Fee structures')" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -100,7 +100,7 @@ const destroy = () => {
                     <h2
                         class="text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
                     >
-                        Fee structures
+                        {{ $t('Fee structures') }}
                     </h2>
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                         {{ year.name }}
@@ -110,7 +110,7 @@ const destroy = () => {
                     :href="route('fees.index')"
                     class="text-sm text-indigo-700 hover:underline dark:text-indigo-300"
                 >
-                    Back to fees
+                    {{ $t('Back to fees') }}
                 </Link>
             </div>
         </template>
@@ -129,14 +129,14 @@ const destroy = () => {
                     </h3>
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                         Changes apply to invoices generated from now on; issued
-                        invoices keep their amounts.
+                        {{ $t('invoices keep their amounts.') }}
                     </p>
                     <form
                         class="mt-4 grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-3"
                         @submit.prevent="submit"
                     >
                         <div>
-                            <InputLabel for="fee-name" value="Name" />
+                            <InputLabel for="fee-name" :value="$t('Name')" />
                             <TextInput
                                 id="fee-name"
                                 v-model="form.name"
@@ -150,7 +150,10 @@ const destroy = () => {
                             />
                         </div>
                         <div>
-                            <InputLabel for="fee-amount" value="Amount" />
+                            <InputLabel
+                                for="fee-amount"
+                                :value="$t('Amount')"
+                            />
                             <TextInput
                                 id="fee-amount"
                                 v-model="form.amount"
@@ -166,13 +169,15 @@ const destroy = () => {
                             />
                         </div>
                         <div>
-                            <InputLabel for="fee-class" value="Class" />
+                            <InputLabel for="fee-class" :value="$t('Class')" />
                             <SelectInput
                                 id="fee-class"
                                 v-model="form.class_id"
                                 class="mt-1 block w-full"
                             >
-                                <option :value="null">Every class</option>
+                                <option :value="null">
+                                    {{ $t('Every class') }}
+                                </option>
                                 <option
                                     v-for="c in classes"
                                     :key="c.id"
@@ -187,7 +192,10 @@ const destroy = () => {
                             />
                         </div>
                         <div>
-                            <InputLabel for="fee-frequency" value="Charged" />
+                            <InputLabel
+                                for="fee-frequency"
+                                :value="$t('Charged')"
+                            />
                             <SelectInput
                                 id="fee-frequency"
                                 v-model="form.frequency"
@@ -209,7 +217,7 @@ const destroy = () => {
                         <div>
                             <InputLabel
                                 for="fee-due"
-                                value="Due (days after the term starts)"
+                                :value="$t('Due (days after the term starts)')"
                             />
                             <TextInput
                                 id="fee-due"
@@ -234,7 +242,7 @@ const destroy = () => {
                                 type="button"
                                 @click="cancel"
                             >
-                                Cancel
+                                {{ $t('Cancel') }}
                             </SecondaryButton>
                         </div>
                     </form>
@@ -247,21 +255,33 @@ const destroy = () => {
                         class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700"
                     >
                         <caption class="sr-only">
-                            Fees of the year
+                            {{
+                                $t('Fees of the year')
+                            }}
                         </caption>
                         <thead class="bg-gray-50 dark:bg-gray-900/50">
                             <tr
                                 class="text-left font-medium text-gray-600 dark:text-gray-300"
                             >
-                                <th scope="col" class="px-4 py-3">Fee</th>
-                                <th scope="col" class="px-4 py-3">Class</th>
-                                <th scope="col" class="px-4 py-3">Charged</th>
-                                <th scope="col" class="px-4 py-3 text-right">
-                                    Amount
-                                </th>
-                                <th scope="col" class="px-4 py-3">Due</th>
                                 <th scope="col" class="px-4 py-3">
-                                    <span class="sr-only">Actions</span>
+                                    {{ $t('Fee') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Class') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Charged') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3 text-right">
+                                    {{ $t('Amount') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Due') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    <span class="sr-only">{{
+                                        $t('Actions')
+                                    }}</span>
                                 </th>
                             </tr>
                         </thead>
@@ -283,24 +303,30 @@ const destroy = () => {
                                 </td>
                                 <td class="px-4 py-3">
                                     {{ fee.due_day_offset }} days after the term
-                                    starts
+                                    {{ $t('starts') }}
                                 </td>
                                 <td
                                     class="space-x-2 px-4 py-3 text-right whitespace-nowrap"
                                 >
                                     <SecondaryButton
                                         type="button"
-                                        :aria-label="`Edit ${fee.name}`"
+                                        :aria-label="
+                                            $t('Edit :name', { name: fee.name })
+                                        "
                                         @click="edit(fee)"
                                     >
-                                        Edit
+                                        {{ $t('Edit') }}
                                     </SecondaryButton>
                                     <DangerButton
                                         type="button"
-                                        :aria-label="`Delete ${fee.name}`"
+                                        :aria-label="
+                                            $t('Delete :name', {
+                                                name: fee.name,
+                                            })
+                                        "
                                         @click="deleting = fee"
                                     >
-                                        Delete
+                                        {{ $t('Delete') }}
                                     </DangerButton>
                                 </td>
                             </tr>
@@ -309,7 +335,7 @@ const destroy = () => {
                                     colspan="6"
                                     class="px-4 py-10 text-center text-gray-600 dark:text-gray-400"
                                 >
-                                    No fees for this year yet.
+                                    {{ $t('No fees for this year yet.') }}
                                 </td>
                             </tr>
                         </tbody>
@@ -330,15 +356,18 @@ const destroy = () => {
                     Delete {{ deleting?.name }}?
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    New invoices will no longer include it. Invoices already
-                    issued keep it.
+                    {{
+                        $t(
+                            'New invoices will no longer include it. Invoices already issued keep it.',
+                        )
+                    }}
                 </p>
                 <div class="mt-6 flex justify-end gap-3">
                     <SecondaryButton type="button" @click="deleting = null">
-                        Cancel
+                        {{ $t('Cancel') }}
                     </SecondaryButton>
                     <DangerButton type="button" @click="destroy">
-                        Delete
+                        {{ $t('Delete') }}
                     </DangerButton>
                 </div>
             </div>

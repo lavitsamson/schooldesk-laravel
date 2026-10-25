@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatRate } from '@/composables/numbers';
 import InputLabel from '@/Components/InputLabel.vue';
 import SelectInput from '@/Components/SelectInput.vue';
 import { formatDate } from '@/composables/dates';
@@ -29,11 +30,6 @@ const monthLabel = computed(
     () => props.months.find((m) => m.value === props.month)?.label ?? '',
 );
 
-const rate = (value: number | null) =>
-    value === null
-        ? '—'
-        : `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })} %`;
-
 const codeClasses: Record<string, string> = {
     P: 'text-green-700 dark:text-green-400',
     A: 'bg-red-100 font-semibold text-red-800 dark:bg-red-900/50 dark:text-red-200',
@@ -46,16 +42,16 @@ const buttonClasses =
 </script>
 
 <template>
-    <Head :title="`Attendance report ${schoolClass.name}`" />
+    <Head :title="$t('Attendance report :name', { name: schoolClass.name })" />
 
     <AuthenticatedLayout>
         <template #header>
-            <nav aria-label="Breadcrumb" class="text-sm">
+            <nav :aria-label="$t('Breadcrumb')" class="text-sm">
                 <Link
                     :href="route('attendance.index')"
                     class="text-gray-600 hover:underline dark:text-gray-400"
                 >
-                    Attendance
+                    {{ $t('Attendance') }}
                 </Link>
             </nav>
             <div class="mt-1 flex flex-wrap items-center justify-between gap-3">
@@ -66,7 +62,11 @@ const buttonClasses =
                 </h2>
                 <div class="flex flex-wrap items-end gap-3">
                     <div>
-                        <InputLabel for="month" value="Month" class="sr-only" />
+                        <InputLabel
+                            for="month"
+                            :value="$t('Month')"
+                            class="sr-only"
+                        />
                         <SelectInput id="month" v-model="month" class="block">
                             <option
                                 v-for="m in months"
@@ -86,7 +86,7 @@ const buttonClasses =
                         "
                         :class="buttonClasses"
                     >
-                        Export XLSX
+                        {{ $t('Export XLSX') }}
                     </a>
                 </div>
             </div>
@@ -99,19 +99,19 @@ const buttonClasses =
                         class="bg-white p-5 shadow-xs sm:rounded-lg dark:bg-gray-800"
                     >
                         <dt class="text-sm text-gray-600 dark:text-gray-400">
-                            Attendance rate
+                            {{ $t('Attendance rate') }}
                         </dt>
                         <dd
                             class="mt-1 text-2xl font-semibold text-gray-900 dark:text-gray-100"
                         >
-                            {{ rate(report.totals.rate) }}
+                            {{ formatRate(report.totals.rate) }}
                         </dd>
                     </div>
                     <div
                         class="bg-white p-5 shadow-xs sm:rounded-lg dark:bg-gray-800"
                     >
                         <dt class="text-sm text-gray-600 dark:text-gray-400">
-                            Days recorded
+                            {{ $t('Days recorded') }}
                         </dt>
                         <dd
                             class="mt-1 text-2xl font-semibold text-gray-900 dark:text-gray-100"
@@ -123,7 +123,7 @@ const buttonClasses =
                         class="bg-white p-5 shadow-xs sm:rounded-lg dark:bg-gray-800"
                     >
                         <dt class="text-sm text-gray-600 dark:text-gray-400">
-                            Absences (late, excused)
+                            {{ $t('Absences (late, excused)') }}
                         </dt>
                         <dd
                             class="mt-1 text-2xl font-semibold text-gray-900 dark:text-gray-100"
@@ -148,7 +148,7 @@ const buttonClasses =
                             id="chart-title"
                             class="text-lg font-medium text-gray-900 dark:text-gray-100"
                         >
-                            Daily attendance
+                            {{ $t('Daily attendance') }}
                         </h3>
                         <DailyAttendanceChart
                             class="mt-4"
@@ -165,11 +165,17 @@ const buttonClasses =
                             <caption
                                 class="px-4 pt-4 text-left text-lg font-medium text-gray-900 dark:text-gray-100"
                             >
-                                Students
+                                {{
+                                    $t('Students')
+                                }}
                                 <span
                                     class="block text-sm font-normal text-gray-600 dark:text-gray-400"
                                 >
-                                    P present, A absent, L late, E excused
+                                    {{
+                                        $t(
+                                            'P present, A absent, L late, E excused',
+                                        )
+                                    }}
                                 </span>
                             </caption>
                             <thead class="bg-gray-50 dark:bg-gray-900/50">
@@ -180,7 +186,7 @@ const buttonClasses =
                                         scope="col"
                                         class="sticky left-0 bg-gray-50 px-4 py-2 dark:bg-gray-900"
                                     >
-                                        Student
+                                        {{ $t('Student') }}
                                     </th>
                                     <th
                                         v-for="day in report.days"
@@ -221,7 +227,7 @@ const buttonClasses =
                                         scope="col"
                                         class="px-4 py-2 text-right"
                                     >
-                                        Rate
+                                        {{ $t('Rate') }}
                                     </th>
                                 </tr>
                             </thead>
@@ -262,7 +268,7 @@ const buttonClasses =
                                     <td
                                         class="px-4 py-1.5 text-right whitespace-nowrap"
                                     >
-                                        {{ rate(student.rate) }}
+                                        {{ formatRate(student.rate) }}
                                     </td>
                                 </tr>
                             </tbody>
@@ -274,8 +280,12 @@ const buttonClasses =
                     v-else
                     class="bg-white p-6 text-gray-600 shadow-xs sm:rounded-lg dark:bg-gray-800 dark:text-gray-400"
                 >
-                    No attendance was taken in {{ schoolClass.name }} in
-                    {{ monthLabel }}.
+                    {{
+                        $t('No attendance was taken in :class in :month.', {
+                            class: schoolClass.name,
+                            month: monthLabel,
+                        })
+                    }}
                 </p>
             </div>
         </div>

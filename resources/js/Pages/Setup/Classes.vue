@@ -34,19 +34,22 @@ const submit = () => form.put(route('setup.classes'));
             v-if="!hasAcademicYear"
             class="rounded-md bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
         >
-            Classes belong to an academic year.
+            {{ $t('Classes belong to an academic year.') }}
             <Link
                 :href="route('setup.show', 'academic-year')"
                 class="font-medium underline"
             >
-                Add the academic year first.
+                {{ $t('Add the academic year first.') }}
             </Link>
         </p>
 
         <form v-else class="space-y-4" @submit.prevent="submit">
             <p class="text-sm text-gray-600 dark:text-gray-400">
-                For example "Grade 7" with section "A". Leave the section empty
-                if a grade has only one class.
+                {{
+                    $t(
+                        'For example "Grade 7" with section "A". Leave the section empty if a grade has only one class.',
+                    )
+                }}
             </p>
             <InputError :message="form.errors.classes" />
 
@@ -58,14 +61,16 @@ const submit = () => form.put(route('setup.classes'));
                 <div>
                     <InputLabel
                         :for="`class-${index}-name`"
-                        :value="`Class ${index + 1}`"
+                        :value="
+                            $t('Class :number', { number: String(index + 1) })
+                        "
                     />
                     <TextInput
                         :id="`class-${index}-name`"
                         v-model="schoolClass.name"
                         type="text"
                         class="mt-1 block w-full"
-                        placeholder="Grade 7"
+                        :placeholder="$t('Grade 7')"
                         required
                     />
                     <InputError
@@ -78,7 +83,7 @@ const submit = () => form.put(route('setup.classes'));
                 <div>
                     <InputLabel
                         :for="`class-${index}-section`"
-                        value="Section"
+                        :value="$t('Section')"
                     />
                     <TextInput
                         :id="`class-${index}-section`"
@@ -98,20 +103,24 @@ const submit = () => form.put(route('setup.classes'));
                     type="button"
                     class="sm:mt-6"
                     :disabled="form.classes.length === 1"
-                    :aria-label="`Remove class ${index + 1}`"
+                    :aria-label="
+                        $t('Remove class :number', {
+                            number: String(index + 1),
+                        })
+                    "
                     @click="removeClass(index)"
                 >
-                    Remove
+                    {{ $t('Remove') }}
                 </SecondaryButton>
             </div>
 
             <SecondaryButton type="button" @click="addClass">
-                Add class
+                {{ $t('Add class') }}
             </SecondaryButton>
 
             <div class="flex justify-end">
                 <PrimaryButton :disabled="form.processing">
-                    Save and continue
+                    {{ $t('Save and continue') }}
                 </PrimaryButton>
             </div>
         </form>

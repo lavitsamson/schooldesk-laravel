@@ -59,14 +59,14 @@ const remove = () => {
 </script>
 
 <template>
-    <Head title="Members" />
+    <Head :title="$t('Members')" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2
                 class="text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
             >
-                Members
+                {{ $t('Members') }}
             </h2>
         </template>
 
@@ -80,10 +80,14 @@ const remove = () => {
                         id="invite-title"
                         class="text-lg font-medium text-gray-900 dark:text-gray-100"
                     >
-                        Invite someone
+                        {{ $t('Invite someone') }}
                     </h3>
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                        They get an email with a link that is valid for
+                        {{
+                            $t(
+                                'They get an email with a link that is valid for',
+                            )
+                        }}
                         {{ invitationExpiresAfterDays }} days.
                     </p>
 
@@ -92,7 +96,7 @@ const remove = () => {
                         @submit.prevent="invite"
                     >
                         <div>
-                            <InputLabel for="invite-name" value="Name" />
+                            <InputLabel for="invite-name" :value="$t('Name')" />
                             <TextInput
                                 id="invite-name"
                                 v-model="form.name"
@@ -106,7 +110,10 @@ const remove = () => {
                             />
                         </div>
                         <div>
-                            <InputLabel for="invite-email" value="Email" />
+                            <InputLabel
+                                for="invite-email"
+                                :value="$t('Email')"
+                            />
                             <TextInput
                                 id="invite-email"
                                 v-model="form.email"
@@ -120,7 +127,7 @@ const remove = () => {
                             />
                         </div>
                         <div>
-                            <InputLabel for="invite-role" value="Role" />
+                            <InputLabel for="invite-role" :value="$t('Role')" />
                             <SelectInput
                                 id="invite-role"
                                 v-model="form.role"
@@ -143,7 +150,7 @@ const remove = () => {
                             class="sm:mt-6"
                             :disabled="form.processing"
                         >
-                            Send invitation
+                            {{ $t('Send invitation') }}
                         </PrimaryButton>
                     </form>
                 </section>
@@ -155,18 +162,30 @@ const remove = () => {
                         class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700"
                     >
                         <caption class="sr-only">
-                            School members
+                            {{
+                                $t('School members')
+                            }}
                         </caption>
                         <thead class="bg-gray-50 dark:bg-gray-900/50">
                             <tr
                                 class="text-left font-medium text-gray-600 dark:text-gray-300"
                             >
-                                <th scope="col" class="px-4 py-3">Name</th>
-                                <th scope="col" class="px-4 py-3">Email</th>
-                                <th scope="col" class="px-4 py-3">Role</th>
-                                <th scope="col" class="px-4 py-3">Status</th>
                                 <th scope="col" class="px-4 py-3">
-                                    <span class="sr-only">Actions</span>
+                                    {{ $t('Name') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Email') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Role') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Status') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    <span class="sr-only">{{
+                                        $t('Actions')
+                                    }}</span>
                                 </th>
                             </tr>
                         </thead>
@@ -203,12 +222,16 @@ const remove = () => {
                                         type="button"
                                         @click="resend(member)"
                                     >
-                                        Resend
+                                        {{ $t('Resend') }}
                                     </SecondaryButton>
                                     <DangerButton
                                         v-if="member.can.remove"
                                         type="button"
-                                        :aria-label="`Remove ${member.name}`"
+                                        :aria-label="
+                                            $t('Remove :name', {
+                                                name: member.name,
+                                            })
+                                        "
                                         @click="removing = member"
                                     >
                                         {{
@@ -237,15 +260,18 @@ const remove = () => {
                     Remove {{ removing?.name }}?
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    They lose access to this school straight away. Their account
-                    stays, in case they belong to other schools.
+                    {{
+                        $t(
+                            'They lose access to this school straight away. Their account stays, in case they belong to other schools.',
+                        )
+                    }}
                 </p>
                 <div class="mt-6 flex justify-end gap-3">
                     <SecondaryButton type="button" @click="removing = null">
-                        Cancel
+                        {{ $t('Cancel') }}
                     </SecondaryButton>
                     <DangerButton type="button" @click="remove">
-                        Remove
+                        {{ $t('Remove') }}
                     </DangerButton>
                 </div>
             </div>

@@ -65,7 +65,7 @@ const invoicesUrl = (params: Record<string, string | number> = {}) =>
 </script>
 
 <template>
-    <Head title="Fees" />
+    <Head :title="$t('Fees')" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -74,7 +74,7 @@ const invoicesUrl = (params: Record<string, string | number> = {}) =>
                     <h2
                         class="text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
                     >
-                        Fees
+                        {{ $t('Fees') }}
                     </h2>
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                         {{ year }} · {{ term.name }}
@@ -99,23 +99,29 @@ const invoicesUrl = (params: Record<string, string | number> = {}) =>
                             id="generate-title"
                             class="font-medium text-gray-900 dark:text-gray-100"
                         >
-                            Term invoices
+                            {{ $t('Term invoices') }}
                         </h3>
                         <p
                             class="mt-1 text-sm text-gray-600 dark:text-gray-400"
                         >
                             Invoices for the {{ term.name }} (starting
                             {{ formatDate(term.starts_on) }}) are generated
-                            automatically two weeks before the term starts, from
-                            the
+                            {{
+                                $t(
+                                    'automatically two weeks before the term starts, from the',
+                                )
+                            }}
                             <Link
                                 :href="route('fee-structures.index')"
                                 class="text-indigo-700 underline hover:no-underline dark:text-indigo-300"
                                 >{{ feeStructures }} fees of this year</Link
                             >. Generating now only adds the missing ones.
                             <template v-if="!onlinePayments">
-                                Online payment is not set up, so parents pay by
-                                bank transfer or at the office.
+                                {{
+                                    $t(
+                                        'Online payment is not set up, so parents pay by bank transfer or at the office.',
+                                    )
+                                }}
                             </template>
                         </p>
                         <InputError
@@ -128,14 +134,14 @@ const invoicesUrl = (params: Record<string, string | number> = {}) =>
                             :href="invoicesUrl()"
                             class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-semibold tracking-widest text-gray-700 uppercase shadow-xs hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden dark:border-gray-500 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                         >
-                            All invoices
+                            {{ $t('All invoices') }}
                         </Link>
                         <PrimaryButton
                             type="button"
                             :disabled="generateForm.processing"
                             @click="generate"
                         >
-                            Generate invoices now
+                            {{ $t('Generate invoices now') }}
                         </PrimaryButton>
                     </div>
                 </section>
@@ -171,7 +177,7 @@ const invoicesUrl = (params: Record<string, string | number> = {}) =>
                             id="chart-title"
                             class="mb-3 font-medium text-gray-900 dark:text-gray-100"
                         >
-                            Collected and outstanding per class
+                            {{ $t('Collected and outstanding per class') }}
                         </h3>
                         <CollectionChart :classes="dashboard.classes" />
                     </section>
@@ -183,42 +189,46 @@ const invoicesUrl = (params: Record<string, string | number> = {}) =>
                             class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700"
                         >
                             <caption class="sr-only">
-                                Fees per class
+                                {{
+                                    $t('Fees per class')
+                                }}
                             </caption>
                             <thead class="bg-gray-50 dark:bg-gray-900/50">
                                 <tr
                                     class="text-left font-medium text-gray-600 dark:text-gray-300"
                                 >
-                                    <th scope="col" class="px-4 py-3">Class</th>
-                                    <th
-                                        scope="col"
-                                        class="px-4 py-3 text-right"
-                                    >
-                                        Invoices
+                                    <th scope="col" class="px-4 py-3">
+                                        {{ $t('Class') }}
                                     </th>
                                     <th
                                         scope="col"
                                         class="px-4 py-3 text-right"
                                     >
-                                        Invoiced
+                                        {{ $t('Invoices') }}
                                     </th>
                                     <th
                                         scope="col"
                                         class="px-4 py-3 text-right"
                                     >
-                                        Collected
+                                        {{ $t('Invoiced') }}
                                     </th>
                                     <th
                                         scope="col"
                                         class="px-4 py-3 text-right"
                                     >
-                                        Outstanding
+                                        {{ $t('Collected') }}
                                     </th>
                                     <th
                                         scope="col"
                                         class="px-4 py-3 text-right"
                                     >
-                                        Overdue
+                                        {{ $t('Outstanding') }}
+                                    </th>
+                                    <th
+                                        scope="col"
+                                        class="px-4 py-3 text-right"
+                                    >
+                                        {{ $t('Overdue') }}
                                     </th>
                                 </tr>
                             </thead>

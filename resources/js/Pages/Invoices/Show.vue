@@ -117,7 +117,7 @@ const backUrl = computed(() =>
 </script>
 
 <template>
-    <Head :title="`Invoice ${invoice.number}`" />
+    <Head :title="$t('Invoice :number', { number: invoice.number })" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -145,7 +145,7 @@ const backUrl = computed(() =>
                     :href="backUrl"
                     class="text-sm text-indigo-700 hover:underline dark:text-indigo-300"
                 >
-                    Back to invoices
+                    {{ $t('Back to invoices') }}
                 </Link>
             </div>
         </template>
@@ -157,7 +157,11 @@ const backUrl = computed(() =>
                     role="status"
                     class="rounded-md bg-green-50 p-4 text-sm text-green-800 dark:bg-green-900/40 dark:text-green-200"
                 >
-                    Thank you. Your payment is being confirmed by Stripe and
+                    {{
+                        $t(
+                            'Thank you. Your payment is being confirmed by Stripe and',
+                        )
+                    }}
                     will show here in a moment; the receipt follows by email.
                 </p>
                 <p
@@ -165,7 +169,7 @@ const backUrl = computed(() =>
                     role="status"
                     class="rounded-md bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
                 >
-                    The payment was cancelled. Nothing was charged.
+                    {{ $t('The payment was cancelled. Nothing was charged.') }}
                 </p>
 
                 <section
@@ -173,13 +177,15 @@ const backUrl = computed(() =>
                     aria-labelledby="summary-title"
                 >
                     <div>
-                        <h3 id="summary-title" class="sr-only">Summary</h3>
+                        <h3 id="summary-title" class="sr-only">
+                            {{ $t('Summary') }}
+                        </h3>
                         <dl
                             class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-4"
                         >
                             <div>
                                 <dt class="text-gray-600 dark:text-gray-400">
-                                    Total
+                                    {{ $t('Total') }}
                                 </dt>
                                 <dd
                                     class="text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-100"
@@ -189,7 +195,7 @@ const backUrl = computed(() =>
                             </div>
                             <div>
                                 <dt class="text-gray-600 dark:text-gray-400">
-                                    Paid
+                                    {{ $t('Paid') }}
                                 </dt>
                                 <dd
                                     class="text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-100"
@@ -219,7 +225,7 @@ const backUrl = computed(() =>
                             </div>
                             <div>
                                 <dt class="text-gray-600 dark:text-gray-400">
-                                    Due
+                                    {{ $t('Due') }}
                                 </dt>
                                 <dd class="text-gray-900 dark:text-gray-100">
                                     {{ formatDate(invoice.due_on) }}
@@ -231,7 +237,7 @@ const backUrl = computed(() =>
                         >
                             Issued {{ formatDateTime(invoice.issued_at) }}
                             <template v-if="invoice.voided_at">
-                                · voided
+                                · {{ $t('voided') }}
                                 {{
                                     formatDateTime(invoice.voided_at)
                                 }}</template
@@ -256,7 +262,7 @@ const backUrl = computed(() =>
                             rel="noopener"
                             class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-semibold tracking-widest text-gray-700 uppercase shadow-xs hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden dark:border-gray-500 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                         >
-                            Download PDF
+                            {{ $t('Download PDF') }}
                         </a>
                         <PrimaryButton
                             v-if="can.pay"
@@ -273,7 +279,7 @@ const backUrl = computed(() =>
                             class="justify-center"
                             @click="confirmingVoid = true"
                         >
-                            Void invoice
+                            {{ $t('Void invoice') }}
                         </DangerButton>
                     </div>
                     <InputError
@@ -291,17 +297,19 @@ const backUrl = computed(() =>
                         <caption
                             class="px-4 pt-4 text-left font-medium text-gray-900 dark:text-gray-100"
                         >
-                            Fees
+                            {{
+                                $t('Fees')
+                            }}
                         </caption>
                         <thead class="bg-gray-50 dark:bg-gray-900/50">
                             <tr
                                 class="text-left font-medium text-gray-600 dark:text-gray-300"
                             >
                                 <th scope="col" class="px-4 py-3">
-                                    Description
+                                    {{ $t('Description') }}
                                 </th>
                                 <th scope="col" class="px-4 py-3 text-right">
-                                    Amount
+                                    {{ $t('Amount') }}
                                 </th>
                             </tr>
                         </thead>
@@ -321,7 +329,7 @@ const backUrl = computed(() =>
                             <tr
                                 class="border-t border-gray-300 font-semibold text-gray-900 dark:border-gray-600 dark:text-gray-100"
                             >
-                                <td class="px-4 py-3">Total</td>
+                                <td class="px-4 py-3">{{ $t('Total') }}</td>
                                 <td class="px-4 py-3 text-right tabular-nums">
                                     {{ money(invoice.total) }}
                                 </td>
@@ -339,19 +347,27 @@ const backUrl = computed(() =>
                         <caption
                             class="px-4 pt-4 text-left font-medium text-gray-900 dark:text-gray-100"
                         >
-                            Payments
+                            {{
+                                $t('Payments')
+                            }}
                         </caption>
                         <thead class="bg-gray-50 dark:bg-gray-900/50">
                             <tr
                                 class="text-left font-medium text-gray-600 dark:text-gray-300"
                             >
-                                <th scope="col" class="px-4 py-3">Date</th>
-                                <th scope="col" class="px-4 py-3">Method</th>
-                                <th scope="col" class="px-4 py-3 text-right">
-                                    Amount
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Date') }}
                                 </th>
                                 <th scope="col" class="px-4 py-3">
-                                    <span class="sr-only">Receipt</span>
+                                    {{ $t('Method') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3 text-right">
+                                    {{ $t('Amount') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    <span class="sr-only">{{
+                                        $t('Receipt')
+                                    }}</span>
                                 </th>
                             </tr>
                         </thead>
@@ -387,7 +403,7 @@ const backUrl = computed(() =>
                                         class="block text-xs text-gray-600 dark:text-gray-400"
                                     >
                                         {{ money(payment.refunded_amount) }}
-                                        refunded
+                                        {{ $t('refunded') }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 text-right">
@@ -395,7 +411,7 @@ const backUrl = computed(() =>
                                         :href="payment.receipt_url"
                                         class="text-indigo-700 hover:underline dark:text-indigo-300"
                                     >
-                                        Receipt
+                                        {{ $t('Receipt') }}
                                     </a>
                                 </td>
                             </tr>
@@ -404,7 +420,7 @@ const backUrl = computed(() =>
                                     colspan="4"
                                     class="px-4 py-6 text-center text-gray-600 dark:text-gray-400"
                                 >
-                                    No payments yet.
+                                    {{ $t('No payments yet.') }}
                                 </td>
                             </tr>
                         </tbody>
@@ -420,18 +436,24 @@ const backUrl = computed(() =>
                         id="record-title"
                         class="text-lg font-medium text-gray-900 dark:text-gray-100"
                     >
-                        Record a payment
+                        {{ $t('Record a payment') }}
                     </h3>
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                        Cash at the office or a bank transfer. Card payments are
-                        recorded automatically by Stripe.
+                        {{
+                            $t(
+                                'Cash at the office or a bank transfer. Card payments are recorded automatically by Stripe.',
+                            )
+                        }}
                     </p>
                     <form
                         class="mt-4 grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-4"
                         @submit.prevent="recordPayment"
                     >
                         <div>
-                            <InputLabel for="payment-amount" value="Amount" />
+                            <InputLabel
+                                for="payment-amount"
+                                :value="$t('Amount')"
+                            />
                             <TextInput
                                 id="payment-amount"
                                 v-model="paymentForm.amount"
@@ -446,7 +468,10 @@ const backUrl = computed(() =>
                             />
                         </div>
                         <div>
-                            <InputLabel for="payment-method" value="Method" />
+                            <InputLabel
+                                for="payment-method"
+                                :value="$t('Method')"
+                            />
                             <SelectInput
                                 id="payment-method"
                                 v-model="paymentForm.method"
@@ -466,7 +491,10 @@ const backUrl = computed(() =>
                             />
                         </div>
                         <div>
-                            <InputLabel for="payment-date" value="Paid on" />
+                            <InputLabel
+                                for="payment-date"
+                                :value="$t('Paid on')"
+                            />
                             <TextInput
                                 id="payment-date"
                                 v-model="paymentForm.paid_on"
@@ -506,8 +534,11 @@ const backUrl = computed(() =>
                                 id="payment-reference-hint"
                                 class="mt-1 text-xs text-gray-600 dark:text-gray-400"
                             >
-                                As on the bank statement. Each transfer can be
-                                recorded once.
+                                {{
+                                    $t(
+                                        'As on the bank statement. Each transfer can be recorded once.',
+                                    )
+                                }}
                             </p>
                             <InputError
                                 class="mt-1"
@@ -516,7 +547,7 @@ const backUrl = computed(() =>
                         </div>
                         <div class="sm:col-span-2 lg:col-span-4">
                             <PrimaryButton :disabled="paymentForm.processing">
-                                Record payment
+                                {{ $t('Record payment') }}
                             </PrimaryButton>
                         </div>
                     </form>
@@ -538,17 +569,17 @@ const backUrl = computed(() =>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     {{ invoice.student.name }} will not have to pay it, and no
                     new invoice is generated for the {{ invoice.term.name }}.
-                    This cannot be undone.
+                    {{ $t('This cannot be undone.') }}
                 </p>
                 <div class="mt-6 flex justify-end gap-3">
                     <SecondaryButton
                         type="button"
                         @click="confirmingVoid = false"
                     >
-                        Cancel
+                        {{ $t('Cancel') }}
                     </SecondaryButton>
                     <DangerButton type="button" @click="voidInvoice">
-                        Void invoice
+                        {{ $t('Void invoice') }}
                     </DangerButton>
                 </div>
             </div>

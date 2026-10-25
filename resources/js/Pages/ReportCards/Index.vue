@@ -31,7 +31,7 @@ const share = (count: number, total: number) =>
 </script>
 
 <template>
-    <Head title="Report cards" />
+    <Head :title="$t('Report cards')" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -40,7 +40,7 @@ const share = (count: number, total: number) =>
                     <h2
                         class="text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
                     >
-                        Report cards
+                        {{ $t('Report cards') }}
                     </h2>
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                         {{ year }} · {{ term.name }}
@@ -68,18 +68,17 @@ const share = (count: number, total: number) =>
                                 id="ai-title"
                                 class="font-medium text-gray-900 dark:text-gray-100"
                             >
-                                AI comment drafts:
+                                {{ $t('AI comment drafts') }}:
                                 {{ aiDrafts.enabled ? 'on' : 'off' }}
                             </h3>
                             <p
                                 class="mt-1 text-sm text-gray-600 dark:text-gray-400"
                             >
-                                Teachers can ask for a 2–3 sentence draft of a
-                                comment, which they review and edit before
-                                approving the report card. Only the student's
-                                first name, grades, attendance and trend are
-                                sent to the AI provider: no surname, date of
-                                birth, address or remarks.
+                                {{
+                                    $t(
+                                        "Teachers can ask for a 2–3 sentence draft of a comment, which they review and edit before approving the report card. Only the student's first name, grades, attendance and trend are sent to the AI provider: no surname, date of birth, address or remarks.",
+                                    )
+                                }}
                             </p>
                         </div>
                         <button
@@ -98,7 +97,7 @@ const share = (count: number, total: number) =>
                 <ul
                     v-if="classes.length > 0"
                     class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-                    aria-label="Classes"
+                    :aria-label="$t('Classes')"
                 >
                     <li
                         v-for="c in classes"
@@ -163,8 +162,11 @@ const share = (count: number, total: number) =>
                     v-else
                     class="bg-white p-6 text-sm text-gray-600 shadow-xs sm:rounded-lg dark:bg-gray-800 dark:text-gray-400"
                 >
-                    You write the report cards of the classes you are class
-                    teacher of. You have no class this year.
+                    {{
+                        $t(
+                            'You write the report cards of the classes you are class teacher of. You have no class this year.',
+                        )
+                    }}
                 </p>
             </div>
         </div>

@@ -135,12 +135,12 @@ const buttonClasses =
 
     <AuthenticatedLayout>
         <template #header>
-            <nav aria-label="Breadcrumb" class="text-sm">
+            <nav :aria-label="$t('Breadcrumb')" class="text-sm">
                 <Link
                     :href="route('grades.index', { term: term.id })"
                     class="text-gray-600 hover:underline dark:text-gray-400"
                 >
-                    Grades
+                    {{ $t('Grades') }}
                 </Link>
             </nav>
             <div class="mt-1 flex flex-wrap items-center justify-between gap-3">
@@ -170,10 +170,10 @@ const buttonClasses =
                         "
                         :class="buttonClasses"
                     >
-                        Class results
+                        {{ $t('Class results') }}
                     </Link>
                     <PrimaryButton type="button" @click="add">
-                        Add assessment
+                        {{ $t('Add assessment') }}
                     </PrimaryButton>
                 </div>
             </div>
@@ -196,25 +196,33 @@ const buttonClasses =
                         class="mt-2 min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700"
                     >
                         <caption class="sr-only">
-                            Assessments
+                            {{
+                                $t('Assessments')
+                            }}
                         </caption>
                         <thead class="bg-gray-50 dark:bg-gray-900/50">
                             <tr
                                 class="text-left font-medium text-gray-600 dark:text-gray-300"
                             >
-                                <th scope="col" class="px-4 py-3">Name</th>
-                                <th scope="col" class="px-4 py-3">Date</th>
-                                <th scope="col" class="px-4 py-3 text-right">
-                                    Marks
-                                </th>
-                                <th scope="col" class="px-4 py-3 text-right">
-                                    Weight
-                                </th>
-                                <th scope="col" class="px-4 py-3 text-right">
-                                    Marked
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Name') }}
                                 </th>
                                 <th scope="col" class="px-4 py-3">
-                                    <span class="sr-only">Actions</span>
+                                    {{ $t('Date') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3 text-right">
+                                    {{ $t('Marks') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3 text-right">
+                                    {{ $t('Weight') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3 text-right">
+                                    {{ $t('Marked') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    <span class="sr-only">{{
+                                        $t('Actions')
+                                    }}</span>
                                 </th>
                             </tr>
                         </thead>
@@ -253,23 +261,31 @@ const buttonClasses =
                                             route('assessments.grades', a.id)
                                         "
                                         class="inline-flex items-center rounded-md bg-gray-800 px-3 py-2 text-xs font-semibold tracking-widest text-white uppercase hover:bg-gray-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-white"
-                                        :aria-label="`Enter marks for ${a.name}`"
+                                        :aria-label="
+                                            $t('Enter marks for :name', {
+                                                name: a.name,
+                                            })
+                                        "
                                     >
-                                        Enter marks
+                                        {{ $t('Enter marks') }}
                                     </Link>
                                     <SecondaryButton
                                         type="button"
-                                        :aria-label="`Edit ${a.name}`"
+                                        :aria-label="
+                                            $t('Edit :name', { name: a.name })
+                                        "
                                         @click="edit(a)"
                                     >
-                                        Edit
+                                        {{ $t('Edit') }}
                                     </SecondaryButton>
                                     <DangerButton
                                         type="button"
-                                        :aria-label="`Delete ${a.name}`"
+                                        :aria-label="
+                                            $t('Delete :name', { name: a.name })
+                                        "
                                         @click="deleting = a"
                                     >
-                                        Delete
+                                        {{ $t('Delete') }}
                                     </DangerButton>
                                 </td>
                             </tr>
@@ -279,8 +295,11 @@ const buttonClasses =
                         v-else
                         class="px-4 pt-2 pb-6 text-sm text-gray-600 dark:text-gray-400"
                     >
-                        No assessments in this term yet. Add a test, exam or
-                        assignment to enter marks.
+                        {{
+                            $t(
+                                'No assessments in this term yet. Add a test, exam or assignment to enter marks.',
+                            )
+                        }}
                     </p>
                 </section>
 
@@ -296,10 +315,10 @@ const buttonClasses =
                             id="results-title"
                             class="text-lg font-medium text-gray-900 dark:text-gray-100"
                         >
-                            Results so far
+                            {{ $t('Results so far') }}
                         </h3>
                         <p class="text-sm text-gray-600 dark:text-gray-400">
-                            Class average
+                            {{ $t('Class average') }}
                             <span
                                 class="font-semibold text-gray-900 dark:text-gray-100"
                             >
@@ -315,14 +334,20 @@ const buttonClasses =
                         class="mt-2 min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700"
                     >
                         <caption class="sr-only">
-                            Results by student
+                            {{
+                                $t('Results by student')
+                            }}
                         </caption>
                         <thead class="bg-gray-50 dark:bg-gray-900/50">
                             <tr
                                 class="text-left font-medium text-gray-600 dark:text-gray-300"
                             >
-                                <th scope="col" class="w-14 px-4 py-3">Roll</th>
-                                <th scope="col" class="px-4 py-3">Student</th>
+                                <th scope="col" class="w-14 px-4 py-3">
+                                    {{ $t('Roll') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Student') }}
+                                </th>
                                 <th
                                     v-for="a in assessments"
                                     :key="a.id"
@@ -338,10 +363,10 @@ const buttonClasses =
                                     </span>
                                 </th>
                                 <th scope="col" class="px-4 py-3 text-right">
-                                    Result
+                                    {{ $t('Result') }}
                                 </th>
                                 <th scope="col" class="px-4 py-3 text-right">
-                                    Grade
+                                    {{ $t('Grade') }}
                                 </th>
                             </tr>
                         </thead>
@@ -381,8 +406,11 @@ const buttonClasses =
                                     :colspan="assessments.length + 4"
                                     class="px-4 py-10 text-center text-gray-600 dark:text-gray-400"
                                 >
-                                    No students are enrolled in this class in
-                                    this term.
+                                    {{
+                                        $t(
+                                            'No students are enrolled in this class in this term.',
+                                        )
+                                    }}
                                 </td>
                             </tr>
                         </tbody>
@@ -390,8 +418,11 @@ const buttonClasses =
                     <p
                         class="px-4 py-3 text-xs text-gray-600 dark:text-gray-400"
                     >
-                        The result is the weighted average of the marked
-                        assessments. Assessments without marks do not count.
+                        {{
+                            $t(
+                                'The result is the weighted average of the marked assessments. Assessments without marks do not count.',
+                            )
+                        }}
                     </p>
                 </section>
             </div>
@@ -410,7 +441,7 @@ const buttonClasses =
                 </p>
 
                 <div>
-                    <InputLabel for="assessment-name" value="Name" />
+                    <InputLabel for="assessment-name" :value="$t('Name')" />
                     <TextInput
                         id="assessment-name"
                         v-model="form.name"
@@ -424,7 +455,7 @@ const buttonClasses =
 
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div>
-                        <InputLabel for="assessment-type" value="Type" />
+                        <InputLabel for="assessment-type" :value="$t('Type')" />
                         <SelectInput
                             id="assessment-type"
                             v-model="form.type"
@@ -442,7 +473,7 @@ const buttonClasses =
                         <InputError class="mt-1" :message="form.errors.type" />
                     </div>
                     <div>
-                        <InputLabel for="assessment-date" value="Date" />
+                        <InputLabel for="assessment-date" :value="$t('Date')" />
                         <TextInput
                             id="assessment-date"
                             v-model="form.held_on"
@@ -458,7 +489,10 @@ const buttonClasses =
                         />
                     </div>
                     <div>
-                        <InputLabel for="assessment-max" value="Max marks" />
+                        <InputLabel
+                            for="assessment-max"
+                            :value="$t('Max marks')"
+                        />
                         <TextInput
                             id="assessment-max"
                             v-model="form.max_marks"
@@ -474,7 +508,10 @@ const buttonClasses =
                         />
                     </div>
                     <div>
-                        <InputLabel for="assessment-weight" value="Weight" />
+                        <InputLabel
+                            for="assessment-weight"
+                            :value="$t('Weight')"
+                        />
                         <TextInput
                             id="assessment-weight"
                             v-model="form.weight"
@@ -488,7 +525,11 @@ const buttonClasses =
                             id="assessment-weight-help"
                             class="mt-1 text-xs text-gray-600 dark:text-gray-400"
                         >
-                            How much it counts: 2 counts twice as much as 1.
+                            {{
+                                $t(
+                                    'How much it counts: 2 counts twice as much as 1.',
+                                )
+                            }}
                         </p>
                         <InputError
                             class="mt-1"
@@ -500,7 +541,7 @@ const buttonClasses =
 
                 <div class="flex justify-end gap-3 pt-2">
                     <SecondaryButton type="button" @click="showForm = false">
-                        Cancel
+                        {{ $t('Cancel') }}
                     </SecondaryButton>
                     <PrimaryButton :disabled="form.processing">
                         {{ editing ? 'Save' : 'Add and enter marks' }}
@@ -523,16 +564,18 @@ const buttonClasses =
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     <template v-if="deleting && deleting.graded_count > 0">
                         The marks of {{ deleting.graded_count }} students are
-                        deleted with it.
+                        {{ $t('deleted with it.') }}
                     </template>
-                    <template v-else>No marks have been entered yet.</template>
+                    <template v-else>{{
+                        $t('No marks have been entered yet.')
+                    }}</template>
                 </p>
                 <div class="mt-6 flex justify-end gap-3">
                     <SecondaryButton type="button" @click="deleting = null">
-                        Cancel
+                        {{ $t('Cancel') }}
                     </SecondaryButton>
                     <DangerButton type="button" @click="destroy">
-                        Delete
+                        {{ $t('Delete') }}
                     </DangerButton>
                 </div>
             </div>

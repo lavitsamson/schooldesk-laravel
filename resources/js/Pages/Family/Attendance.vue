@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatRate } from '@/composables/numbers';
 import { formatDate } from '@/composables/dates';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import ChildHeader from '@/Pages/Family/Partials/ChildHeader.vue';
@@ -60,7 +61,9 @@ const dayLabel = (date: string, status: AttendanceStatus | null) =>
 </script>
 
 <template>
-    <Head :title="`Attendance ${child.first_name}`" />
+    <Head
+        :title="$t('Attendance :first_name', { first_name: child.first_name })"
+    />
 
     <AuthenticatedLayout>
         <template #header>
@@ -87,7 +90,7 @@ const dayLabel = (date: string, status: AttendanceStatus | null) =>
                             class="rounded-md px-2 py-1 text-sm font-medium text-indigo-700 hover:bg-gray-100 focus:ring-2 focus:ring-indigo-500 focus:outline-hidden dark:text-indigo-300 dark:hover:bg-gray-700"
                             preserve-scroll
                         >
-                            ‹ Previous
+                            {{ $t('‹ Previous') }}
                         </Link>
                         <h3
                             class="text-lg font-semibold text-gray-900 dark:text-gray-100"
@@ -105,7 +108,7 @@ const dayLabel = (date: string, status: AttendanceStatus | null) =>
                             class="rounded-md px-2 py-1 text-sm font-medium text-indigo-700 hover:bg-gray-100 focus:ring-2 focus:ring-indigo-500 focus:outline-hidden dark:text-indigo-300 dark:hover:bg-gray-700"
                             preserve-scroll
                         >
-                            Next ›
+                            {{ $t('Next ›') }}
                         </Link>
                         <span v-else class="w-16" aria-hidden="true" />
                     </div>
@@ -113,7 +116,9 @@ const dayLabel = (date: string, status: AttendanceStatus | null) =>
                     <div
                         class="mt-4 grid grid-cols-7 gap-1 text-center text-sm"
                         role="list"
-                        :aria-label="`Attendance in ${monthTitle}`"
+                        :aria-label="
+                            $t('Attendance in :month', { month: monthTitle })
+                        "
                     >
                         <div
                             v-for="weekday in weekdays"
@@ -160,16 +165,12 @@ const dayLabel = (date: string, status: AttendanceStatus | null) =>
                         class="bg-white p-4 shadow-xs sm:rounded-lg dark:bg-gray-800"
                     >
                         <dt class="text-sm text-gray-600 dark:text-gray-400">
-                            Attendance rate
+                            {{ $t('Attendance rate') }}
                         </dt>
                         <dd
                             class="mt-1 text-xl font-semibold text-gray-900 tabular-nums dark:text-gray-100"
                         >
-                            {{
-                                attendance.attendance_rate === null
-                                    ? '—'
-                                    : `${attendance.attendance_rate.toLocaleString()} %`
-                            }}
+                            {{ formatRate(attendance.attendance_rate) }}
                         </dd>
                     </div>
                     <div
@@ -188,8 +189,11 @@ const dayLabel = (date: string, status: AttendanceStatus | null) =>
                     </div>
                 </dl>
                 <p class="text-sm text-gray-600 dark:text-gray-400">
-                    Late counts as attended. Days without a colour had no
-                    attendance taken (weekends, holidays, or not yet recorded).
+                    {{
+                        $t(
+                            'Late counts as attended. Days without a colour had no attendance taken (weekends, holidays, or not yet recorded).',
+                        )
+                    }}
                 </p>
             </div>
         </div>

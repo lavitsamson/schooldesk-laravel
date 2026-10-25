@@ -49,7 +49,7 @@ const submit = () => form.put(route('setup.academic-year'));
         <form class="space-y-6" @submit.prevent="submit">
             <div class="grid gap-4 sm:grid-cols-3">
                 <div>
-                    <InputLabel for="name" value="Academic year" />
+                    <InputLabel for="name" :value="$t('Academic year')" />
                     <TextInput
                         id="name"
                         v-model="form.name"
@@ -61,7 +61,7 @@ const submit = () => form.put(route('setup.academic-year'));
                     <InputError class="mt-2" :message="form.errors.name" />
                 </div>
                 <div>
-                    <InputLabel for="starts_on" value="Starts on" />
+                    <InputLabel for="starts_on" :value="$t('Starts on')" />
                     <TextInput
                         id="starts_on"
                         v-model="form.starts_on"
@@ -72,7 +72,7 @@ const submit = () => form.put(route('setup.academic-year'));
                     <InputError class="mt-2" :message="form.errors.starts_on" />
                 </div>
                 <div>
-                    <InputLabel for="ends_on" value="Ends on" />
+                    <InputLabel for="ends_on" :value="$t('Ends on')" />
                     <TextInput
                         id="ends_on"
                         v-model="form.ends_on"
@@ -88,7 +88,7 @@ const submit = () => form.put(route('setup.academic-year'));
                 <legend
                     class="text-sm font-medium text-gray-900 dark:text-gray-100"
                 >
-                    Terms
+                    {{ $t('Terms') }}
                 </legend>
                 <InputError class="mt-2" :message="form.errors.terms" />
 
@@ -100,7 +100,11 @@ const submit = () => form.put(route('setup.academic-year'));
                     <div>
                         <InputLabel
                             :for="`term-${index}-name`"
-                            :value="`Term ${index + 1} name`"
+                            :value="
+                                $t('Term :number name', {
+                                    number: String(index + 1),
+                                })
+                            "
                         />
                         <TextInput
                             :id="`term-${index}-name`"
@@ -119,7 +123,7 @@ const submit = () => form.put(route('setup.academic-year'));
                     <div>
                         <InputLabel
                             :for="`term-${index}-starts`"
-                            value="Starts on"
+                            :value="$t('Starts on')"
                         />
                         <TextInput
                             :id="`term-${index}-starts`"
@@ -141,7 +145,7 @@ const submit = () => form.put(route('setup.academic-year'));
                     <div>
                         <InputLabel
                             :for="`term-${index}-ends`"
-                            value="Ends on"
+                            :value="$t('Ends on')"
                         />
                         <TextInput
                             :id="`term-${index}-ends`"
@@ -161,10 +165,14 @@ const submit = () => form.put(route('setup.academic-year'));
                         type="button"
                         class="sm:mt-6"
                         :disabled="form.terms.length === 1"
-                        :aria-label="`Remove term ${index + 1}`"
+                        :aria-label="
+                            $t('Remove term :number', {
+                                number: String(index + 1),
+                            })
+                        "
                         @click="removeTerm(index)"
                     >
-                        Remove
+                        {{ $t('Remove') }}
                     </SecondaryButton>
                 </div>
 
@@ -174,13 +182,13 @@ const submit = () => form.put(route('setup.academic-year'));
                     :disabled="form.terms.length >= 6"
                     @click="addTerm"
                 >
-                    Add term
+                    {{ $t('Add term') }}
                 </SecondaryButton>
             </fieldset>
 
             <div class="flex justify-end">
                 <PrimaryButton :disabled="form.processing">
-                    Save and continue
+                    {{ $t('Save and continue') }}
                 </PrimaryButton>
             </div>
         </form>

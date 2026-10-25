@@ -17,14 +17,18 @@ const switchTo = (event: Event) => {
 
 <template>
     <div v-if="schools.length > 1" class="flex items-center">
-        <label for="school-switcher" class="sr-only">Current school</label>
+        <label for="school-switcher" class="sr-only">{{
+            $t('Current school')
+        }}</label>
         <select
             id="school-switcher"
             :value="school?.id ?? ''"
             class="rounded-md border-gray-300 py-1.5 text-sm text-gray-700 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
             @change="switchTo"
         >
-            <option v-if="!school" value="" disabled>Choose a school</option>
+            <option v-if="!school" value="" disabled>
+                {{ $t('Choose a school') }}
+            </option>
             <option v-for="item in schools" :key="item.id" :value="item.id">
                 {{ item.name }}
             </option>

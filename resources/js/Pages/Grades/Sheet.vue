@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatRate } from '@/composables/numbers';
 import { formatDate } from '@/composables/dates';
 import { formatMarks } from '@/composables/grades';
 import { HttpError, sendJson } from '@/composables/http';
@@ -68,7 +69,7 @@ const validate = (row: Row): string | null => {
 const percent = (row: Row): string => {
     const marks = normalise(row.marks);
     if (marks === null || row.error) return '';
-    return `${((Number(marks) / props.assessment.max_marks) * 100).toLocaleString(undefined, { maximumFractionDigits: 1 })} %`;
+    return formatRate((Number(marks) / props.assessment.max_marks) * 100);
 };
 
 const marked = computed(
@@ -239,16 +240,16 @@ const inputClasses =
 </script>
 
 <template>
-    <Head :title="`Marks ${assessment.name}`" />
+    <Head :title="$t('Marks :name', { name: assessment.name })" />
 
     <AuthenticatedLayout>
         <template #header>
-            <nav aria-label="Breadcrumb" class="text-sm">
+            <nav :aria-label="$t('Breadcrumb')" class="text-sm">
                 <Link
                     :href="route('grades.index', { term: term.id })"
                     class="text-gray-600 hover:underline dark:text-gray-400"
                 >
-                    Grades
+                    {{ $t('Grades') }}
                 </Link>
                 <span class="mx-1 text-gray-400" aria-hidden="true">›</span>
                 <Link
@@ -285,7 +286,7 @@ const inputClasses =
             <div class="mx-auto max-w-5xl space-y-4 px-4 sm:px-6 lg:px-8">
                 <section
                     class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 shadow-xs sm:rounded-lg dark:bg-gray-800"
-                    aria-label="Summary"
+                    :aria-label="$t('Summary')"
                 >
                     <p class="text-sm text-gray-700 dark:text-gray-300">
                         <span class="font-medium">{{ marked }}</span> of
@@ -310,9 +311,11 @@ const inputClasses =
                         </template>
                     </p>
                     <p class="w-full text-xs text-gray-600 dark:text-gray-400">
-                        Enter or ↓ moves to the next student, ↑ to the previous
-                        one. Leave marks empty if there are none, and add a
-                        remark such as "absent".
+                        {{
+                            $t(
+                                'Enter or ↓ moves to the next student, ↑ to the previous one. Leave marks empty if there are none, and add a remark such as "absent".',
+                            )
+                        }}
                     </p>
                     <p
                         v-if="generalError"
@@ -330,7 +333,9 @@ const inputClasses =
                         class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700"
                     >
                         <caption class="sr-only">
-                            Marks for
+                            {{
+                                $t('Marks for')
+                            }}
                             {{
                                 assessment.name
                             }}
@@ -339,8 +344,12 @@ const inputClasses =
                             <tr
                                 class="text-left font-medium text-gray-600 dark:text-gray-300"
                             >
-                                <th scope="col" class="w-14 px-4 py-3">Roll</th>
-                                <th scope="col" class="px-4 py-3">Student</th>
+                                <th scope="col" class="w-14 px-4 py-3">
+                                    {{ $t('Roll') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Student') }}
+                                </th>
                                 <th scope="col" class="w-36 px-4 py-3">
                                     Marks (/ {{ assessment.max_marks }})
                                 </th>
@@ -350,7 +359,9 @@ const inputClasses =
                                 >
                                     %
                                 </th>
-                                <th scope="col" class="px-4 py-3">Remark</th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Remark') }}
+                                </th>
                             </tr>
                         </thead>
                         <tbody
@@ -383,7 +394,11 @@ const inputClasses =
                                         type="text"
                                         inputmode="decimal"
                                         autocomplete="off"
-                                        :aria-label="`Marks for ${row.student.name}`"
+                                        :aria-label="
+                                            $t('Marks for :name', {
+                                                name: row.student.name,
+                                            })
+                                        "
                                         :aria-invalid="
                                             row.error ? 'true' : 'false'
                                         "
@@ -424,7 +439,11 @@ const inputClasses =
                                         type="text"
                                         maxlength="255"
                                         autocomplete="off"
-                                        :aria-label="`Remark for ${row.student.name}`"
+                                        :aria-label="
+                                            $t('Remark for :name', {
+                                                name: row.student.name,
+                                            })
+                                        "
                                         :class="[inputClasses, 'min-w-40']"
                                         @input="changed(index)"
                                         @keydown="
@@ -438,8 +457,11 @@ const inputClasses =
                                     colspan="5"
                                     class="px-4 py-10 text-center text-gray-600 dark:text-gray-400"
                                 >
-                                    No students were enrolled in this class on
-                                    the day of the assessment.
+                                    {{
+                                        $t(
+                                            'No students were enrolled in this class on the day of the assessment.',
+                                        )
+                                    }}
                                 </td>
                             </tr>
                         </tbody>

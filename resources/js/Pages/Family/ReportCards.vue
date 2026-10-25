@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatRate } from '@/composables/numbers';
 import { formatDateTime } from '@/composables/dates';
 import { formatPercent } from '@/composables/grades';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
@@ -14,7 +15,11 @@ defineProps<{
 </script>
 
 <template>
-    <Head :title="`Report cards ${child.first_name}`" />
+    <Head
+        :title="
+            $t('Report cards :first_name', { first_name: child.first_name })
+        "
+    />
 
     <AuthenticatedLayout>
         <template #header>
@@ -30,7 +35,7 @@ defineProps<{
                 <ul
                     v-if="reportCards.length > 0"
                     class="space-y-4"
-                    aria-label="Report cards"
+                    :aria-label="$t('Report cards')"
                 >
                     <li
                         v-for="card in reportCards"
@@ -51,7 +56,7 @@ defineProps<{
                                 >
                                     {{ card.class }}
                                     <template v-if="card.published_at">
-                                        · published
+                                        · {{ $t('published') }}
                                         {{ formatDateTime(card.published_at) }}
                                     </template>
                                 </p>
@@ -60,7 +65,7 @@ defineProps<{
                                 :href="card.pdf_url"
                                 class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden dark:focus:ring-offset-gray-800"
                             >
-                                Download PDF
+                                {{ $t('Download PDF') }}
                                 <span class="sr-only">
                                     for the {{ card.term.name }}</span
                                 >
@@ -69,7 +74,7 @@ defineProps<{
                         <dl class="mt-4 grid grid-cols-2 gap-4 text-sm">
                             <div>
                                 <dt class="text-gray-600 dark:text-gray-400">
-                                    Overall result
+                                    {{ $t('Overall result') }}
                                 </dt>
                                 <dd
                                     class="mt-1 text-xl font-semibold text-gray-900 dark:text-gray-100"
@@ -88,16 +93,12 @@ defineProps<{
                             </div>
                             <div>
                                 <dt class="text-gray-600 dark:text-gray-400">
-                                    Attendance
+                                    {{ $t('Attendance') }}
                                 </dt>
                                 <dd
                                     class="mt-1 text-xl font-semibold text-gray-900 tabular-nums dark:text-gray-100"
                                 >
-                                    {{
-                                        card.attendance_rate === null
-                                            ? '—'
-                                            : `${card.attendance_rate.toLocaleString()} %`
-                                    }}
+                                    {{ formatRate(card.attendance_rate) }}
                                 </dd>
                             </div>
                         </dl>
@@ -113,7 +114,7 @@ defineProps<{
                     v-else
                     class="bg-white p-6 text-sm text-gray-600 shadow-xs sm:rounded-lg dark:bg-gray-800 dark:text-gray-400"
                 >
-                    No report cards have been published for
+                    {{ $t('No report cards have been published for') }}
                     {{ child.first_name }} yet.
                 </p>
             </div>

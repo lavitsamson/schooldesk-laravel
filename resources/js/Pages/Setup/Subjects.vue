@@ -40,14 +40,16 @@ const submit = () => form.put(route('setup.subjects'));
                 <div>
                     <InputLabel
                         :for="`subject-${index}-name`"
-                        :value="`Subject ${index + 1}`"
+                        :value="
+                            $t('Subject :number', { number: String(index + 1) })
+                        "
                     />
                     <TextInput
                         :id="`subject-${index}-name`"
                         v-model="subject.name"
                         type="text"
                         class="mt-1 block w-full"
-                        placeholder="Mathematics"
+                        :placeholder="$t('Mathematics')"
                         required
                     />
                     <InputError
@@ -58,13 +60,16 @@ const submit = () => form.put(route('setup.subjects'));
                     />
                 </div>
                 <div>
-                    <InputLabel :for="`subject-${index}-code`" value="Code" />
+                    <InputLabel
+                        :for="`subject-${index}-code`"
+                        :value="$t('Code')"
+                    />
                     <TextInput
                         :id="`subject-${index}-code`"
                         v-model="subject.code"
                         type="text"
                         class="mt-1 block w-full uppercase"
-                        placeholder="MATH"
+                        :placeholder="$t('MATH')"
                         required
                     />
                     <InputError
@@ -78,20 +83,24 @@ const submit = () => form.put(route('setup.subjects'));
                     type="button"
                     class="sm:mt-6"
                     :disabled="form.subjects.length === 1"
-                    :aria-label="`Remove subject ${index + 1}`"
+                    :aria-label="
+                        $t('Remove subject :number', {
+                            number: String(index + 1),
+                        })
+                    "
                     @click="removeSubject(index)"
                 >
-                    Remove
+                    {{ $t('Remove') }}
                 </SecondaryButton>
             </div>
 
             <SecondaryButton type="button" @click="addSubject">
-                Add subject
+                {{ $t('Add subject') }}
             </SecondaryButton>
 
             <div class="flex justify-end">
                 <PrimaryButton :disabled="form.processing">
-                    Save and continue
+                    {{ $t('Save and continue') }}
                 </PrimaryButton>
             </div>
         </form>

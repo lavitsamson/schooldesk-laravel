@@ -91,18 +91,18 @@ const secondaryButton =
 </script>
 
 <template>
-    <Head :title="`Report card ${name}`" />
+    <Head :title="$t('Report card :name', { name })" />
 
     <AuthenticatedLayout>
         <template #header>
-            <nav aria-label="Breadcrumb" class="text-sm">
+            <nav :aria-label="$t('Breadcrumb')" class="text-sm">
                 <Link
                     :href="
                         route('report-cards.index', { term: report.term.id })
                     "
                     class="text-gray-600 hover:underline dark:text-gray-400"
                 >
-                    Report cards
+                    {{ $t('Report cards') }}
                 </Link>
                 <span class="mx-1 text-gray-400" aria-hidden="true">›</span>
                 <Link
@@ -127,7 +127,7 @@ const secondaryButton =
                     <ReportCardStatusBadge :status="card.status" />
                 </div>
                 <nav
-                    aria-label="Other students"
+                    :aria-label="$t('Other students')"
                     class="flex gap-3 text-sm font-medium"
                 >
                     <Link
@@ -135,14 +135,14 @@ const secondaryButton =
                         :href="route('report-cards.show', siblings.previous)"
                         class="text-indigo-700 hover:underline focus:ring-2 focus:ring-indigo-500 focus:outline-hidden dark:text-indigo-300"
                     >
-                        ← Previous student
+                        {{ $t('← Previous student') }}
                     </Link>
                     <Link
                         v-if="siblings.next"
                         :href="route('report-cards.show', siblings.next)"
                         class="text-indigo-700 hover:underline focus:ring-2 focus:ring-indigo-500 focus:outline-hidden dark:text-indigo-300"
                     >
-                        Next student →
+                        {{ $t('Next student →') }}
                     </Link>
                 </nav>
             </div>
@@ -156,12 +156,18 @@ const secondaryButton =
                     <p class="text-sm text-gray-600 dark:text-gray-400">
                         Calculated {{ dateTime(report.calculated_at) }}.
                         <template v-if="isDraft">
-                            Marks entered since then are not included until you
-                            recalculate.
+                            {{
+                                $t(
+                                    'Marks entered since then are not included until you recalculate.',
+                                )
+                            }}
                         </template>
                         <template v-else>
-                            Frozen since approval: later changes to marks do not
-                            change this report card.
+                            {{
+                                $t(
+                                    'Frozen since approval: later changes to marks do not change this report card.',
+                                )
+                            }}
                         </template>
                     </p>
                     <ReportCardResult :report="report" />
@@ -176,14 +182,14 @@ const secondaryButton =
                             id="comment-title"
                             class="text-lg font-medium text-gray-900 dark:text-gray-100"
                         >
-                            Teacher's comment
+                            {{ $t("Teacher's comment") }}
                         </h3>
 
                         <form class="space-y-3" @submit.prevent="saveComment">
                             <div>
                                 <InputLabel
                                     for="comment"
-                                    value="Comment"
+                                    :value="$t('Comment')"
                                     class="sr-only"
                                 />
                                 <textarea
@@ -200,8 +206,11 @@ const secondaryButton =
                                     class="mt-1 flex justify-between gap-3 text-xs text-gray-600 dark:text-gray-400"
                                 >
                                     <span v-if="form.ai_draft_id">
-                                        From the AI draft: check and edit it
-                                        before saving.
+                                        {{
+                                            $t(
+                                                'From the AI draft: check and edit it before saving.',
+                                            )
+                                        }}
                                     </span>
                                     <span
                                         v-else-if="
@@ -209,7 +218,7 @@ const secondaryButton =
                                             'ai_draft_edited'
                                         "
                                     >
-                                        Started from an AI draft.
+                                        {{ $t('Started from an AI draft.') }}
                                     </span>
                                     <span v-else />
                                     <span class="tabular-nums">
@@ -230,7 +239,7 @@ const secondaryButton =
                                         form.processing || !form.isDirty,
                                 }"
                             >
-                                Save comment
+                                {{ $t('Save comment') }}
                             </PrimaryButton>
                         </form>
 
@@ -244,7 +253,7 @@ const secondaryButton =
                                 <h4
                                     class="font-medium text-gray-900 dark:text-gray-100"
                                 >
-                                    AI draft
+                                    {{ $t('AI draft') }}
                                 </h4>
                                 <button
                                     type="button"
@@ -262,10 +271,11 @@ const secondaryButton =
                                 </button>
                             </div>
                             <p class="text-xs text-gray-600 dark:text-gray-400">
-                                Sends only the first name, grades, attendance
-                                and trend. A draft is a suggestion: nothing is
-                                saved or published until you use it, edit it and
-                                approve the report card.
+                                {{
+                                    $t(
+                                        'Sends only the first name, grades, attendance and trend. A draft is a suggestion: nothing is saved or published until you use it, edit it and approve the report card.',
+                                    )
+                                }}
                             </p>
                             <InputError :message="errors.draft" />
                             <figure
@@ -291,7 +301,7 @@ const secondaryButton =
                                         :class="secondaryButton"
                                         @click="useDraft(draft)"
                                     >
-                                        Use this draft
+                                        {{ $t('Use this draft') }}
                                     </button>
                                 </figcaption>
                             </figure>
@@ -306,7 +316,7 @@ const secondaryButton =
                             id="status-title"
                             class="text-lg font-medium text-gray-900 dark:text-gray-100"
                         >
-                            Approval
+                            {{ $t('Approval') }}
                         </h3>
                         <p
                             v-if="card.approved_by && card.approved_at"
@@ -315,7 +325,7 @@ const secondaryButton =
                             Approved by {{ card.approved_by }},
                             {{ dateTime(card.approved_at) }}.
                             <template v-if="card.published_at">
-                                Published to parents
+                                {{ $t('Published to parents') }}
                                 {{ dateTime(card.published_at) }}.
                             </template>
                         </p>
@@ -323,8 +333,11 @@ const secondaryButton =
                             v-else
                             class="text-sm text-gray-600 dark:text-gray-400"
                         >
-                            Approving freezes the results and renders the PDF.
-                            Parents see the report card once it is published.
+                            {{
+                                $t(
+                                    'Approving freezes the results and renders the PDF. Parents see the report card once it is published.',
+                                )
+                            }}
                         </p>
                         <InputError :message="errors.status" />
 
@@ -335,7 +348,7 @@ const secondaryButton =
                                     :disabled="busy !== null"
                                     @click="approve"
                                 >
-                                    Approve
+                                    {{ $t('Approve') }}
                                 </PrimaryButton>
                                 <button
                                     type="button"
@@ -345,7 +358,7 @@ const secondaryButton =
                                         post('refresh', 'report-cards.refresh')
                                     "
                                 >
-                                    Recalculate
+                                    {{ $t('Recalculate') }}
                                 </button>
                             </template>
                             <template v-else-if="card.status === 'approved'">
@@ -360,7 +373,7 @@ const secondaryButton =
                                         )
                                     "
                                 >
-                                    Publish
+                                    {{ $t('Publish') }}
                                 </PrimaryButton>
                                 <button
                                     type="button"
@@ -370,7 +383,7 @@ const secondaryButton =
                                         post('reopen', 'report-cards.reopen')
                                     "
                                 >
-                                    Reopen
+                                    {{ $t('Reopen') }}
                                 </button>
                             </template>
                             <a

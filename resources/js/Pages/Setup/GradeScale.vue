@@ -21,8 +21,11 @@ const submit = () => form.put(route('setup.grade-scale'));
         <form class="space-y-4" @submit.prevent="submit">
             <fieldset>
                 <legend class="text-sm text-gray-600 dark:text-gray-400">
-                    Choose how grades are shown on report cards. You can adjust
-                    the bands later.
+                    {{
+                        $t(
+                            'Choose how grades are shown on report cards. You can adjust the bands later.',
+                        )
+                    }}
                 </legend>
 
                 <div class="mt-4 grid gap-4 sm:grid-cols-2">
@@ -53,8 +56,10 @@ const submit = () => form.put(route('setup.grade-scale'));
                         <table class="mt-3 w-full text-sm">
                             <thead class="sr-only">
                                 <tr>
-                                    <th scope="col">Grade</th>
-                                    <th scope="col">Percentage range</th>
+                                    <th scope="col">{{ $t('Grade') }}</th>
+                                    <th scope="col">
+                                        {{ $t('Percentage range') }}
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -83,7 +88,7 @@ const submit = () => form.put(route('setup.grade-scale'));
 
             <div class="flex justify-end">
                 <PrimaryButton :disabled="form.processing">
-                    Finish setup
+                    {{ $t('Finish setup') }}
                 </PrimaryButton>
             </div>
         </form>

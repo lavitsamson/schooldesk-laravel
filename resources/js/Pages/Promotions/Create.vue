@@ -104,16 +104,16 @@ const promote = () =>
 </script>
 
 <template>
-    <Head title="Promote students" />
+    <Head :title="$t('Promote students')" />
 
     <AuthenticatedLayout>
         <template #header>
-            <nav aria-label="Breadcrumb" class="text-sm">
+            <nav :aria-label="$t('Breadcrumb')" class="text-sm">
                 <Link
                     :href="route('academic-years.index')"
                     class="text-gray-600 hover:underline dark:text-gray-400"
                 >
-                    Academic years
+                    {{ $t('Academic years') }}
                 </Link>
             </nav>
             <h2
@@ -132,11 +132,18 @@ const promote = () =>
                         v-if="years.length === 0"
                         class="text-sm text-gray-700 dark:text-gray-300"
                     >
-                        Add next year's academic year (with its classes) first.
+                        {{
+                            $t(
+                                "Add next year's academic year (with its classes) first.",
+                            )
+                        }}
                     </p>
                     <div v-else class="flex flex-wrap items-end gap-4">
                         <div>
-                            <InputLabel for="to-year" value="Promote into" />
+                            <InputLabel
+                                for="to-year"
+                                :value="$t('Promote into')"
+                            />
                             <SelectInput
                                 id="to-year"
                                 v-model="toYearId"
@@ -162,10 +169,11 @@ const promote = () =>
                     </div>
                     <InputError class="mt-2" :message="errors.to_year_id" />
                     <p class="mt-3 text-sm text-gray-600 dark:text-gray-400">
-                        Targets are suggested from the class names (Grade 7 A →
-                        Grade 8 A). Check each class, untick students who repeat
-                        the year, then promote. Nothing changes before you
-                        confirm.
+                        {{
+                            $t(
+                                'Targets are suggested from the class names (Grade 7 A → Grade 8 A). Check each class, untick students who repeat the year, then promote. Nothing changes before you confirm.',
+                            )
+                        }}
                     </p>
                 </section>
 
@@ -174,8 +182,11 @@ const promote = () =>
                         v-if="preview.target_classes.length === 0"
                         class="rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:bg-amber-950/50 dark:text-amber-100"
                     >
-                        The target year has no classes yet. Add them under
-                        Classes, or graduate students only.
+                        {{
+                            $t(
+                                'The target year has no classes yet. Add them under Classes, or graduate students only.',
+                            )
+                        }}
                     </p>
 
                     <section
@@ -201,7 +212,9 @@ const promote = () =>
                             <div>
                                 <InputLabel
                                     :for="`target-${c.id}`"
-                                    :value="`Target for ${c.name}`"
+                                    :value="
+                                        $t('Target for :name', { name: c.name })
+                                    "
                                     class="sr-only"
                                 />
                                 <SelectInput
@@ -209,7 +222,9 @@ const promote = () =>
                                     v-model="targets[c.id]!"
                                     class="block w-full"
                                 >
-                                    <option :value="null">Not promoted</option>
+                                    <option :value="null">
+                                        {{ $t('Not promoted') }}
+                                    </option>
                                     <option
                                         v-for="t in preview.target_classes"
                                         :key="t.id"
@@ -217,7 +232,9 @@ const promote = () =>
                                     >
                                         → {{ t.name }}
                                     </option>
-                                    <option value="graduate">Graduate</option>
+                                    <option value="graduate">
+                                        {{ $t('Graduate') }}
+                                    </option>
                                 </SelectInput>
                             </div>
                             <SecondaryButton
@@ -267,7 +284,7 @@ const promote = () =>
                                     <span
                                         v-if="s.already_enrolled"
                                         class="text-xs text-gray-600 dark:text-gray-400"
-                                        >(already enrolled)</span
+                                        >{{ $t('(already enrolled)') }}</span
                                     >
                                 </label>
                             </li>
@@ -282,7 +299,7 @@ const promote = () =>
                             "
                             @click="confirming = true"
                         >
-                            Promote students
+                            {{ $t('Promote students') }}
                         </PrimaryButton>
                     </div>
                 </template>
@@ -298,21 +315,24 @@ const promote = () =>
                     {{ summary.graduated }} students?
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    Promoted students are enrolled in next year's classes.
-                    Graduates are marked as graduated at the end of
+                    {{
+                        $t(
+                            "Promoted students are enrolled in next year's classes. Graduates are marked as graduated at the end of",
+                        )
+                    }}
                     {{ fromYear.name }}. Running this again skips students who
-                    are already enrolled.
+                    {{ $t('are already enrolled.') }}
                 </p>
                 <div class="mt-6 flex justify-end gap-3">
                     <SecondaryButton type="button" @click="confirming = false">
-                        Cancel
+                        {{ $t('Cancel') }}
                     </SecondaryButton>
                     <PrimaryButton
                         type="button"
                         :disabled="processing"
                         @click="promote"
                     >
-                        Promote
+                        {{ $t('Promote') }}
                     </PrimaryButton>
                 </div>
             </div>

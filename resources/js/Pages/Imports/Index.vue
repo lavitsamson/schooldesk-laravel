@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getActiveLanguage } from 'laravel-vue-i18n';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import Pagination from '@/Components/Pagination.vue';
@@ -23,14 +24,14 @@ const pick = (event: Event) =>
 const submit = () => form.post(route('imports.store'), { forceFormData: true });
 
 const dateTime = (iso: string) =>
-    new Date(iso).toLocaleString(undefined, {
+    new Date(iso).toLocaleString(getActiveLanguage(), {
         dateStyle: 'medium',
         timeStyle: 'short',
     });
 </script>
 
 <template>
-    <Head title="Import students" />
+    <Head :title="$t('Import students')" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -38,13 +39,13 @@ const dateTime = (iso: string) =>
                 <h2
                     class="text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
                 >
-                    Import students
+                    {{ $t('Import students') }}
                 </h2>
                 <Link
                     :href="route('students.index')"
                     class="text-sm text-gray-600 hover:underline focus:underline focus:outline-hidden dark:text-gray-400"
                 >
-                    Back to students
+                    {{ $t('Back to students') }}
                 </Link>
             </div>
         </template>
@@ -59,25 +60,27 @@ const dateTime = (iso: string) =>
                         id="upload-heading"
                         class="text-lg font-medium text-gray-900 dark:text-gray-100"
                     >
-                        Upload a file
+                        {{ $t('Upload a file') }}
                     </h3>
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                         CSV or Excel (.xlsx), up to {{ maxFileMb }} MB, with the
-                        column headings in the first row. Students whose
-                        admission number already exists are updated, so you can
-                        upload a corrected file again. Download the
+                        {{
+                            $t(
+                                'column headings in the first row. Students whose admission number already exists are updated, so you can upload a corrected file again. Download the',
+                            )
+                        }}
                         <a
                             :href="
                                 route('imports.template', { format: 'xlsx' })
                             "
                             class="font-medium text-indigo-700 underline dark:text-indigo-300"
-                            >Excel template</a
+                            >{{ $t('Excel template') }}</a
                         >
-                        or the
+                        {{ $t('or the') }}
                         <a
                             :href="route('imports.template')"
                             class="font-medium text-indigo-700 underline dark:text-indigo-300"
-                            >CSV template</a
+                            >{{ $t('CSV template') }}</a
                         >.
                     </p>
 
@@ -86,7 +89,7 @@ const dateTime = (iso: string) =>
                         @submit.prevent="submit"
                     >
                         <div class="min-w-64 flex-1">
-                            <InputLabel for="file" value="File" />
+                            <InputLabel for="file" :value="$t('File')" />
                             <input
                                 id="file"
                                 type="file"
@@ -110,7 +113,7 @@ const dateTime = (iso: string) =>
                         class="mt-3 w-full"
                         :value="form.progress.percentage"
                         max="100"
-                        aria-label="Upload progress"
+                        :aria-label="$t('Upload progress')"
                     />
                 </section>
 
@@ -122,7 +125,7 @@ const dateTime = (iso: string) =>
                         id="recent-heading"
                         class="px-6 pt-6 text-lg font-medium text-gray-900 dark:text-gray-100"
                     >
-                        Recent imports
+                        {{ $t('Recent imports') }}
                     </h3>
                     <div class="mt-4 overflow-x-auto">
                         <table
@@ -132,30 +135,32 @@ const dateTime = (iso: string) =>
                                 <tr
                                     class="text-left font-medium text-gray-600 dark:text-gray-300"
                                 >
-                                    <th scope="col" class="px-6 py-3">File</th>
                                     <th scope="col" class="px-6 py-3">
-                                        Uploaded
+                                        {{ $t('File') }}
                                     </th>
                                     <th scope="col" class="px-6 py-3">
-                                        Status
+                                        {{ $t('Uploaded') }}
+                                    </th>
+                                    <th scope="col" class="px-6 py-3">
+                                        {{ $t('Status') }}
                                     </th>
                                     <th
                                         scope="col"
                                         class="px-6 py-3 text-right"
                                     >
-                                        Created
+                                        {{ $t('Created') }}
                                     </th>
                                     <th
                                         scope="col"
                                         class="px-6 py-3 text-right"
                                     >
-                                        Updated
+                                        {{ $t('Updated') }}
                                     </th>
                                     <th
                                         scope="col"
                                         class="px-6 py-3 text-right"
                                     >
-                                        Failed
+                                        {{ $t('Failed') }}
                                     </th>
                                 </tr>
                             </thead>
@@ -208,14 +213,17 @@ const dateTime = (iso: string) =>
                                         colspan="6"
                                         class="px-6 py-10 text-center text-gray-600 dark:text-gray-400"
                                     >
-                                        No imports yet.
+                                        {{ $t('No imports yet.') }}
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                     <div class="p-4">
-                        <Pagination :meta="batches.meta" label="Import pages" />
+                        <Pagination
+                            :meta="batches.meta"
+                            :label="$t('Import pages')"
+                        />
                     </div>
                 </section>
 
@@ -228,7 +236,7 @@ const dateTime = (iso: string) =>
                             id="columns-heading"
                             class="px-6 pt-6 text-lg font-medium text-gray-900 dark:text-gray-100"
                         >
-                            Columns
+                            {{ $t('Columns') }}
                         </h3>
                         <table
                             class="mt-4 min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700"
@@ -272,13 +280,16 @@ const dateTime = (iso: string) =>
                             id="classes-heading"
                             class="text-lg font-medium text-gray-900 dark:text-gray-100"
                         >
-                            Class names
+                            {{ $t('Class names') }}
                         </h3>
                         <p
                             class="mt-1 text-sm text-gray-600 dark:text-gray-400"
                         >
-                            Classes of the current academic year (case does not
-                            matter).
+                            {{
+                                $t(
+                                    'Classes of the current academic year (case does not matter).',
+                                )
+                            }}
                         </p>
                         <ul
                             v-if="classes.length > 0"
@@ -296,8 +307,11 @@ const dateTime = (iso: string) =>
                             v-else
                             class="mt-3 text-sm text-gray-600 dark:text-gray-400"
                         >
-                            There are no classes this year yet. Leave the class
-                            column empty, or add classes first.
+                            {{
+                                $t(
+                                    'There are no classes this year yet. Leave the class column empty, or add classes first.',
+                                )
+                            }}
                         </p>
                     </section>
                 </div>

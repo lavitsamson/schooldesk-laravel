@@ -111,7 +111,7 @@ const destroy = () => {
 </script>
 
 <template>
-    <Head title="Academic years" />
+    <Head :title="$t('Academic years')" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -119,7 +119,7 @@ const destroy = () => {
                 <h2
                     class="text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
                 >
-                    Academic years
+                    {{ $t('Academic years') }}
                 </h2>
                 <div class="flex gap-2">
                     <Link
@@ -127,10 +127,10 @@ const destroy = () => {
                         :href="route('promotions.create')"
                         class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-semibold tracking-widest text-gray-700 uppercase shadow-xs hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden dark:border-gray-500 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                     >
-                        Promote students
+                        {{ $t('Promote students') }}
                     </Link>
                     <PrimaryButton type="button" @click="openCreate">
-                        Add academic year
+                        {{ $t('Add academic year') }}
                     </PrimaryButton>
                 </div>
             </div>
@@ -165,7 +165,7 @@ const destroy = () => {
                                     v-if="year.is_current"
                                     class="ms-2 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/50 dark:text-green-200"
                                 >
-                                    Current
+                                    {{ $t('Current') }}
                                 </span>
                             </h3>
                             <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -180,29 +180,33 @@ const destroy = () => {
                                 type="button"
                                 @click="makeCurrent(year)"
                             >
-                                Make current
+                                {{ $t('Make current') }}
                             </SecondaryButton>
                             <SecondaryButton
                                 v-if="year.can.update"
                                 type="button"
-                                :aria-label="`Edit ${year.name}`"
+                                :aria-label="
+                                    $t('Edit :name', { name: year.name })
+                                "
                                 @click="openEdit(year)"
                             >
-                                Edit
+                                {{ $t('Edit') }}
                             </SecondaryButton>
                             <DangerButton
                                 v-if="year.can.delete"
                                 type="button"
-                                :aria-label="`Delete ${year.name}`"
+                                :aria-label="
+                                    $t('Delete :name', { name: year.name })
+                                "
                                 @click="deleting = year"
                             >
-                                Delete
+                                {{ $t('Delete') }}
                             </DangerButton>
                         </div>
                     </div>
                     <ul
                         class="mt-4 grid gap-2 text-sm sm:grid-cols-3"
-                        :aria-label="`Terms of ${year.name}`"
+                        :aria-label="$t('Terms of :name', { name: year.name })"
                     >
                         <li
                             v-for="term in year.terms"
@@ -236,7 +240,7 @@ const destroy = () => {
 
                 <div class="grid gap-4 sm:grid-cols-3">
                     <div>
-                        <InputLabel for="year-name" value="Name" />
+                        <InputLabel for="year-name" :value="$t('Name')" />
                         <TextInput
                             id="year-name"
                             v-model="form.name"
@@ -248,7 +252,10 @@ const destroy = () => {
                         <InputError class="mt-1" :message="form.errors.name" />
                     </div>
                     <div>
-                        <InputLabel for="year-starts" value="Starts on" />
+                        <InputLabel
+                            for="year-starts"
+                            :value="$t('Starts on')"
+                        />
                         <TextInput
                             id="year-starts"
                             v-model="form.starts_on"
@@ -262,7 +269,7 @@ const destroy = () => {
                         />
                     </div>
                     <div>
-                        <InputLabel for="year-ends" value="Ends on" />
+                        <InputLabel for="year-ends" :value="$t('Ends on')" />
                         <TextInput
                             id="year-ends"
                             v-model="form.ends_on"
@@ -281,7 +288,7 @@ const destroy = () => {
                     <legend
                         class="text-sm font-medium text-gray-900 dark:text-gray-100"
                     >
-                        Terms
+                        {{ $t('Terms') }}
                     </legend>
                     <InputError class="mt-1" :message="form.errors.terms" />
                     <div
@@ -292,7 +299,11 @@ const destroy = () => {
                         <div>
                             <InputLabel
                                 :for="`term-${index}-name`"
-                                :value="`Term ${index + 1} name`"
+                                :value="
+                                    $t('Term :number name', {
+                                        number: String(index + 1),
+                                    })
+                                "
                             />
                             <TextInput
                                 :id="`term-${index}-name`"
@@ -311,7 +322,7 @@ const destroy = () => {
                         <div>
                             <InputLabel
                                 :for="`term-${index}-starts`"
-                                value="Starts on"
+                                :value="$t('Starts on')"
                             />
                             <TextInput
                                 :id="`term-${index}-starts`"
@@ -333,7 +344,7 @@ const destroy = () => {
                         <div>
                             <InputLabel
                                 :for="`term-${index}-ends`"
-                                value="Ends on"
+                                :value="$t('Ends on')"
                             />
                             <TextInput
                                 :id="`term-${index}-ends`"
@@ -356,10 +367,14 @@ const destroy = () => {
                             type="button"
                             class="sm:mt-6"
                             :disabled="form.terms.length === 1"
-                            :aria-label="`Remove term ${index + 1}`"
+                            :aria-label="
+                                $t('Remove term :number', {
+                                    number: String(index + 1),
+                                })
+                            "
                             @click="form.terms.splice(index, 1)"
                         >
-                            Remove
+                            {{ $t('Remove') }}
                         </SecondaryButton>
                     </div>
                     <SecondaryButton
@@ -368,18 +383,20 @@ const destroy = () => {
                         :disabled="form.terms.length >= 6"
                         @click="addTerm"
                     >
-                        Add term
+                        {{ $t('Add term') }}
                     </SecondaryButton>
                 </fieldset>
 
                 <div v-if="editing === 'new' && years.length > 0">
-                    <InputLabel for="copy-classes" value="Classes" />
+                    <InputLabel for="copy-classes" :value="$t('Classes')" />
                     <SelectInput
                         id="copy-classes"
                         v-model="form.copy_classes_from"
                         class="mt-1 block w-full sm:w-auto"
                     >
-                        <option :value="null">Start without classes</option>
+                        <option :value="null">
+                            {{ $t('Start without classes') }}
+                        </option>
                         <option v-for="y in years" :key="y.id" :value="y.id">
                             Copy the classes of {{ y.name }}
                         </option>
@@ -392,11 +409,11 @@ const destroy = () => {
 
                 <div class="flex justify-end gap-3">
                     <SecondaryButton type="button" @click="editing = null">
-                        Cancel
+                        {{ $t('Cancel') }}
                     </SecondaryButton>
-                    <PrimaryButton :disabled="form.processing"
-                        >Save</PrimaryButton
-                    >
+                    <PrimaryButton :disabled="form.processing">{{
+                        $t('Save')
+                    }}</PrimaryButton>
                 </div>
             </form>
         </Modal>
@@ -413,15 +430,18 @@ const destroy = () => {
                     Delete {{ deleting?.name }}?
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    Its terms and classes are deleted too. A year with enrolled
-                    students cannot be deleted.
+                    {{
+                        $t(
+                            'Its terms and classes are deleted too. A year with enrolled students cannot be deleted.',
+                        )
+                    }}
                 </p>
                 <div class="mt-6 flex justify-end gap-3">
                     <SecondaryButton type="button" @click="deleting = null">
-                        Cancel
+                        {{ $t('Cancel') }}
                     </SecondaryButton>
                     <DangerButton type="button" @click="destroy">
-                        Delete
+                        {{ $t('Delete') }}
                     </DangerButton>
                 </div>
             </div>

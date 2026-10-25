@@ -25,11 +25,11 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Register" />
+        <Head :title="$t('Register')" />
 
         <form @submit.prevent="submit">
             <div>
-                <InputLabel for="school_name" value="School name" />
+                <InputLabel for="school_name" :value="$t('School name')" />
 
                 <TextInput
                     id="school_name"
@@ -45,7 +45,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="name" value="Your name" />
+                <InputLabel for="name" :value="$t('Your name')" />
 
                 <TextInput
                     id="name"
@@ -60,7 +60,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="email" value="Email" />
+                <InputLabel for="email" :value="$t('Email')" />
 
                 <TextInput
                     id="email"
@@ -75,7 +75,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password" value="Password" />
+                <InputLabel for="password" :value="$t('Password')" />
 
                 <TextInput
                     id="password"
@@ -92,7 +92,7 @@ const submit = () => {
             <div class="mt-4">
                 <InputLabel
                     for="password_confirmation"
-                    value="Confirm Password"
+                    :value="$t('Confirm Password')"
                 />
 
                 <TextInput
@@ -115,7 +115,7 @@ const submit = () => {
                     :href="route('login')"
                     class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
                 >
-                    Already registered?
+                    {{ $t('Already registered?') }}
                 </Link>
 
                 <PrimaryButton
@@ -123,7 +123,7 @@ const submit = () => {
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
-                    Register
+                    {{ $t('Register') }}
                 </PrimaryButton>
             </div>
         </form>

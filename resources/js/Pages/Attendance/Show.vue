@@ -12,6 +12,7 @@ import type {
     IdName,
 } from '@/types/school';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { getActiveLanguage } from 'laravel-vue-i18n';
 import { computed } from 'vue';
 
 const props = defineProps<{
@@ -63,7 +64,7 @@ const statusStyles: Record<AttendanceStatus, string> = {
 
 const recordedAt = computed(() =>
     props.recorded.at
-        ? new Intl.DateTimeFormat(undefined, {
+        ? new Intl.DateTimeFormat(getActiveLanguage(), {
               dateStyle: 'medium',
               timeStyle: 'short',
           }).format(new Date(props.recorded.at))
@@ -75,16 +76,16 @@ const navClasses =
 </script>
 
 <template>
-    <Head :title="`Attendance ${schoolClass.name}`" />
+    <Head :title="$t('Attendance :name', { name: schoolClass.name })" />
 
     <AuthenticatedLayout>
         <template #header>
-            <nav aria-label="Breadcrumb" class="text-sm">
+            <nav :aria-label="$t('Breadcrumb')" class="text-sm">
                 <Link
                     :href="route('attendance.index', { date })"
                     class="text-gray-600 hover:underline dark:text-gray-400"
                 >
-                    Attendance
+                    {{ $t('Attendance') }}
                 </Link>
             </nav>
             <div class="mt-1 flex flex-wrap items-center justify-between gap-3">
@@ -93,7 +94,7 @@ const navClasses =
                 >
                     {{ schoolClass.name }} · {{ formatDate(date) }}
                 </h2>
-                <nav class="flex gap-2" aria-label="Other days">
+                <nav class="flex gap-2" :aria-label="$t('Other days')">
                     <Link
                         v-if="previousDate"
                         :href="
@@ -104,7 +105,7 @@ const navClasses =
                         "
                         :class="navClasses"
                     >
-                        ‹ Previous day
+                        {{ $t('‹ Previous day') }}
                     </Link>
                     <Link
                         v-if="nextDate"
@@ -113,13 +114,13 @@ const navClasses =
                         "
                         :class="navClasses"
                     >
-                        Next day ›
+                        {{ $t('Next day ›') }}
                     </Link>
                     <Link
                         :href="route('attendance.report', schoolClass.id)"
                         :class="navClasses"
                     >
-                        Monthly report
+                        {{ $t('Monthly report') }}
                     </Link>
                 </nav>
             </div>
@@ -132,34 +133,42 @@ const navClasses =
             >
                 <section
                     class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 shadow-xs sm:rounded-lg dark:bg-gray-800"
-                    aria-label="Summary"
+                    :aria-label="$t('Summary')"
                 >
                     <p
                         class="text-sm text-gray-700 dark:text-gray-300"
                         role="status"
                     >
                         <span class="font-medium">{{ counts.present }}</span>
-                        present ·
+                        {{ $t('present') }} ·
                         <span class="font-medium">{{ counts.absent }}</span>
-                        absent ·
+                        {{ $t('absent') }} ·
                         <span class="font-medium">{{ counts.late }}</span>
-                        late ·
+                        {{ $t('late') }} ·
                         <span class="font-medium">{{ counts.excused }}</span>
-                        excused
+                        {{ $t('excused') }}
                     </p>
                     <p class="text-sm text-gray-600 dark:text-gray-400">
                         <template v-if="recorded.count === 0">
-                            Not taken yet. Everyone starts as present.
+                            {{
+                                $t('Not taken yet. Everyone starts as present.')
+                            }}
                         </template>
                         <template v-else>
-                            Saved {{ recordedAt }}
-                            <template v-if="recorded.by">
-                                by {{ recorded.by }}</template
-                            >
+                            {{
+                                recorded.by
+                                    ? $t('Saved :time by :name', {
+                                          time: recordedAt ?? '',
+                                          name: recorded.by,
+                                      })
+                                    : $t('Saved :time', {
+                                          time: recordedAt ?? '',
+                                      })
+                            }}
                         </template>
                     </p>
                     <SecondaryButton type="button" @click="markAll('present')">
-                        Mark all present
+                        {{ $t('Mark all present') }}
                     </SecondaryButton>
                 </section>
 
@@ -172,16 +181,26 @@ const navClasses =
                         class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700"
                     >
                         <caption class="sr-only">
-                            Attendance
+                            {{
+                                $t('Attendance')
+                            }}
                         </caption>
                         <thead class="bg-gray-50 dark:bg-gray-900/50">
                             <tr
                                 class="text-left font-medium text-gray-600 dark:text-gray-300"
                             >
-                                <th scope="col" class="w-14 px-4 py-3">Roll</th>
-                                <th scope="col" class="px-4 py-3">Student</th>
-                                <th scope="col" class="px-4 py-3">Status</th>
-                                <th scope="col" class="px-4 py-3">Note</th>
+                                <th scope="col" class="w-14 px-4 py-3">
+                                    {{ $t('Roll') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Student') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Status') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Note') }}
+                                </th>
                             </tr>
                         </thead>
                         <tbody
@@ -254,7 +273,11 @@ const navClasses =
                                         v-model="form.records[index]!.note"
                                         type="text"
                                         maxlength="255"
-                                        :aria-label="`Note for ${student.name}`"
+                                        :aria-label="
+                                            $t('Note for :name', {
+                                                name: student.name,
+                                            })
+                                        "
                                         class="w-full min-w-40 rounded-md border-gray-300 text-sm shadow-xs focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
                                     />
                                     <InputError
@@ -273,8 +296,11 @@ const navClasses =
                                     colspan="4"
                                     class="px-4 py-10 text-center text-gray-600 dark:text-gray-400"
                                 >
-                                    No students are enrolled in this class on
-                                    this day.
+                                    {{
+                                        $t(
+                                            'No students are enrolled in this class on this day.',
+                                        )
+                                    }}
                                 </td>
                             </tr>
                         </tbody>
@@ -288,12 +314,12 @@ const navClasses =
                         v-if="form.isDirty"
                         class="text-sm text-gray-600 dark:text-gray-400"
                     >
-                        Unsaved changes
+                        {{ $t('Unsaved changes') }}
                     </p>
                     <PrimaryButton
                         :disabled="form.processing || students.length === 0"
                     >
-                        Save attendance
+                        {{ $t('Save attendance') }}
                     </PrimaryButton>
                 </div>
             </form>

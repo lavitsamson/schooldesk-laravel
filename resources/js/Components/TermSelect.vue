@@ -24,7 +24,7 @@ watch(term, (value) =>
 
 <template>
     <div>
-        <InputLabel for="term" value="Term" class="sr-only" />
+        <InputLabel for="term" :value="$t('Term')" class="sr-only" />
         <SelectInput id="term" v-model="term" class="block">
             <option v-for="t in terms" :key="t.id" :value="t.id">
                 {{ t.name }}

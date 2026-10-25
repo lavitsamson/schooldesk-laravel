@@ -65,16 +65,16 @@ const publish = () => {
 </script>
 
 <template>
-    <Head :title="`Report cards ${schoolClass.name}`" />
+    <Head :title="$t('Report cards :name', { name: schoolClass.name })" />
 
     <AuthenticatedLayout>
         <template #header>
-            <nav aria-label="Breadcrumb" class="text-sm">
+            <nav :aria-label="$t('Breadcrumb')" class="text-sm">
                 <Link
                     :href="route('report-cards.index', { term: term.id })"
                     class="text-gray-600 hover:underline dark:text-gray-400"
                 >
-                    Report cards
+                    {{ $t('Report cards') }}
                 </Link>
             </nav>
             <div class="mt-1 flex flex-wrap items-center justify-between gap-3">
@@ -106,15 +106,22 @@ const publish = () => {
                                 class="font-medium text-gray-900 dark:text-gray-100"
                             >
                                 {{ generated }} of {{ students.length }} report
-                                cards generated
+                                {{ $t('cards generated') }}
                             </h3>
                             <p
                                 class="mt-1 text-sm text-gray-600 dark:text-gray-400"
                             >
-                                Generating calculates each student's results
-                                from the current marks and attendance. Drafts
+                                {{
+                                    $t(
+                                        "Generating calculates each student's results from the current marks and attendance. Drafts",
+                                    )
+                                }}
                                 are updated and keep their comment; approved and
-                                published report cards stay as they are.
+                                {{
+                                    $t(
+                                        'published report cards stay as they are.',
+                                    )
+                                }}
                             </p>
                         </div>
                         <div class="flex flex-wrap gap-3">
@@ -128,7 +135,7 @@ const publish = () => {
                                 @click="generate"
                             >
                                 {{ generated > 0 ? 'Regenerate' : 'Generate' }}
-                                report cards
+                                {{ $t('report cards') }}
                             </PrimaryButton>
                             <button
                                 v-if="approved > 0"
@@ -154,7 +161,7 @@ const publish = () => {
                             :aria-valuenow="batch.progress"
                             aria-valuemin="0"
                             aria-valuemax="100"
-                            aria-label="Report card generation progress"
+                            :aria-label="$t('Report card generation progress')"
                         >
                             <div
                                 class="h-full rounded-full bg-indigo-600 transition-all"
@@ -175,7 +182,7 @@ const publish = () => {
                     >
                         {{ batch.failed }} of {{ batch.total }} report cards
                         could not be generated. Try again; if it keeps failing,
-                        check the queue dashboard.
+                        {{ $t('check the queue dashboard.') }}
                     </p>
                 </section>
 
@@ -186,7 +193,9 @@ const publish = () => {
                         class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700"
                     >
                         <caption class="sr-only">
-                            Report cards of
+                            {{
+                                $t('Report cards of')
+                            }}
                             {{
                                 schoolClass.name
                             }}
@@ -195,12 +204,20 @@ const publish = () => {
                             <tr
                                 class="text-left font-medium text-gray-600 dark:text-gray-300"
                             >
-                                <th scope="col" class="px-4 py-3">No.</th>
-                                <th scope="col" class="px-4 py-3">Student</th>
-                                <th scope="col" class="px-4 py-3">Status</th>
-                                <th scope="col" class="px-4 py-3">Comment</th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('No.') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Student') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Status') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Comment') }}
+                                </th>
                                 <th scope="col" class="px-4 py-3 text-right">
-                                    Overall
+                                    {{ $t('Overall') }}
                                 </th>
                             </tr>
                         </thead>
@@ -238,7 +255,7 @@ const publish = () => {
                                     class="px-4 py-2 text-gray-600 dark:text-gray-400"
                                 >
                                     <template v-if="s.card?.has_comment">
-                                        Written
+                                        {{ $t('Written') }}
                                         <span
                                             v-if="
                                                 s.card.comment_source ===
@@ -246,11 +263,11 @@ const publish = () => {
                                             "
                                             class="text-xs"
                                         >
-                                            (from AI draft)
+                                            ({{ $t('from AI draft') }})
                                         </span>
                                     </template>
                                     <template v-else-if="s.card">
-                                        Missing
+                                        {{ $t('Missing') }}
                                     </template>
                                     <template v-else>—</template>
                                 </td>
@@ -263,8 +280,11 @@ const publish = () => {
                                     colspan="5"
                                     class="px-4 py-10 text-center text-gray-600 dark:text-gray-400"
                                 >
-                                    No students are enrolled in this class in
-                                    this term.
+                                    {{
+                                        $t(
+                                            'No students are enrolled in this class in this term.',
+                                        )
+                                    }}
                                 </td>
                             </tr>
                         </tbody>

@@ -23,7 +23,7 @@ const buttonClasses =
 </script>
 
 <template>
-    <Head title="Grades" />
+    <Head :title="$t('Grades')" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -32,7 +32,7 @@ const buttonClasses =
                     <h2
                         class="text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
                     >
-                        Grades
+                        {{ $t('Grades') }}
                     </h2>
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                         {{ year }} · {{ term.name }},
@@ -51,7 +51,7 @@ const buttonClasses =
                         :href="route('grade-scale.edit')"
                         :class="buttonClasses"
                     >
-                        Grade scale
+                        {{ $t('Grade scale') }}
                     </Link>
                 </div>
             </div>
@@ -62,7 +62,7 @@ const buttonClasses =
                 <ul
                     v-if="classes.length > 0"
                     class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-                    aria-label="Classes"
+                    :aria-label="$t('Classes')"
                 >
                     <li
                         v-for="c in classes"
@@ -79,14 +79,16 @@ const buttonClasses =
                                 v-if="c.is_class_teacher"
                                 class="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-200"
                             >
-                                Your class
+                                {{ $t('Your class') }}
                             </span>
                         </div>
 
                         <ul
                             v-if="c.subjects.length > 0"
                             class="divide-y divide-gray-100 text-sm dark:divide-gray-700"
-                            :aria-label="`Subjects in ${c.name}`"
+                            :aria-label="
+                                $t('Subjects in :name', { name: c.name })
+                            "
                         >
                             <li
                                 v-for="s in c.subjects"
@@ -128,7 +130,7 @@ const buttonClasses =
                             v-else
                             class="text-sm text-gray-600 dark:text-gray-400"
                         >
-                            You teach no subjects in this class.
+                            {{ $t('You teach no subjects in this class.') }}
                         </p>
 
                         <div v-if="c.can_view_results" class="mt-auto">
@@ -140,9 +142,11 @@ const buttonClasses =
                                     })
                                 "
                                 :class="buttonClasses"
-                                :aria-label="`Results of ${c.name}`"
+                                :aria-label="
+                                    $t('Results of :name', { name: c.name })
+                                "
                             >
-                                Results
+                                {{ $t('Results') }}
                             </Link>
                         </div>
                     </li>
@@ -152,8 +156,11 @@ const buttonClasses =
                     v-else
                     class="bg-white p-6 text-gray-600 shadow-xs sm:rounded-lg dark:bg-gray-800 dark:text-gray-400"
                 >
-                    You teach no classes this year. A school admin assigns
-                    subject teachers under Classes.
+                    {{
+                        $t(
+                            'You teach no classes this year. A school admin assigns subject teachers under Classes.',
+                        )
+                    }}
                 </p>
             </div>
         </div>

@@ -13,14 +13,14 @@ const choose = (school: SchoolSummary) => {
 </script>
 
 <template>
-    <Head title="Choose a school" />
+    <Head :title="$t('Choose a school')" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2
                 class="text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
             >
-                Choose a school
+                {{ $t('Choose a school') }}
             </h2>
         </template>
 
@@ -44,8 +44,11 @@ const choose = (school: SchoolSummary) => {
                         </li>
                     </ul>
                     <p v-else class="text-gray-700 dark:text-gray-300">
-                        You are not a member of any school yet. Ask your school
-                        administrator to send you an invitation.
+                        {{
+                            $t(
+                                'You are not a member of any school yet. Ask your school administrator to send you an invitation.',
+                            )
+                        }}
                     </p>
                 </div>
             </div>

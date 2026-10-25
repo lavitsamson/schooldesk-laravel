@@ -44,7 +44,7 @@ const add = () =>
 </script>
 
 <template>
-    <Head title="Classes" />
+    <Head :title="$t('Classes')" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -52,12 +52,12 @@ const add = () =>
                 <h2
                     class="text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
                 >
-                    Classes
+                    {{ $t('Classes') }}
                 </h2>
                 <div class="flex items-center gap-2">
                     <InputLabel
                         for="year"
-                        value="Academic year"
+                        :value="$t('Academic year')"
                         class="sr-only"
                     />
                     <SelectInput id="year" v-model="yearId">
@@ -80,20 +80,20 @@ const add = () =>
                         id="add-class-title"
                         class="text-lg font-medium text-gray-900 dark:text-gray-100"
                     >
-                        Add a class
+                        {{ $t('Add a class') }}
                     </h3>
                     <form
                         class="mt-4 grid items-start gap-4 sm:grid-cols-[1fr_8rem_1fr_auto]"
                         @submit.prevent="add"
                     >
                         <div>
-                            <InputLabel for="class-name" value="Name" />
+                            <InputLabel for="class-name" :value="$t('Name')" />
                             <TextInput
                                 id="class-name"
                                 v-model="form.name"
                                 type="text"
                                 class="mt-1 block w-full"
-                                placeholder="Grade 7"
+                                :placeholder="$t('Grade 7')"
                                 required
                             />
                             <InputError
@@ -102,7 +102,10 @@ const add = () =>
                             />
                         </div>
                         <div>
-                            <InputLabel for="class-section" value="Section" />
+                            <InputLabel
+                                for="class-section"
+                                :value="$t('Section')"
+                            />
                             <TextInput
                                 id="class-section"
                                 v-model="form.section"
@@ -118,14 +121,16 @@ const add = () =>
                         <div>
                             <InputLabel
                                 for="class-teacher"
-                                value="Class teacher"
+                                :value="$t('Class teacher')"
                             />
                             <SelectInput
                                 id="class-teacher"
                                 v-model="form.class_teacher_id"
                                 class="mt-1 block w-full"
                             >
-                                <option :value="null">None yet</option>
+                                <option :value="null">
+                                    {{ $t('None yet') }}
+                                </option>
                                 <option
                                     v-for="t in teachers"
                                     :key="t.id"
@@ -143,7 +148,7 @@ const add = () =>
                             class="sm:mt-6"
                             :disabled="form.processing"
                         >
-                            Add
+                            {{ $t('Add') }}
                         </PrimaryButton>
                     </form>
                 </section>
@@ -155,19 +160,25 @@ const add = () =>
                         class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700"
                     >
                         <caption class="sr-only">
-                            Classes
+                            {{
+                                $t('Classes')
+                            }}
                         </caption>
                         <thead class="bg-gray-50 dark:bg-gray-900/50">
                             <tr
                                 class="text-left font-medium text-gray-600 dark:text-gray-300"
                             >
-                                <th scope="col" class="px-4 py-3">Class</th>
                                 <th scope="col" class="px-4 py-3">
-                                    Class teacher
+                                    {{ $t('Class') }}
                                 </th>
-                                <th scope="col" class="px-4 py-3">Students</th>
                                 <th scope="col" class="px-4 py-3">
-                                    Subjects with a teacher
+                                    {{ $t('Class teacher') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Students') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Subjects with a teacher') }}
                                 </th>
                             </tr>
                         </thead>
@@ -198,7 +209,11 @@ const add = () =>
                                     colspan="4"
                                     class="px-4 py-10 text-center text-gray-600 dark:text-gray-400"
                                 >
-                                    No classes in this academic year yet.
+                                    {{
+                                        $t(
+                                            'No classes in this academic year yet.',
+                                        )
+                                    }}
                                 </td>
                             </tr>
                         </tbody>

@@ -28,7 +28,7 @@ const today = new Date().toISOString().slice(0, 10);
     <form class="space-y-6" @submit.prevent="$emit('submit')">
         <div class="grid gap-4 sm:grid-cols-2">
             <div>
-                <InputLabel for="first_name" value="First name" />
+                <InputLabel for="first_name" :value="$t('First name')" />
                 <TextInput
                     id="first_name"
                     v-model="form.first_name"
@@ -40,7 +40,7 @@ const today = new Date().toISOString().slice(0, 10);
                 <InputError class="mt-1" :message="form.errors.first_name" />
             </div>
             <div>
-                <InputLabel for="last_name" value="Last name" />
+                <InputLabel for="last_name" :value="$t('Last name')" />
                 <TextInput
                     id="last_name"
                     v-model="form.last_name"
@@ -52,7 +52,10 @@ const today = new Date().toISOString().slice(0, 10);
                 <InputError class="mt-1" :message="form.errors.last_name" />
             </div>
             <div>
-                <InputLabel for="admission_no" value="Admission number" />
+                <InputLabel
+                    for="admission_no"
+                    :value="$t('Admission number')"
+                />
                 <TextInput
                     id="admission_no"
                     v-model="form.admission_no"
@@ -63,7 +66,7 @@ const today = new Date().toISOString().slice(0, 10);
                 <InputError class="mt-1" :message="form.errors.admission_no" />
             </div>
             <div>
-                <InputLabel for="date_of_birth" value="Date of birth" />
+                <InputLabel for="date_of_birth" :value="$t('Date of birth')" />
                 <TextInput
                     id="date_of_birth"
                     v-model="form.date_of_birth"
@@ -75,13 +78,13 @@ const today = new Date().toISOString().slice(0, 10);
                 <InputError class="mt-1" :message="form.errors.date_of_birth" />
             </div>
             <div>
-                <InputLabel for="gender" value="Gender (optional)" />
+                <InputLabel for="gender" :value="$t('Gender (optional)')" />
                 <SelectInput
                     id="gender"
                     v-model="form.gender"
                     class="mt-1 block w-full"
                 >
-                    <option :value="null">Not specified</option>
+                    <option :value="null">{{ $t('Not specified') }}</option>
                     <option
                         v-for="g in genders"
                         :key="g.value"
@@ -93,13 +96,16 @@ const today = new Date().toISOString().slice(0, 10);
                 <InputError class="mt-1" :message="form.errors.gender" />
             </div>
             <div v-if="classes">
-                <InputLabel for="class_id" value="Class (current year)" />
+                <InputLabel
+                    for="class_id"
+                    :value="$t('Class (current year)')"
+                />
                 <SelectInput
                     id="class_id"
                     v-model="form.class_id"
                     class="mt-1 block w-full"
                 >
-                    <option :value="null">Not enrolled yet</option>
+                    <option :value="null">{{ $t('Not enrolled yet') }}</option>
                     <option v-for="c in classes" :key="c.id" :value="c.id">
                         {{ c.name }}
                     </option>
@@ -107,7 +113,7 @@ const today = new Date().toISOString().slice(0, 10);
                 <InputError class="mt-1" :message="form.errors.class_id" />
             </div>
             <div v-if="statuses">
-                <InputLabel for="status" value="Status" />
+                <InputLabel for="status" :value="$t('Status')" />
                 <SelectInput
                     id="status"
                     v-model="form.status"
@@ -126,7 +132,7 @@ const today = new Date().toISOString().slice(0, 10);
         </div>
 
         <div>
-            <InputLabel for="address" value="Address (optional)" />
+            <InputLabel for="address" :value="$t('Address (optional)')" />
             <textarea
                 id="address"
                 v-model="form.address"
@@ -140,11 +146,14 @@ const today = new Date().toISOString().slice(0, 10);
             <img
                 v-if="photoUrl && !form.remove_photo"
                 :src="photoUrl"
-                alt="Current photo"
+                :alt="$t('Current photo')"
                 class="h-20 w-20 rounded-md object-cover"
             />
             <div>
-                <InputLabel for="photo" value="Photo (optional, max 2 MB)" />
+                <InputLabel
+                    for="photo"
+                    :value="$t('Photo (optional, max 2 MB)')"
+                />
                 <input
                     id="photo"
                     type="file"
@@ -167,7 +176,7 @@ const today = new Date().toISOString().slice(0, 10);
                             (checked: boolean) => (form.remove_photo = checked)
                         "
                     />
-                    Remove photo
+                    {{ $t('Remove photo') }}
                 </label>
             </div>
         </div>

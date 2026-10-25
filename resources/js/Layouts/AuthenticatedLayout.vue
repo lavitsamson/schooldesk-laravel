@@ -9,6 +9,7 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import SchoolSwitcher from '@/Components/SchoolSwitcher.vue';
 import { usePermissions } from '@/composables/usePermissions';
 import { Link, usePage } from '@inertiajs/vue3';
+import { trans } from 'laravel-vue-i18n';
 import { computed } from 'vue';
 
 const showingNavigationDropdown = ref(false);
@@ -26,79 +27,79 @@ interface NavItem {
 const links = computed<NavItem[]>(() =>
     [
         {
-            label: 'Dashboard',
+            label: trans('Dashboard'),
             route: 'dashboard',
             active: ['dashboard', 'family.*'],
         },
         {
-            label: 'Attendance',
+            label: trans('Attendance'),
             route: 'attendance.index',
             active: 'attendance.*',
             permission: 'attendance.take',
         },
         {
-            label: 'Grades',
+            label: trans('Grades'),
             route: 'grades.index',
             active: ['grades.*', 'assessments.*', 'results.*', 'grade-scale.*'],
             permission: 'grades.enter',
         },
         {
-            label: 'Report cards',
+            label: trans('Report cards'),
             route: 'report-cards.index',
             active: 'report-cards.*',
             permission: 'report_cards.generate',
         },
         {
-            label: 'Fees',
+            label: trans('Fees'),
             route: 'fees.index',
             active: ['fees.*', 'fee-structures.*', 'invoices.*'],
             permission: 'fees.manage',
         },
         {
-            label: 'Invoices',
+            label: trans('Invoices'),
             route: 'family.invoices',
             active: ['family.invoices', 'invoices.show'],
             permission: 'children.view',
         },
         {
-            label: 'Notifications',
+            label: trans('Notifications'),
             route: 'notifications.index',
             active: 'notifications.*',
             permission: 'children.view',
             badge: unread.value,
         },
         {
-            label: 'Students',
+            label: trans('Students'),
             route: 'students.index',
             active: 'students.*',
             permission: 'students.manage',
         },
         {
-            label: 'Guardians',
+            label: trans('Guardians'),
             route: 'guardians.index',
             active: 'guardians.*',
             permission: 'students.manage',
         },
         {
-            label: 'Classes',
+            label: trans('Classes'),
             route: 'classes.index',
             active: 'classes.*',
             permission: 'school.manage',
         },
         {
-            label: 'Subjects',
+            label: trans('Subjects'),
             route: 'subjects.index',
             active: 'subjects.*',
             permission: 'school.manage',
         },
         {
-            label: 'Academic years',
+            label: trans('Academic years'),
             route: 'academic-years.index',
             active: 'academic-years.*',
             permission: 'school.manage',
         },
         {
-            label: 'Members',
+            label: trans('Members'),
             route: 'members.index',
             active: 'members.*',
             permission: 'members.manage',
@@ -114,7 +115,7 @@ const isActive = (patterns: string | string[]) =>
     <div>
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
             <nav
-                aria-label="Main"
+                :aria-label="$t('Main')"
                 class="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800"
             >
                 <!-- Primary Navigation Menu -->
@@ -146,7 +147,9 @@ const isActive = (patterns: string | string[]) =>
                                         class="ms-1.5 rounded-full bg-indigo-600 px-1.5 py-0.5 text-xs font-semibold text-white tabular-nums"
                                     >
                                         {{ link.badge }}
-                                        <span class="sr-only">unread</span>
+                                        <span class="sr-only">{{
+                                            $t('unread')
+                                        }}</span>
                                     </span>
                                 </NavLink>
                             </div>
@@ -185,14 +188,14 @@ const isActive = (patterns: string | string[]) =>
                                         <DropdownLink
                                             :href="route('profile.edit')"
                                         >
-                                            Profile
+                                            {{ $t('Profile') }}
                                         </DropdownLink>
                                         <DropdownLink
                                             :href="route('logout')"
                                             method="post"
                                             as="button"
                                         >
-                                            Log Out
+                                            {{ $t('Log Out') }}
                                         </DropdownLink>
                                     </template>
                                 </Dropdown>
@@ -203,7 +206,7 @@ const isActive = (patterns: string | string[]) =>
                         <div class="-me-2 flex items-center lg:hidden">
                             <button
                                 type="button"
-                                aria-label="Menu"
+                                :aria-label="$t('Menu')"
                                 :aria-expanded="showingNavigationDropdown"
                                 class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-hidden dark:text-gray-500 dark:hover:bg-gray-900 dark:hover:text-gray-400 dark:focus:bg-gray-900 dark:focus:text-gray-400"
                                 @click="
@@ -262,7 +265,11 @@ const isActive = (patterns: string | string[]) =>
                         >
                             {{ link.label }}
                             <span v-if="link.badge" class="tabular-nums">
-                                ({{ link.badge }} unread)
+                                ({{
+                                    $t(':count unread', {
+                                        count: String(link.badge),
+                                    })
+                                }})
                             </span>
                         </ResponsiveNavLink>
                     </div>
@@ -288,14 +295,14 @@ const isActive = (patterns: string | string[]) =>
 
                         <div class="mt-3 space-y-1">
                             <ResponsiveNavLink :href="route('profile.edit')">
-                                Profile
+                                {{ $t('Profile') }}
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 :href="route('logout')"
                                 method="post"
                                 as="button"
                             >
-                                Log Out
+                                {{ $t('Log Out') }}
                             </ResponsiveNavLink>
                         </div>
                     </div>

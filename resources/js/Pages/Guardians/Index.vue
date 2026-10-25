@@ -74,14 +74,14 @@ const destroy = () => {
 </script>
 
 <template>
-    <Head title="Guardians" />
+    <Head :title="$t('Guardians')" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2
                 class="text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
             >
-                Guardians
+                {{ $t('Guardians') }}
             </h2>
         </template>
 
@@ -90,16 +90,16 @@ const destroy = () => {
                 <div
                     class="bg-white p-4 shadow-xs sm:rounded-lg dark:bg-gray-800"
                 >
-                    <InputLabel for="search" value="Search" />
+                    <InputLabel for="search" :value="$t('Search')" />
                     <TextInput
                         id="search"
                         v-model="search"
                         type="search"
                         class="mt-1 block w-full sm:max-w-md"
-                        placeholder="Name, email or phone"
+                        :placeholder="$t('Name, email or phone')"
                     />
                     <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                        Guardians are added from a student's page.
+                        {{ $t("Guardians are added from a student's page.") }}
                     </p>
                 </div>
 
@@ -110,20 +110,30 @@ const destroy = () => {
                         class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700"
                     >
                         <caption class="sr-only">
-                            Guardians
+                            {{
+                                $t('Guardians')
+                            }}
                         </caption>
                         <thead class="bg-gray-50 dark:bg-gray-900/50">
                             <tr
                                 class="text-left font-medium text-gray-600 dark:text-gray-300"
                             >
-                                <th scope="col" class="px-4 py-3">Name</th>
-                                <th scope="col" class="px-4 py-3">Contact</th>
-                                <th scope="col" class="px-4 py-3">Children</th>
                                 <th scope="col" class="px-4 py-3">
-                                    Parent portal
+                                    {{ $t('Name') }}
                                 </th>
                                 <th scope="col" class="px-4 py-3">
-                                    <span class="sr-only">Actions</span>
+                                    {{ $t('Contact') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Children') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Parent portal') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    <span class="sr-only">{{
+                                        $t('Actions')
+                                    }}</span>
                                 </th>
                             </tr>
                         </thead>
@@ -181,7 +191,7 @@ const destroy = () => {
                                         v-if="!guardian.students?.length"
                                         class="text-gray-600 dark:text-gray-400"
                                     >
-                                        None
+                                        {{ $t('None') }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-3">
@@ -199,23 +209,31 @@ const destroy = () => {
                                         type="button"
                                         @click="invite(guardian)"
                                     >
-                                        Invite
+                                        {{ $t('Invite') }}
                                     </SecondaryButton>
                                     <SecondaryButton
                                         v-if="guardian.can.update"
                                         type="button"
-                                        :aria-label="`Edit ${guardian.name}`"
+                                        :aria-label="
+                                            $t('Edit :name', {
+                                                name: guardian.name,
+                                            })
+                                        "
                                         @click="edit(guardian)"
                                     >
-                                        Edit
+                                        {{ $t('Edit') }}
                                     </SecondaryButton>
                                     <DangerButton
                                         v-if="guardian.can.delete"
                                         type="button"
-                                        :aria-label="`Delete ${guardian.name}`"
+                                        :aria-label="
+                                            $t('Delete :name', {
+                                                name: guardian.name,
+                                            })
+                                        "
                                         @click="deleting = guardian"
                                     >
-                                        Delete
+                                        {{ $t('Delete') }}
                                     </DangerButton>
                                 </td>
                             </tr>
@@ -224,14 +242,17 @@ const destroy = () => {
                                     colspan="5"
                                     class="px-4 py-10 text-center text-gray-600 dark:text-gray-400"
                                 >
-                                    No guardians found.
+                                    {{ $t('No guardians found.') }}
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </section>
 
-                <Pagination :meta="guardians.meta" label="Guardian pages" />
+                <Pagination
+                    :meta="guardians.meta"
+                    :label="$t('Guardian pages')"
+                />
             </div>
         </div>
 
@@ -243,7 +264,7 @@ const destroy = () => {
                     Edit {{ editing?.name }}
                 </h2>
                 <div>
-                    <InputLabel for="edit-name" value="Name" />
+                    <InputLabel for="edit-name" :value="$t('Name')" />
                     <TextInput
                         id="edit-name"
                         v-model="form.name"
@@ -254,7 +275,7 @@ const destroy = () => {
                     <InputError class="mt-1" :message="form.errors.name" />
                 </div>
                 <div>
-                    <InputLabel for="edit-email" value="Email" />
+                    <InputLabel for="edit-email" :value="$t('Email')" />
                     <TextInput
                         id="edit-email"
                         v-model="form.email"
@@ -266,13 +287,16 @@ const destroy = () => {
                         v-if="editing?.has_portal_access"
                         class="mt-1 text-xs text-gray-600 dark:text-gray-400"
                     >
-                        This is their parent portal login, so it cannot be
-                        changed here.
+                        {{
+                            $t(
+                                'This is their parent portal login, so it cannot be changed here.',
+                            )
+                        }}
                     </p>
                     <InputError class="mt-1" :message="form.errors.email" />
                 </div>
                 <div>
-                    <InputLabel for="edit-phone" value="Phone" />
+                    <InputLabel for="edit-phone" :value="$t('Phone')" />
                     <TextInput
                         id="edit-phone"
                         v-model="form.phone"
@@ -282,7 +306,10 @@ const destroy = () => {
                     <InputError class="mt-1" :message="form.errors.phone" />
                 </div>
                 <div>
-                    <InputLabel for="edit-relationship" value="Relationship" />
+                    <InputLabel
+                        for="edit-relationship"
+                        :value="$t('Relationship')"
+                    />
                     <SelectInput
                         id="edit-relationship"
                         v-model="form.relationship"
@@ -303,11 +330,11 @@ const destroy = () => {
                 </div>
                 <div class="flex justify-end gap-3">
                     <SecondaryButton type="button" @click="editing = null">
-                        Cancel
+                        {{ $t('Cancel') }}
                     </SecondaryButton>
-                    <PrimaryButton :disabled="form.processing"
-                        >Save</PrimaryButton
-                    >
+                    <PrimaryButton :disabled="form.processing">{{
+                        $t('Save')
+                    }}</PrimaryButton>
                 </div>
             </form>
         </Modal>
@@ -325,10 +352,10 @@ const destroy = () => {
                 </h2>
                 <div class="mt-6 flex justify-end gap-3">
                     <SecondaryButton type="button" @click="deleting = null">
-                        Cancel
+                        {{ $t('Cancel') }}
                     </SecondaryButton>
                     <DangerButton type="button" @click="destroy">
-                        Delete
+                        {{ $t('Delete') }}
                     </DangerButton>
                 </div>
             </div>

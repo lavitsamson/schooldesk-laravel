@@ -34,16 +34,16 @@ const submit = () =>
 </script>
 
 <template>
-    <Head :title="`Edit ${student.name}`" />
+    <Head :title="$t('Edit :name', { name: student.name })" />
 
     <AuthenticatedLayout>
         <template #header>
-            <nav aria-label="Breadcrumb" class="text-sm">
+            <nav :aria-label="$t('Breadcrumb')" class="text-sm">
                 <Link
                     :href="route('students.index')"
                     class="text-gray-600 hover:underline dark:text-gray-400"
                 >
-                    Students
+                    {{ $t('Students') }}
                 </Link>
                 <span class="text-gray-400" aria-hidden="true"> / </span>
                 <Link
@@ -70,7 +70,7 @@ const submit = () =>
                         :genders="genders"
                         :statuses="statuses"
                         :photo-url="student.photo_url"
-                        submit-label="Save"
+                        :submit-label="$t('Save')"
                         @submit="submit"
                     />
                 </div>

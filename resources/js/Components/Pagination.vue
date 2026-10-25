@@ -4,7 +4,8 @@ import { Link } from '@inertiajs/vue3';
 
 defineProps<{ meta: Paginated<unknown>['meta']; label?: string }>();
 
-// Laravel's labels contain HTML entities ("&laquo; Previous"); show them as plain text.
+// Laravel's labels come from lang/*/pagination.php (translated) and contain HTML entities
+// ("&laquo; Previous"); show them as plain text.
 const text = (label: string) =>
     label.replace('&laquo;', '‹').replace('&raquo;', '›');
 </script>
@@ -13,10 +14,16 @@ const text = (label: string) =>
     <nav
         v-if="meta.last_page > 1"
         class="flex flex-wrap items-center justify-between gap-3 text-sm"
-        :aria-label="label ?? 'Pagination'"
+        :aria-label="label ?? $t('Pagination')"
     >
         <p class="text-gray-600 dark:text-gray-400">
-            {{ meta.from }}–{{ meta.to }} of {{ meta.total }}
+            {{
+                $t(':from–:to of :total', {
+                    from: String(meta.from),
+                    to: String(meta.to),
+                    total: String(meta.total),
+                })
+            }}
         </p>
         <ul class="flex flex-wrap gap-1">
             <li v-for="(link, index) in meta.links" :key="index">

@@ -55,14 +55,14 @@ const destroy = () => {
 </script>
 
 <template>
-    <Head title="Subjects" />
+    <Head :title="$t('Subjects')" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2
                 class="text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
             >
-                Subjects
+                {{ $t('Subjects') }}
             </h2>
         </template>
 
@@ -76,14 +76,17 @@ const destroy = () => {
                         id="add-subject-title"
                         class="text-lg font-medium text-gray-900 dark:text-gray-100"
                     >
-                        Add a subject
+                        {{ $t('Add a subject') }}
                     </h3>
                     <form
                         class="mt-4 grid items-start gap-4 sm:grid-cols-[1fr_10rem_auto]"
                         @submit.prevent="add"
                     >
                         <div>
-                            <InputLabel for="subject-name" value="Name" />
+                            <InputLabel
+                                for="subject-name"
+                                :value="$t('Name')"
+                            />
                             <TextInput
                                 id="subject-name"
                                 v-model="addForm.name"
@@ -97,7 +100,10 @@ const destroy = () => {
                             />
                         </div>
                         <div>
-                            <InputLabel for="subject-code" value="Code" />
+                            <InputLabel
+                                for="subject-code"
+                                :value="$t('Code')"
+                            />
                             <TextInput
                                 id="subject-code"
                                 v-model="addForm.code"
@@ -114,7 +120,7 @@ const destroy = () => {
                             class="sm:mt-6"
                             :disabled="addForm.processing"
                         >
-                            Add
+                            {{ $t('Add') }}
                         </PrimaryButton>
                     </form>
                 </section>
@@ -128,17 +134,27 @@ const destroy = () => {
                         class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700"
                     >
                         <caption class="sr-only">
-                            Subjects
+                            {{
+                                $t('Subjects')
+                            }}
                         </caption>
                         <thead class="bg-gray-50 dark:bg-gray-900/50">
                             <tr
                                 class="text-left font-medium text-gray-600 dark:text-gray-300"
                             >
-                                <th scope="col" class="px-4 py-3">Name</th>
-                                <th scope="col" class="px-4 py-3">Code</th>
-                                <th scope="col" class="px-4 py-3">Taught in</th>
                                 <th scope="col" class="px-4 py-3">
-                                    <span class="sr-only">Actions</span>
+                                    {{ $t('Name') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Code') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Taught in') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    <span class="sr-only">{{
+                                        $t('Actions')
+                                    }}</span>
                                 </th>
                             </tr>
                         </thead>
@@ -150,7 +166,7 @@ const destroy = () => {
                                     <td class="px-4 py-2">
                                         <InputLabel
                                             :for="`edit-name-${subject.id}`"
-                                            value="Name"
+                                            :value="$t('Name')"
                                             class="sr-only"
                                         />
                                         <TextInput
@@ -168,7 +184,7 @@ const destroy = () => {
                                     <td class="px-4 py-2">
                                         <InputLabel
                                             :for="`edit-code-${subject.id}`"
-                                            value="Code"
+                                            :value="$t('Code')"
                                             class="sr-only"
                                         />
                                         <TextInput
@@ -193,14 +209,14 @@ const destroy = () => {
                                             type="button"
                                             @click="editingId = null"
                                         >
-                                            Cancel
+                                            {{ $t('Cancel') }}
                                         </SecondaryButton>
                                         <PrimaryButton
                                             type="button"
                                             :disabled="editForm.processing"
                                             @click="save"
                                         >
-                                            Save
+                                            {{ $t('Save') }}
                                         </PrimaryButton>
                                     </td>
                                 </template>
@@ -219,17 +235,25 @@ const destroy = () => {
                                     >
                                         <SecondaryButton
                                             type="button"
-                                            :aria-label="`Edit ${subject.name}`"
+                                            :aria-label="
+                                                $t('Edit :name', {
+                                                    name: subject.name,
+                                                })
+                                            "
                                             @click="edit(subject)"
                                         >
-                                            Edit
+                                            {{ $t('Edit') }}
                                         </SecondaryButton>
                                         <DangerButton
                                             type="button"
-                                            :aria-label="`Delete ${subject.name}`"
+                                            :aria-label="
+                                                $t('Delete :name', {
+                                                    name: subject.name,
+                                                })
+                                            "
                                             @click="deleting = subject"
                                         >
-                                            Delete
+                                            {{ $t('Delete') }}
                                         </DangerButton>
                                     </td>
                                 </template>
@@ -239,7 +263,7 @@ const destroy = () => {
                                     colspan="4"
                                     class="px-4 py-10 text-center text-gray-600 dark:text-gray-400"
                                 >
-                                    No subjects yet.
+                                    {{ $t('No subjects yet.') }}
                                 </td>
                             </tr>
                         </tbody>
@@ -260,14 +284,14 @@ const destroy = () => {
                     Delete {{ deleting?.name }}?
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    It is removed from every class it is taught in.
+                    {{ $t('It is removed from every class it is taught in.') }}
                 </p>
                 <div class="mt-6 flex justify-end gap-3">
                     <SecondaryButton type="button" @click="deleting = null">
-                        Cancel
+                        {{ $t('Cancel') }}
                     </SecondaryButton>
                     <DangerButton type="button" @click="destroy">
-                        Delete
+                        {{ $t('Delete') }}
                     </DangerButton>
                 </div>
             </div>

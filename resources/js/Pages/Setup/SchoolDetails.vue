@@ -47,7 +47,7 @@ const submit = () => form.put(route('setup.school'));
     <SetupLayout :steps="steps" :current="current">
         <form class="space-y-4" @submit.prevent="submit">
             <div>
-                <InputLabel for="name" value="School name" />
+                <InputLabel for="name" :value="$t('School name')" />
                 <TextInput
                     id="name"
                     v-model="form.name"
@@ -61,7 +61,7 @@ const submit = () => form.put(route('setup.school'));
 
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
-                    <InputLabel for="country" value="Country" />
+                    <InputLabel for="country" :value="$t('Country')" />
                     <SelectInput
                         id="country"
                         v-model="form.country"
@@ -79,7 +79,7 @@ const submit = () => form.put(route('setup.school'));
                 </div>
 
                 <div>
-                    <InputLabel for="timezone" value="Time zone" />
+                    <InputLabel for="timezone" :value="$t('Time zone')" />
                     <SelectInput
                         id="timezone"
                         v-model="form.timezone"
@@ -93,7 +93,7 @@ const submit = () => form.put(route('setup.school'));
                 </div>
 
                 <div>
-                    <InputLabel for="locale" value="Language" />
+                    <InputLabel for="locale" :value="$t('Language')" />
                     <SelectInput
                         id="locale"
                         v-model="form.locale"
@@ -111,7 +111,7 @@ const submit = () => form.put(route('setup.school'));
                 </div>
 
                 <div>
-                    <InputLabel for="currency" value="Currency" />
+                    <InputLabel for="currency" :value="$t('Currency')" />
                     <SelectInput
                         id="currency"
                         v-model="form.currency"
@@ -131,7 +131,7 @@ const submit = () => form.put(route('setup.school'));
 
             <div class="flex justify-end">
                 <PrimaryButton :disabled="form.processing">
-                    Save and continue
+                    {{ $t('Save and continue') }}
                 </PrimaryButton>
             </div>
         </form>

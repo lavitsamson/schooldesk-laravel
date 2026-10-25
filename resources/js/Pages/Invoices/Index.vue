@@ -57,7 +57,7 @@ watch(() => [filters.class_id, filters.status], reload);
 </script>
 
 <template>
-    <Head title="Invoices" />
+    <Head :title="$t('Invoices')" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -66,14 +66,14 @@ watch(() => [filters.class_id, filters.status], reload);
                     <h2
                         class="text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
                     >
-                        Invoices
+                        {{ $t('Invoices') }}
                     </h2>
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                         {{ year }} · {{ term.name }} ·
                         <Link
                             :href="route('fees.index', { term: term.id })"
                             class="text-indigo-700 hover:underline dark:text-indigo-300"
-                            >Fees overview</Link
+                            >{{ $t('Fees overview') }}</Link
                         >
                     </p>
                 </div>
@@ -93,23 +93,25 @@ watch(() => [filters.class_id, filters.status], reload);
                     @submit.prevent="reload"
                 >
                     <div>
-                        <InputLabel for="search" value="Search" />
+                        <InputLabel for="search" :value="$t('Search')" />
                         <TextInput
                             id="search"
                             v-model="filters.search"
                             type="search"
-                            placeholder="Student or invoice number"
+                            :placeholder="$t('Student or invoice number')"
                             class="mt-1 block w-full"
                         />
                     </div>
                     <div>
-                        <InputLabel for="class" value="Class" />
+                        <InputLabel for="class" :value="$t('Class')" />
                         <SelectInput
                             id="class"
                             v-model="filters.class_id"
                             class="mt-1 block w-full"
                         >
-                            <option :value="null">All classes</option>
+                            <option :value="null">
+                                {{ $t('All classes') }}
+                            </option>
                             <option
                                 v-for="c in classes"
                                 :key="c.id"
@@ -120,7 +122,7 @@ watch(() => [filters.class_id, filters.status], reload);
                         </SelectInput>
                     </div>
                     <div>
-                        <InputLabel for="status" value="Status" />
+                        <InputLabel for="status" :value="$t('Status')" />
                         <SelectInput
                             id="status"
                             v-model="filters.status"
@@ -144,23 +146,35 @@ watch(() => [filters.class_id, filters.status], reload);
                         class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700"
                     >
                         <caption class="sr-only">
-                            Invoices
+                            {{
+                                $t('Invoices')
+                            }}
                         </caption>
                         <thead class="bg-gray-50 dark:bg-gray-900/50">
                             <tr
                                 class="text-left font-medium text-gray-600 dark:text-gray-300"
                             >
-                                <th scope="col" class="px-4 py-3">Invoice</th>
-                                <th scope="col" class="px-4 py-3">Student</th>
-                                <th scope="col" class="px-4 py-3">Class</th>
-                                <th scope="col" class="px-4 py-3 text-right">
-                                    Total
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Invoice') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Student') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Class') }}
                                 </th>
                                 <th scope="col" class="px-4 py-3 text-right">
-                                    Balance
+                                    {{ $t('Total') }}
                                 </th>
-                                <th scope="col" class="px-4 py-3">Due</th>
-                                <th scope="col" class="px-4 py-3">Status</th>
+                                <th scope="col" class="px-4 py-3 text-right">
+                                    {{ $t('Balance') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Due') }}
+                                </th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Status') }}
+                                </th>
                             </tr>
                         </thead>
                         <tbody
@@ -214,14 +228,17 @@ watch(() => [filters.class_id, filters.status], reload);
                                     colspan="7"
                                     class="px-4 py-10 text-center text-gray-600 dark:text-gray-400"
                                 >
-                                    No invoices match.
+                                    {{ $t('No invoices match.') }}
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </section>
 
-                <Pagination :meta="invoices.meta" label="Invoice pages" />
+                <Pagination
+                    :meta="invoices.meta"
+                    :label="$t('Invoice pages')"
+                />
             </div>
         </div>
     </AuthenticatedLayout>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatRate } from '@/composables/numbers';
 import TermSelect from '@/Components/TermSelect.vue';
 import { formatPercent } from '@/composables/grades';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
@@ -12,24 +13,19 @@ defineProps<{
     subjects: { id: number; name: string; code: string }[];
     students: ClassResultsStudent[];
 }>();
-
-const rate = (value: number | null) =>
-    value === null
-        ? '—'
-        : `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })} %`;
 </script>
 
 <template>
-    <Head :title="`Results ${schoolClass.name}`" />
+    <Head :title="$t('Results :name', { name: schoolClass.name })" />
 
     <AuthenticatedLayout>
         <template #header>
-            <nav aria-label="Breadcrumb" class="text-sm">
+            <nav :aria-label="$t('Breadcrumb')" class="text-sm">
                 <Link
                     :href="route('grades.index', { term: term.id })"
                     class="text-gray-600 hover:underline dark:text-gray-400"
                 >
-                    Grades
+                    {{ $t('Grades') }}
                 </Link>
             </nav>
             <div class="mt-1 flex flex-wrap items-center justify-between gap-3">
@@ -49,9 +45,11 @@ const rate = (value: number | null) =>
         <div class="py-8">
             <div class="mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8">
                 <p class="text-sm text-gray-600 dark:text-gray-400">
-                    Calculated from the marks entered so far: each subject is
-                    the weighted average of its marked assessments, overall is
-                    the average of the subjects.
+                    {{
+                        $t(
+                            'Calculated from the marks entered so far: each subject is the weighted average of its marked assessments, overall is the average of the subjects.',
+                        )
+                    }}
                 </p>
 
                 <section
@@ -61,7 +59,9 @@ const rate = (value: number | null) =>
                         class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700"
                     >
                         <caption class="sr-only">
-                            Results by student and subject
+                            {{
+                                $t('Results by student and subject')
+                            }}
                         </caption>
                         <thead class="bg-gray-50 dark:bg-gray-900/50">
                             <tr
@@ -71,7 +71,7 @@ const rate = (value: number | null) =>
                                     scope="col"
                                     class="sticky left-0 bg-gray-50 px-4 py-3 dark:bg-gray-900"
                                 >
-                                    Student
+                                    {{ $t('Student') }}
                                 </th>
                                 <th
                                     v-for="s in subjects"
@@ -84,10 +84,10 @@ const rate = (value: number | null) =>
                                     </abbr>
                                 </th>
                                 <th scope="col" class="px-4 py-3 text-right">
-                                    Overall
+                                    {{ $t('Overall') }}
                                 </th>
                                 <th scope="col" class="px-4 py-3 text-right">
-                                    Attendance
+                                    {{ $t('Attendance') }}
                                 </th>
                             </tr>
                         </thead>
@@ -137,7 +137,11 @@ const rate = (value: number | null) =>
                                     <span
                                         v-else
                                         class="text-gray-400"
-                                        :aria-label="`No marks in ${s.name}`"
+                                        :aria-label="
+                                            $t('No marks in :name', {
+                                                name: s.name,
+                                            })
+                                        "
                                     >
                                         —
                                     </span>
@@ -161,7 +165,7 @@ const rate = (value: number | null) =>
                                 <td
                                     class="px-4 py-2 text-right whitespace-nowrap tabular-nums"
                                 >
-                                    {{ rate(student.attendance_rate) }}
+                                    {{ formatRate(student.attendance_rate) }}
                                 </td>
                             </tr>
                             <tr v-if="students.length === 0">
@@ -169,8 +173,11 @@ const rate = (value: number | null) =>
                                     :colspan="subjects.length + 3"
                                     class="px-4 py-10 text-center text-gray-600 dark:text-gray-400"
                                 >
-                                    No students are enrolled in this class in
-                                    this term.
+                                    {{
+                                        $t(
+                                            'No students are enrolled in this class in this term.',
+                                        )
+                                    }}
                                 </td>
                             </tr>
                         </tbody>

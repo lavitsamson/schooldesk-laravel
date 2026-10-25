@@ -7,14 +7,14 @@ const school = computed(() => usePage().props.school);
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head :title="$t('Dashboard')" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2
                 class="text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
             >
-                {{ school?.name ?? 'Dashboard' }}
+                {{ school?.name ?? $t('Dashboard') }}
             </h2>
         </template>
 
@@ -25,13 +25,25 @@ const school = computed(() => usePage().props.school);
                 >
                     <div class="p-6 text-gray-900 dark:text-gray-100">
                         <p v-if="school && !school.setup_completed">
-                            Your school administrator is still setting up
-                            {{ school.name }}. Check back soon.
+                            {{
+                                $t(
+                                    'Your school administrator is still setting up :school. Check back soon.',
+                                    { school: school.name },
+                                )
+                            }}
                         </p>
                         <p v-else>
-                            Welcome, {{ $page.props.auth.user.name }}. You're
-                            signed in as
-                            {{ school?.roles.join(', ') || 'a member' }}.
+                            {{
+                                $t(
+                                    "Welcome, :name. You're signed in as :roles.",
+                                    {
+                                        name: $page.props.auth.user.name,
+                                        roles:
+                                            school?.roles.join(', ') ||
+                                            $t('a member'),
+                                    },
+                                )
+                            }}
                         </p>
                     </div>
                 </div>

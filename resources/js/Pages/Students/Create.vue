@@ -25,22 +25,22 @@ const submit = () =>
 </script>
 
 <template>
-    <Head title="Add student" />
+    <Head :title="$t('Add student')" />
 
     <AuthenticatedLayout>
         <template #header>
-            <nav aria-label="Breadcrumb" class="text-sm">
+            <nav :aria-label="$t('Breadcrumb')" class="text-sm">
                 <Link
                     :href="route('students.index')"
                     class="text-gray-600 hover:underline dark:text-gray-400"
                 >
-                    Students
+                    {{ $t('Students') }}
                 </Link>
             </nav>
             <h2
                 class="mt-1 text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
             >
-                Add student
+                {{ $t('Add student') }}
             </h2>
         </template>
 
@@ -53,7 +53,7 @@ const submit = () =>
                         :form="form"
                         :genders="genders"
                         :classes="classes"
-                        submit-label="Add student"
+                        :submit-label="$t('Add student')"
                         @submit="submit"
                     />
                 </div>

@@ -184,7 +184,7 @@ const statusClasses: Record<StudentRow['status'], string> = {
 </script>
 
 <template>
-    <Head title="Students" />
+    <Head :title="$t('Students')" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -192,7 +192,7 @@ const statusClasses: Record<StudentRow['status'], string> = {
                 <h2
                     class="text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
                 >
-                    Students
+                    {{ $t('Students') }}
                 </h2>
                 <div class="flex flex-wrap gap-3">
                     <Link
@@ -200,14 +200,14 @@ const statusClasses: Record<StudentRow['status'], string> = {
                         :href="route('imports.index')"
                         class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-semibold tracking-widest text-gray-700 uppercase shadow-xs hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden dark:border-gray-500 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                     >
-                        Import students
+                        {{ $t('Import students') }}
                     </Link>
                     <Link
                         v-if="can.create"
                         :href="route('students.create')"
                         class="inline-flex items-center rounded-md bg-gray-800 px-4 py-2 text-xs font-semibold tracking-widest text-white uppercase hover:bg-gray-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-white"
                     >
-                        Add student
+                        {{ $t('Add student') }}
                     </Link>
                 </div>
             </div>
@@ -217,26 +217,28 @@ const statusClasses: Record<StudentRow['status'], string> = {
             <div class="mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8">
                 <section
                     class="grid gap-4 bg-white p-4 shadow-xs sm:grid-cols-[2fr_1fr_1fr] sm:rounded-lg dark:bg-gray-800"
-                    aria-label="Filters"
+                    :aria-label="$t('Filters')"
                 >
                     <div>
-                        <InputLabel for="search" value="Search" />
+                        <InputLabel for="search" :value="$t('Search')" />
                         <TextInput
                             id="search"
                             v-model="filters.search"
                             type="search"
                             class="mt-1 block w-full"
-                            placeholder="Name or admission number"
+                            :placeholder="$t('Name or admission number')"
                         />
                     </div>
                     <div>
-                        <InputLabel for="filter-class" value="Class" />
+                        <InputLabel for="filter-class" :value="$t('Class')" />
                         <SelectInput
                             id="filter-class"
                             v-model="filters.class_id"
                             class="mt-1 block w-full"
                         >
-                            <option :value="null">All classes</option>
+                            <option :value="null">
+                                {{ $t('All classes') }}
+                            </option>
                             <option
                                 v-for="c in classes"
                                 :key="c.id"
@@ -247,7 +249,7 @@ const statusClasses: Record<StudentRow['status'], string> = {
                         </SelectInput>
                     </div>
                     <div>
-                        <InputLabel for="filter-status" value="Status" />
+                        <InputLabel for="filter-status" :value="$t('Status')" />
                         <SelectInput
                             id="filter-status"
                             v-model="filters.status"
@@ -260,7 +262,7 @@ const statusClasses: Record<StudentRow['status'], string> = {
                             >
                                 {{ s.label }}
                             </option>
-                            <option value="all">All</option>
+                            <option value="all">{{ $t('All') }}</option>
                         </SelectInput>
                     </div>
                 </section>
@@ -268,7 +270,7 @@ const statusClasses: Record<StudentRow['status'], string> = {
                 <section
                     v-if="selected.length > 0"
                     class="flex flex-wrap items-end gap-3 rounded-lg border border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-800 dark:bg-indigo-950/40"
-                    aria-label="Bulk actions"
+                    :aria-label="$t('Bulk actions')"
                 >
                     <p
                         class="self-center text-sm font-medium text-indigo-900 dark:text-indigo-100"
@@ -277,7 +279,7 @@ const statusClasses: Record<StudentRow['status'], string> = {
                         {{ selected.length }} selected
                     </p>
                     <div>
-                        <InputLabel for="bulk-action" value="Action" />
+                        <InputLabel for="bulk-action" :value="$t('Action')" />
                         <SelectInput
                             id="bulk-action"
                             v-model="bulk.action"
@@ -293,14 +295,17 @@ const statusClasses: Record<StudentRow['status'], string> = {
                         </SelectInput>
                     </div>
                     <div v-if="bulk.action === 'move_to_class'">
-                        <InputLabel for="bulk-class" value="Target class" />
+                        <InputLabel
+                            for="bulk-class"
+                            :value="$t('Target class')"
+                        />
                         <SelectInput
                             id="bulk-class"
                             v-model="bulk.class_id"
                             class="mt-1 block"
                         >
                             <option :value="null" disabled>
-                                Choose a class
+                                {{ $t('Choose a class') }}
                             </option>
                             <option
                                 v-for="c in classes"
@@ -319,10 +324,10 @@ const statusClasses: Record<StudentRow['status'], string> = {
                         "
                         @click="applyBulk"
                     >
-                        Apply
+                        {{ $t('Apply') }}
                     </PrimaryButton>
                     <SecondaryButton type="button" @click="selected = []">
-                        Clear selection
+                        {{ $t('Clear selection') }}
                     </SecondaryButton>
                     <InputError
                         class="w-full"
@@ -339,7 +344,9 @@ const statusClasses: Record<StudentRow['status'], string> = {
                         class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700"
                     >
                         <caption class="sr-only">
-                            Students
+                            {{
+                                $t('Students')
+                            }}
                         </caption>
                         <thead class="bg-gray-50 dark:bg-gray-900/50">
                             <tr
@@ -348,7 +355,11 @@ const statusClasses: Record<StudentRow['status'], string> = {
                                 <th scope="col" class="w-10 px-4 py-3">
                                     <Checkbox
                                         :checked="allSelected"
-                                        aria-label="Select all students on this page"
+                                        :aria-label="
+                                            $t(
+                                                'Select all students on this page',
+                                            )
+                                        "
                                         @update:checked="toggleAll"
                                     />
                                 </th>
@@ -362,7 +373,7 @@ const statusClasses: Record<StudentRow['status'], string> = {
                                         class="font-medium hover:underline focus:underline focus:outline-hidden"
                                         @click="sortBy('name')"
                                     >
-                                        Name
+                                        {{ $t('Name') }}
                                         <span aria-hidden="true">{{
                                             filters.sort === 'name'
                                                 ? filters.direction === 'asc'
@@ -382,7 +393,7 @@ const statusClasses: Record<StudentRow['status'], string> = {
                                         class="font-medium hover:underline focus:underline focus:outline-hidden"
                                         @click="sortBy('admission_no')"
                                     >
-                                        Admission no.
+                                        {{ $t('Admission no.') }}
                                         <span aria-hidden="true">{{
                                             filters.sort === 'admission_no'
                                                 ? filters.direction === 'asc'
@@ -402,7 +413,7 @@ const statusClasses: Record<StudentRow['status'], string> = {
                                         class="font-medium hover:underline focus:underline focus:outline-hidden"
                                         @click="sortBy('class')"
                                     >
-                                        Class
+                                        {{ $t('Class') }}
                                         <span aria-hidden="true">{{
                                             filters.sort === 'class'
                                                 ? filters.direction === 'asc'
@@ -412,7 +423,9 @@ const statusClasses: Record<StudentRow['status'], string> = {
                                         }}</span>
                                     </button>
                                 </th>
-                                <th scope="col" class="px-4 py-3">Status</th>
+                                <th scope="col" class="px-4 py-3">
+                                    {{ $t('Status') }}
+                                </th>
                             </tr>
                         </thead>
                         <tbody
@@ -429,7 +442,11 @@ const statusClasses: Record<StudentRow['status'], string> = {
                                 <td class="px-4 py-3">
                                     <Checkbox
                                         :checked="selected.includes(student.id)"
-                                        :aria-label="`Select ${student.name}`"
+                                        :aria-label="
+                                            $t('Select :name', {
+                                                name: student.name,
+                                            })
+                                        "
                                         @update:checked="
                                             (checked: boolean) =>
                                                 toggle(student.id, checked)
@@ -467,14 +484,17 @@ const statusClasses: Record<StudentRow['status'], string> = {
                                     colspan="5"
                                     class="px-4 py-10 text-center text-gray-600 dark:text-gray-400"
                                 >
-                                    No students match these filters.
+                                    {{ $t('No students match these filters.') }}
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </section>
 
-                <Pagination :meta="students.meta" label="Student pages" />
+                <Pagination
+                    :meta="students.meta"
+                    :label="$t('Student pages')"
+                />
             </div>
         </div>
 
@@ -490,22 +510,25 @@ const statusClasses: Record<StudentRow['status'], string> = {
                     Mark {{ selected.length }} students as left?
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    Their enrolment this year ends today. Their records stay,
-                    and you can make them active again from their profile.
+                    {{
+                        $t(
+                            'Their enrolment this year ends today. Their records stay, and you can make them active again from their profile.',
+                        )
+                    }}
                 </p>
                 <div class="mt-6 flex justify-end gap-3">
                     <SecondaryButton
                         type="button"
                         @click="confirmingLeave = false"
                     >
-                        Cancel
+                        {{ $t('Cancel') }}
                     </SecondaryButton>
                     <DangerButton
                         type="button"
                         :disabled="bulk.processing"
                         @click="applyBulk"
                     >
-                        Mark as left
+                        {{ $t('Mark as left') }}
                     </DangerButton>
                 </div>
             </div>

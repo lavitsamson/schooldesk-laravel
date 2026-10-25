@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatRate } from '@/composables/numbers';
 import { formatDate } from '@/composables/dates';
 import { useMoney } from '@/composables/money';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
@@ -16,14 +17,14 @@ const monthName = (month: string) =>
 </script>
 
 <template>
-    <Head title="My family" />
+    <Head :title="$t('My family')" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2
                 class="text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
             >
-                My family
+                {{ $t('My family') }}
             </h2>
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                 {{ school?.name }}
@@ -35,7 +36,7 @@ const monthName = (month: string) =>
                 <ul
                     v-if="children.length > 0"
                     class="grid gap-6 md:grid-cols-2"
-                    aria-label="Children"
+                    :aria-label="$t('Children')"
                 >
                     <li
                         v-for="child in children"
@@ -54,17 +55,13 @@ const monthName = (month: string) =>
                         <dl class="mt-4 grid grid-cols-3 gap-3 text-sm">
                             <div>
                                 <dt class="text-gray-600 dark:text-gray-400">
-                                    Attendance in
+                                    {{ $t('Attendance in') }}
                                     {{ monthName(child.attendance.month) }}
                                 </dt>
                                 <dd
                                     class="mt-1 text-xl font-semibold text-gray-900 tabular-nums dark:text-gray-100"
                                 >
-                                    {{
-                                        child.attendance.rate === null
-                                            ? '—'
-                                            : `${child.attendance.rate.toLocaleString()} %`
-                                    }}
+                                    {{ formatRate(child.attendance.rate) }}
                                 </dd>
                                 <dd
                                     v-if="child.attendance.absent > 0"
@@ -75,7 +72,7 @@ const monthName = (month: string) =>
                             </div>
                             <div>
                                 <dt class="text-gray-600 dark:text-gray-400">
-                                    To pay
+                                    {{ $t('To pay') }}
                                 </dt>
                                 <dd
                                     class="mt-1 text-xl font-semibold text-gray-900 tabular-nums dark:text-gray-100"
@@ -91,7 +88,7 @@ const monthName = (month: string) =>
                             </div>
                             <div>
                                 <dt class="text-gray-600 dark:text-gray-400">
-                                    Latest report card
+                                    {{ $t('Latest report card') }}
                                 </dt>
                                 <dd
                                     class="mt-1 font-semibold text-gray-900 dark:text-gray-100"
@@ -109,25 +106,25 @@ const monthName = (month: string) =>
                                 :href="route('family.attendance', child.id)"
                                 class="text-indigo-700 hover:underline dark:text-indigo-300"
                             >
-                                Attendance
+                                {{ $t('Attendance') }}
                             </Link>
                             <Link
                                 :href="route('family.results', child.id)"
                                 class="text-indigo-700 hover:underline dark:text-indigo-300"
                             >
-                                Results
+                                {{ $t('Results') }}
                             </Link>
                             <Link
                                 :href="route('family.report-cards', child.id)"
                                 class="text-indigo-700 hover:underline dark:text-indigo-300"
                             >
-                                Report cards
+                                {{ $t('Report cards') }}
                             </Link>
                             <Link
                                 :href="route('family.invoices')"
                                 class="text-indigo-700 hover:underline dark:text-indigo-300"
                             >
-                                Invoices
+                                {{ $t('Invoices') }}
                             </Link>
                         </nav>
                     </li>
@@ -136,8 +133,11 @@ const monthName = (month: string) =>
                     v-else
                     class="bg-white p-6 text-sm text-gray-600 shadow-xs sm:rounded-lg dark:bg-gray-800 dark:text-gray-400"
                 >
-                    No children are linked to your account yet. Please contact
-                    the school office.
+                    {{
+                        $t(
+                            'No children are linked to your account yet. Please contact the school office.',
+                        )
+                    }}
                 </p>
             </div>
         </div>

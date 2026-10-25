@@ -23,13 +23,13 @@ const currentStep = computed(() => props.steps[currentIndex.value]);
             <h2
                 class="text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
             >
-                Set up your school
+                {{ $t('Set up your school') }}
             </h2>
         </template>
 
         <div class="py-8">
             <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-                <nav aria-label="Setup progress" class="mb-6">
+                <nav :aria-label="$t('Setup progress')" class="mb-6">
                     <ol class="flex flex-wrap gap-2 text-sm">
                         <li v-for="(step, index) in steps" :key="step.key">
                             <Link

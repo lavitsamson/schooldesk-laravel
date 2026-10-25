@@ -46,7 +46,7 @@ const markAllRead = () =>
 </script>
 
 <template>
-    <Head title="Notifications" />
+    <Head :title="$t('Notifications')" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -54,10 +54,10 @@ const markAllRead = () =>
                 <h2
                     class="text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
                 >
-                    Notifications
+                    {{ $t('Notifications') }}
                 </h2>
                 <SecondaryButton v-if="unread > 0" @click="markAllRead">
-                    Mark all as read
+                    {{ $t('Mark all as read') }}
                 </SecondaryButton>
             </div>
         </template>
@@ -67,7 +67,7 @@ const markAllRead = () =>
                 <ul
                     v-if="notifications.data.length > 0"
                     class="divide-y divide-gray-100 bg-white shadow-xs sm:rounded-lg dark:divide-gray-700 dark:bg-gray-800"
-                    aria-label="Notifications"
+                    :aria-label="$t('Notifications')"
                 >
                     <li v-for="n in notifications.data" :key="n.id">
                         <button
@@ -90,9 +90,9 @@ const markAllRead = () =>
                                     :class="{ 'font-semibold': !n.read_at }"
                                 >
                                     {{ n.title }}
-                                    <span v-if="!n.read_at" class="sr-only"
-                                        >(unread)</span
-                                    >
+                                    <span v-if="!n.read_at" class="sr-only">{{
+                                        $t('(unread)')
+                                    }}</span>
                                 </span>
                                 <span
                                     v-if="n.created_at"
@@ -108,12 +108,12 @@ const markAllRead = () =>
                     v-else
                     class="bg-white p-6 text-sm text-gray-600 shadow-xs sm:rounded-lg dark:bg-gray-800 dark:text-gray-400"
                 >
-                    No notifications yet.
+                    {{ $t('No notifications yet.') }}
                 </p>
 
                 <nav
                     v-if="notifications.links.prev || notifications.links.next"
-                    aria-label="Pages"
+                    :aria-label="$t('Pages')"
                     class="mt-4 flex justify-between text-sm font-medium"
                 >
                     <Link
@@ -121,7 +121,7 @@ const markAllRead = () =>
                         :href="notifications.links.prev"
                         class="text-indigo-700 hover:underline dark:text-indigo-300"
                     >
-                        ‹ Newer
+                        {{ $t('‹ Newer') }}
                     </Link>
                     <span v-else />
                     <Link
@@ -129,7 +129,7 @@ const markAllRead = () =>
                         :href="notifications.links.next"
                         class="text-indigo-700 hover:underline dark:text-indigo-300"
                     >
-                        Older ›
+                        {{ $t('Older ›') }}
                     </Link>
                 </nav>
             </div>

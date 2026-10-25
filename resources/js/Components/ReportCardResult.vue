@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { formatDate } from '@/composables/dates';
+import { formatRate } from '@/composables/numbers';
 import { formatMarks, formatPercent } from '@/composables/grades';
 import type { ReportCardSnapshot } from '@/types/school';
 
@@ -13,11 +14,6 @@ defineProps<{
 
 const shortDate = (date: string) =>
     formatDate(date, { day: 'numeric', month: 'short' });
-
-const rate = (value: number | null) =>
-    value === null
-        ? '—'
-        : `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })} %`;
 </script>
 
 <template>
@@ -25,7 +21,7 @@ const rate = (value: number | null) =>
         <dl class="grid gap-4 sm:grid-cols-3">
             <div class="bg-white p-5 shadow-xs sm:rounded-lg dark:bg-gray-800">
                 <dt class="text-sm text-gray-600 dark:text-gray-400">
-                    Overall result
+                    {{ $t('Overall result') }}
                 </dt>
                 <dd
                     class="mt-1 text-2xl font-semibold text-gray-900 dark:text-gray-100"
@@ -40,23 +36,27 @@ const rate = (value: number | null) =>
             </div>
             <div class="bg-white p-5 shadow-xs sm:rounded-lg dark:bg-gray-800">
                 <dt class="text-sm text-gray-600 dark:text-gray-400">
-                    Attendance
+                    {{ $t('Attendance') }}
                 </dt>
                 <dd
                     class="mt-1 text-2xl font-semibold text-gray-900 dark:text-gray-100"
                 >
-                    {{ rate(report.attendance.rate) }}
+                    {{ formatRate(report.attendance.rate) }}
                     <span
                         class="text-base font-normal text-gray-600 dark:text-gray-400"
                     >
-                        {{ report.attendance.absent }} absent of
-                        {{ report.attendance.days }} days
+                        {{
+                            $t(':absent absent of :days days', {
+                                absent: String(report.attendance.absent),
+                                days: String(report.attendance.days),
+                            })
+                        }}
                     </span>
                 </dd>
             </div>
             <div class="bg-white p-5 shadow-xs sm:rounded-lg dark:bg-gray-800">
                 <dt class="text-sm text-gray-600 dark:text-gray-400">
-                    Admission no.
+                    {{ $t('Admission no.') }}
                 </dt>
                 <dd
                     class="mt-1 text-2xl font-semibold text-gray-900 dark:text-gray-100"
@@ -74,7 +74,7 @@ const rate = (value: number | null) =>
                 id="subjects-title"
                 class="px-4 pt-4 text-lg font-medium text-gray-900 dark:text-gray-100"
             >
-                Subjects
+                {{ $t('Subjects') }}
             </h3>
             <ul class="mt-2 divide-y divide-gray-200 dark:divide-gray-700">
                 <li v-for="s in report.subjects" :key="s.id">
@@ -89,8 +89,12 @@ const rate = (value: number | null) =>
                                 <span
                                     class="ms-2 text-xs font-normal text-gray-600 dark:text-gray-400"
                                 >
-                                    {{ s.graded }} of
-                                    {{ s.assessments_count }} marked
+                                    {{
+                                        $t(':graded of :count marked', {
+                                            graded: String(s.graded),
+                                            count: String(s.assessments_count),
+                                        })
+                                    }}
                                 </span>
                             </span>
                             <span class="text-right">
@@ -111,9 +115,10 @@ const rate = (value: number | null) =>
                             class="mb-3 w-full text-sm"
                         >
                             <caption class="sr-only">
-                                Assessments in
                                 {{
-                                    s.name
+                                    $t('Assessments in :subject', {
+                                        subject: s.name,
+                                    })
                                 }}
                             </caption>
                             <thead>
@@ -121,20 +126,22 @@ const rate = (value: number | null) =>
                                     class="text-left text-xs text-gray-600 dark:text-gray-400"
                                 >
                                     <th scope="col" class="px-6 py-1">
-                                        Assessment
+                                        {{ $t('Assessment') }}
                                     </th>
-                                    <th scope="col" class="px-3 py-1">Date</th>
+                                    <th scope="col" class="px-3 py-1">
+                                        {{ $t('Date') }}
+                                    </th>
                                     <th
                                         scope="col"
                                         class="px-3 py-1 text-right"
                                     >
-                                        Marks
+                                        {{ $t('Marks') }}
                                     </th>
                                     <th
                                         scope="col"
                                         class="px-6 py-1 text-right"
                                     >
-                                        Weight
+                                        {{ $t('Weight') }}
                                     </th>
                                 </tr>
                             </thead>
@@ -170,7 +177,7 @@ const rate = (value: number | null) =>
                             v-else
                             class="px-6 pb-3 text-sm text-gray-600 dark:text-gray-400"
                         >
-                            No assessments yet.
+                            {{ $t('No assessments yet.') }}
                         </p>
                     </details>
                 </li>
@@ -178,7 +185,7 @@ const rate = (value: number | null) =>
                     v-if="report.subjects.length === 0"
                     class="px-4 py-6 text-sm text-gray-600 dark:text-gray-400"
                 >
-                    No subjects are taught in this class yet.
+                    {{ $t('No subjects are taught in this class yet.') }}
                 </li>
             </ul>
         </section>
@@ -191,7 +198,7 @@ const rate = (value: number | null) =>
                 id="scale-title"
                 class="font-medium text-gray-900 dark:text-gray-100"
             >
-                Grade scale
+                {{ $t('Grade scale') }}
             </h3>
             <ul
                 class="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-gray-700 dark:text-gray-300"

@@ -19,16 +19,16 @@ const name = computed(
 </script>
 
 <template>
-    <Head :title="`Results ${name}`" />
+    <Head :title="$t('Results :name', { name })" />
 
     <AuthenticatedLayout>
         <template #header>
-            <nav aria-label="Breadcrumb" class="text-sm">
+            <nav :aria-label="$t('Breadcrumb')" class="text-sm">
                 <Link
                     :href="route('grades.index', { term: report.term.id })"
                     class="text-gray-600 hover:underline dark:text-gray-400"
                 >
-                    Grades
+                    {{ $t('Grades') }}
                 </Link>
                 <span class="mx-1 text-gray-400" aria-hidden="true">›</span>
                 <Link

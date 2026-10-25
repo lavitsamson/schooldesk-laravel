@@ -31,11 +31,3 @@ export function formatDateTime(timestamp: string): string {
         minute: '2-digit',
     }).format(new Date(timestamp));
 }
-
-/** Formats a number (e.g. a percentage) in the active language. */
-export function formatNumber(
-    value: number,
-    options: Intl.NumberFormatOptions = { maximumFractionDigits: 1 },
-): string {
-    return new Intl.NumberFormat(getActiveLanguage(), options).format(value);
-}

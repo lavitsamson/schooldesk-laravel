@@ -70,7 +70,7 @@ const destroy = () =>
 
     <AuthenticatedLayout>
         <template #header>
-            <nav aria-label="Breadcrumb" class="text-sm">
+            <nav :aria-label="$t('Breadcrumb')" class="text-sm">
                 <Link
                     :href="
                         route('classes.index', {
@@ -89,7 +89,7 @@ const destroy = () =>
                     {{ schoolClass.display_name }}
                 </h2>
                 <DangerButton type="button" @click="confirmingDelete = true">
-                    Delete class
+                    {{ $t('Delete class') }}
                 </DangerButton>
             </div>
         </template>
@@ -115,7 +115,7 @@ const destroy = () =>
                             id="details-title"
                             class="text-lg font-medium text-gray-900 dark:text-gray-100"
                         >
-                            Details
+                            {{ $t('Details') }}
                         </h3>
                         <form
                             class="mt-4 space-y-4"
@@ -123,7 +123,10 @@ const destroy = () =>
                         >
                             <div class="grid gap-4 sm:grid-cols-[1fr_8rem]">
                                 <div>
-                                    <InputLabel for="name" value="Name" />
+                                    <InputLabel
+                                        for="name"
+                                        :value="$t('Name')"
+                                    />
                                     <TextInput
                                         id="name"
                                         v-model="details.name"
@@ -137,7 +140,10 @@ const destroy = () =>
                                     />
                                 </div>
                                 <div>
-                                    <InputLabel for="section" value="Section" />
+                                    <InputLabel
+                                        for="section"
+                                        :value="$t('Section')"
+                                    />
                                     <TextInput
                                         id="section"
                                         v-model="details.section"
@@ -153,14 +159,16 @@ const destroy = () =>
                             <div>
                                 <InputLabel
                                     for="class-teacher"
-                                    value="Class teacher"
+                                    :value="$t('Class teacher')"
                                 />
                                 <SelectInput
                                     id="class-teacher"
                                     v-model="details.class_teacher_id"
                                     class="mt-1 block w-full"
                                 >
-                                    <option :value="null">None</option>
+                                    <option :value="null">
+                                        {{ $t('None') }}
+                                    </option>
                                     <option
                                         v-for="t in teachers"
                                         :key="t.id"
@@ -176,7 +184,7 @@ const destroy = () =>
                             </div>
                             <div class="flex justify-end">
                                 <PrimaryButton :disabled="details.processing">
-                                    Save
+                                    {{ $t('Save') }}
                                 </PrimaryButton>
                             </div>
                         </form>
@@ -190,13 +198,16 @@ const destroy = () =>
                             id="subjects-title"
                             class="text-lg font-medium text-gray-900 dark:text-gray-100"
                         >
-                            Subject teachers
+                            {{ $t('Subject teachers') }}
                         </h3>
                         <p
                             class="mt-1 text-sm text-gray-600 dark:text-gray-400"
                         >
-                            Teachers see only the classes and subjects they are
-                            assigned to here.
+                            {{
+                                $t(
+                                    'Teachers see only the classes and subjects they are assigned to here.',
+                                )
+                            }}
                         </p>
                         <form
                             class="mt-4 space-y-3"
@@ -221,7 +232,7 @@ const destroy = () =>
                                         class="block w-full"
                                     >
                                         <option :value="null">
-                                            Not taught
+                                            {{ $t('Not taught') }}
                                         </option>
                                         <option
                                             v-for="t in teachers"
@@ -246,13 +257,17 @@ const destroy = () =>
                                 v-if="subjects.length === 0"
                                 class="text-sm text-gray-600 dark:text-gray-400"
                             >
-                                Add subjects first.
+                                {{ $t('Add subjects first.') }}
                             </p>
                             <p
                                 v-if="teachers.length === 0"
                                 class="text-sm text-gray-600 dark:text-gray-400"
                             >
-                                No teachers yet. Invite them under Members.
+                                {{
+                                    $t(
+                                        'No teachers yet. Invite them under Members.',
+                                    )
+                                }}
                             </p>
                             <div class="flex justify-end">
                                 <PrimaryButton
@@ -261,7 +276,7 @@ const destroy = () =>
                                         subjects.length === 0
                                     "
                                 >
-                                    Save subject teachers
+                                    {{ $t('Save subject teachers') }}
                                 </PrimaryButton>
                             </div>
                         </form>
@@ -285,12 +300,18 @@ const destroy = () =>
                             <tr
                                 class="text-left font-medium text-gray-600 dark:text-gray-300"
                             >
-                                <th scope="col" class="px-6 py-3">Roll</th>
-                                <th scope="col" class="px-6 py-3">Name</th>
                                 <th scope="col" class="px-6 py-3">
-                                    Admission no.
+                                    {{ $t('Roll') }}
                                 </th>
-                                <th scope="col" class="px-6 py-3">Status</th>
+                                <th scope="col" class="px-6 py-3">
+                                    {{ $t('Name') }}
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    {{ $t('Admission no.') }}
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    {{ $t('Status') }}
+                                </th>
                             </tr>
                         </thead>
                         <tbody
@@ -321,7 +342,7 @@ const destroy = () =>
                                     colspan="4"
                                     class="px-6 py-6 text-gray-600 dark:text-gray-400"
                                 >
-                                    No students in this class.
+                                    {{ $t('No students in this class.') }}
                                 </td>
                             </tr>
                         </tbody>
@@ -342,17 +363,17 @@ const destroy = () =>
                     Delete {{ schoolClass.display_name }}?
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    Only classes without students can be deleted.
+                    {{ $t('Only classes without students can be deleted.') }}
                 </p>
                 <div class="mt-6 flex justify-end gap-3">
                     <SecondaryButton
                         type="button"
                         @click="confirmingDelete = false"
                     >
-                        Cancel
+                        {{ $t('Cancel') }}
                     </SecondaryButton>
                     <DangerButton type="button" @click="destroy">
-                        Delete
+                        {{ $t('Delete') }}
                     </DangerButton>
                 </div>
             </div>

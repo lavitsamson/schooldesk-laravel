@@ -29,6 +29,6 @@ const classes = computed(() => {
         class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap"
         :class="classes"
     >
-        {{ label }}<template v-if="overdue"> · Overdue</template>
+        {{ label }}<template v-if="overdue"> · {{ $t('Overdue') }}</template>
     </span>
 </template>

@@ -19,14 +19,14 @@ const open = computed(() =>
 </script>
 
 <template>
-    <Head title="Invoices" />
+    <Head :title="$t('Invoices')" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2
                 class="text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
             >
-                Invoices
+                {{ $t('Invoices') }}
             </h2>
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                 Open: {{ money(open) }}
@@ -38,7 +38,7 @@ const open = computed(() =>
                 <ul
                     v-if="invoices.length > 0"
                     class="space-y-3"
-                    aria-label="Invoices"
+                    :aria-label="$t('Invoices')"
                 >
                     <li
                         v-for="invoice in invoices"
@@ -82,7 +82,7 @@ const open = computed(() =>
                     v-else
                     class="bg-white p-6 text-sm text-gray-600 shadow-xs sm:rounded-lg dark:bg-gray-800 dark:text-gray-400"
                 >
-                    No invoices yet.
+                    {{ $t('No invoices yet.') }}
                 </p>
             </div>
         </div>
