@@ -10,6 +10,8 @@ export interface CurrentSchool {
     id: number;
     name: string;
     setup_completed: boolean;
+    currency: string;
+    locale: string;
     roles: string[];
     permissions: string[];
 }

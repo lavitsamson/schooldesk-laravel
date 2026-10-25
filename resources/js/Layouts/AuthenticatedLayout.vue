@@ -36,6 +36,18 @@ const links = computed(() =>
             permission: 'report_cards.generate',
         },
         {
+            label: 'Fees',
+            route: 'fees.index',
+            active: ['fees.*', 'fee-structures.*', 'invoices.*'],
+            permission: 'fees.manage',
+        },
+        {
+            label: 'Invoices',
+            route: 'family.invoices',
+            active: ['family.invoices', 'invoices.show'],
+            permission: 'children.view',
+        },
+        {
             label: 'Students',
             route: 'students.index',
             active: 'students.*',

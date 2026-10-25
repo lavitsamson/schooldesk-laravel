@@ -332,3 +332,35 @@ export interface AiCommentDraft {
     text: string;
     created_at: string;
 }
+
+export type InvoiceStatus = 'issued' | 'partially_paid' | 'paid' | 'void';
+
+/** Amounts are integers in minor units of the school's currency. */
+export interface InvoiceRow {
+    id: number;
+    number: string;
+    student: IdName;
+    class: string | null;
+    term: string | null;
+    total: number;
+    paid: number;
+    balance: number;
+    status: InvoiceStatus;
+    status_label: string;
+    overdue: boolean;
+    due_on: string;
+}
+
+export interface FeeTotals {
+    invoices: number;
+    invoiced: number;
+    collected: number;
+    outstanding: number;
+    overdue: number;
+    paid: number;
+}
+
+export interface FeeClassTotals extends FeeTotals {
+    id: number | null;
+    name: string;
+}
