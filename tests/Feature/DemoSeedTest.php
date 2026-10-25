@@ -105,6 +105,11 @@ it('seeds two set-up demo schools with working logins', function (): void {
 
     Notification::assertNothingSent();
 
+    // The demo parent's portal has notifications to show, stored without sending anything.
+    $paula = User::query()->where('email', 'parent@riverside.demo')->sole();
+    expect($paula->notifications()->where('school_id', $riverside->id)->count())->toBeGreaterThan(0)
+        ->and($paula->unreadNotifications()->count())->toBe(3);
+
     expect($riverside->refresh()->aiCommentDraftsEnabled())->toBeTrue();
 
     $gymnasium = School::query()->where('slug', 'gymnasium-am-main')->sole();

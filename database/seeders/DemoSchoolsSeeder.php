@@ -38,6 +38,7 @@ class DemoSchoolsSeeder extends Seeder
         private readonly DemoGradesSeeder $grades,
         private readonly DemoReportCardsSeeder $reportCards,
         private readonly DemoFeesSeeder $fees,
+        private readonly DemoNotificationsSeeder $notifications,
     ) {}
 
     public function run(): void
@@ -106,6 +107,9 @@ class DemoSchoolsSeeder extends Seeder
         $this->fees->seedSchool($gymnasium, [
             ['name' => 'Kopiergeld', 'amount' => 2_500, 'frequency' => FeeFrequency::Annual],
         ], $gymnasiumAdmin);
+
+        // What Paula would have been told so far, for the parent portal.
+        $this->notifications->seedFamily($riverside, $parent);
     }
 
     /**
