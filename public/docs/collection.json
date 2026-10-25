@@ -1,0 +1,589 @@
+{
+    "variable": [
+        {
+            "id": "baseUrl",
+            "key": "baseUrl",
+            "type": "string",
+            "name": "string",
+            "value": "http:\/\/localhost"
+        }
+    ],
+    "info": {
+        "name": "SchoolDesk Parent API",
+        "_postman_id": "4fe2ba1a-35aa-4ae0-bfc7-e4234e650380",
+        "description": "The parent portal as a JSON API for a mobile app: children, attendance, grades, report cards, invoices and notifications.",
+        "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
+    },
+    "item": [
+        {
+            "name": "Authentication",
+            "description": "\nParents sign in with the email address and password of their parent portal account. Each\ntoken is for one device and one school; send it as `Authorization: Bearer <token>`.",
+            "item": [
+                {
+                    "name": "Get a token",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/auth\/token",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/auth\/token"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"email\":\"parent@riverside.demo\",\"password\":\"DemoPass123!\",\"device_name\":\"Paula's iPhone\"}"
+                        },
+                        "description": "Parents at several schools choose one with `school_id` (the error lists their schools).\nTokens expire after 90 days. Limited to 5 attempts a minute per email address.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 201,
+                            "body": "{\"data\": {\"token\": \"12|sd_Xb3k\u2026\", \"token_type\": \"Bearer\", \"school_id\": 1, \"expires_at\": \"2027-01-23T10:00:00+00:00\"}}",
+                            "name": ""
+                        },
+                        {
+                            "header": [],
+                            "code": 403,
+                            "body": "{\"message\": \"The API is for parents. Please use the web app.\", \"code\": \"forbidden\"}",
+                            "name": ""
+                        },
+                        {
+                            "header": [],
+                            "code": 422,
+                            "body": "{\"message\": \"These credentials do not match our records.\", \"code\": \"validation_failed\", \"errors\": {\"email\": [\"These credentials do not match our records.\"]}}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Revoke the token",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/auth\/token",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/auth\/token"
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Signs this device out. Other devices keep their tokens."
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 204,
+                            "body": "",
+                            "name": "Revoked"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Account",
+            "description": "",
+            "item": [
+                {
+                    "name": "The signed-in parent",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/me",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/me"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "With the token's school: its currency is the currency of every amount in the API, in\nminor units (cents)."
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\"data\": {\"user\": {\"id\": 7, \"name\": \"Paula Parent\", \"email\": \"parent@riverside.demo\", \"locale\": \"en\"}, \"school\": {\"id\": 1, \"name\": \"Riverside International School\", \"locale\": \"en\", \"currency\": \"EUR\", \"timezone\": \"Europe\/Berlin\"}}}",
+                            "name": ""
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Children",
+            "description": "\nThe parent's own children at the token's school. Another family's child is a 403; a\nstudent of another school a 404.",
+            "item": [
+                {
+                    "name": "List children",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/children",
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "25",
+                                    "description": "Items per page, 1 to 100. Must be at least 1. Must not be greater than 100.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "cursor",
+                                    "value": "",
+                                    "description": "meta.next_cursor of the previous page. Must not be greater than 1000 characters.",
+                                    "disabled": true
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/v1\/children?limit=25&cursor="
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\"data\": [{\"id\": 12, \"first_name\": \"Pia\", \"last_name\": \"Parent\", \"name\": \"Pia Parent\", \"admission_no\": \"RIS-0012\", \"status\": \"active\", \"class\": {\"id\": 3, \"name\": \"Grade 7 A\"}}], \"links\": {\"first\": null, \"last\": null, \"prev\": null, \"next\": null}, \"meta\": {\"path\": \"https:\/\/schooldesk.test\/api\/v1\/children\", \"per_page\": 25, \"next_cursor\": null, \"prev_cursor\": null}}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Attendance in a month",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/children\/:student_id\/attendance",
+                            "query": [
+                                {
+                                    "key": "month",
+                                    "value": "2026-10",
+                                    "description": "The month, YYYY-MM. Defaults to the current month; future months are refused. Must be a valid date in the format Y-m.",
+                                    "disabled": false
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/v1\/children\/:student_id\/attendance?month=2026-10",
+                            "variable": [
+                                {
+                                    "id": "student_id",
+                                    "key": "student_id",
+                                    "value": 12,
+                                    "description": "The child's id."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Every day of the month with its status (`present`, `absent`, `late`, `excused`, or null\nwhere no attendance was taken), the totals and the attendance rate in percent."
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\"data\": {\"month\": \"2026-10\", \"previous_month\": \"2026-09\", \"next_month\": null, \"days\": [{\"date\": \"2026-10-01\", \"weekday\": 4, \"status\": \"present\"}, {\"date\": \"2026-10-02\", \"weekday\": 5, \"status\": \"late\"}], \"totals\": {\"present\": 15, \"absent\": 1, \"late\": 1, \"excused\": 0}, \"recorded_days\": 17, \"attendance_rate\": 94.1}}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Grades in a term",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/children\/:student_id\/grades",
+                            "query": [
+                                {
+                                    "key": "term",
+                                    "value": "4",
+                                    "description": "A term of the current academic year. Defaults to the current term.",
+                                    "disabled": false
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/v1\/children\/:student_id\/grades?term=4",
+                            "variable": [
+                                {
+                                    "id": "student_id",
+                                    "key": "student_id",
+                                    "value": 12,
+                                    "description": "The child's id."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"term\":16}"
+                        },
+                        "description": "The results so far: per subject the weighted percentage, the grade on the school's\nscale and the marks of each assessment. Percentages are decimal strings."
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\"data\": {\"student\": {\"id\": 12, \"first_name\": \"Pia\"}, \"class\": {\"id\": 3, \"name\": \"Grade 7 A\"}, \"term\": {\"id\": 4, \"name\": \"Autumn term\", \"starts_on\": \"2026-08-17\", \"ends_on\": \"2026-12-18\"}, \"overall\": {\"percentage\": \"81.50\", \"grade\": \"B\"}, \"attendance\": {\"days\": 40, \"present\": 37, \"absent\": 2, \"late\": 1, \"excused\": 0, \"rate\": 95.0}, \"subjects\": [{\"id\": 1, \"name\": \"Mathematics\", \"code\": \"MATH\", \"percentage\": \"86.25\", \"grade\": \"B\", \"assessments\": [{\"id\": 9, \"name\": \"Test 1\", \"type\": \"test\", \"held_on\": \"2026-09-10\", \"max_marks\": 20, \"weight\": \"1.00\", \"marks\": \"18.00\"}]}], \"grade_scale\": [{\"label\": \"A\", \"min_percent\": \"90.00\", \"max_percent\": \"100.00\"}]}}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "List report cards",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/children\/:student_id\/report-cards",
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "25",
+                                    "description": "Items per page, 1 to 100.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "cursor",
+                                    "value": "",
+                                    "description": "meta.next_cursor of the previous page.",
+                                    "disabled": true
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/v1\/children\/:student_id\/report-cards?limit=25&cursor=",
+                            "variable": [
+                                {
+                                    "id": "student_id",
+                                    "key": "student_id",
+                                    "value": 12,
+                                    "description": "The child's id."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Published report cards only, newest first. `pdf_url` downloads the PDF (with the token)."
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\"data\": [{\"id\": 31, \"student_id\": 12, \"term\": {\"id\": 4, \"name\": \"Autumn term\"}, \"class\": \"Grade 7 A\", \"overall\": {\"percentage\": \"81.50\", \"grade\": \"B\"}, \"attendance_rate\": 95.0, \"comment\": \"Pia has worked with great care this term.\", \"published_at\": \"2026-12-18T14:00:00+00:00\", \"pdf_url\": \"https:\/\/schooldesk.test\/api\/v1\/report-cards\/31\/pdf\"}], \"links\": {\"first\": null, \"last\": null, \"prev\": null, \"next\": null}, \"meta\": {\"path\": \"https:\/\/schooldesk.test\/api\/v1\/children\/12\/report-cards\", \"per_page\": 25, \"next_cursor\": null, \"prev_cursor\": null}}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Download a report card",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/report-cards\/:reportCard_id\/pdf",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/report-cards\/:reportCard_id\/pdf",
+                            "variable": [
+                                {
+                                    "id": "reportCard_id",
+                                    "key": "reportCard_id",
+                                    "value": 31,
+                                    "description": "The report card's id."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "The PDF of a published report card of one's own child."
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "[binary application\/pdf]",
+                            "name": "The PDF"
+                        },
+                        {
+                            "header": [],
+                            "code": 403,
+                            "body": "{\"message\": \"This action is unauthorized.\", \"code\": \"forbidden\"}",
+                            "name": ""
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Invoices",
+            "description": "\nThe invoices of all the parent's children. Amounts are integers in minor units (cents) of\n`currency`.",
+            "item": [
+                {
+                    "name": "List invoices",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/invoices",
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "25",
+                                    "description": "Items per page, 1 to 100. Must be at least 1. Must not be greater than 100.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "cursor",
+                                    "value": "",
+                                    "description": "meta.next_cursor of the previous page. Must not be greater than 1000 characters.",
+                                    "disabled": true
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/v1\/invoices?limit=25&cursor="
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Newest first; void invoices are left out."
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\"data\": [{\"id\": 88, \"number\": \"SD-2026-000088\", \"student\": {\"id\": 12, \"name\": \"Pia Parent\"}, \"class\": null, \"term\": \"Autumn term\", \"total\": 145000, \"paid\": 50000, \"balance\": 95000, \"currency\": \"EUR\", \"status\": \"partially_paid\", \"status_label\": \"Partially paid\", \"overdue\": false, \"due_on\": \"2026-08-31\"}], \"links\": {\"first\": null, \"last\": null, \"prev\": null, \"next\": null}, \"meta\": {\"path\": \"https:\/\/schooldesk.test\/api\/v1\/invoices\", \"per_page\": 25, \"next_cursor\": null, \"prev_cursor\": null}}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Pay online",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/invoices\/:invoice_id\/checkout-session",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/invoices\/:invoice_id\/checkout-session",
+                            "variable": [
+                                {
+                                    "id": "invoice_id",
+                                    "key": "invoice_id",
+                                    "value": 88,
+                                    "description": "The invoice's id."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Starts a Stripe Checkout session for the open balance; open `url` in a browser. The\npayment is recorded once Stripe confirms it, not when the browser returns."
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 201,
+                            "body": "{\"data\": {\"url\": \"https:\/\/checkout.stripe.com\/c\/pay\/cs_test_\u2026\"}}",
+                            "name": ""
+                        },
+                        {
+                            "header": [],
+                            "code": 422,
+                            "body": "{\"message\": \"This invoice has nothing left to pay.\", \"code\": \"validation_failed\", \"errors\": {\"payment\": [\"This invoice has nothing left to pay.\"]}}",
+                            "name": ""
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Notifications",
+            "description": "\nWhat the school told the parent: absences, published report cards, invoices, payments\nand reminders. `subject` names the record (student, report_card or invoice).",
+            "item": [
+                {
+                    "name": "List notifications",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/notifications",
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "25",
+                                    "description": "Items per page, 1 to 100. Must be at least 1. Must not be greater than 100.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "cursor",
+                                    "value": "",
+                                    "description": "meta.next_cursor of the previous page. Must not be greater than 1000 characters.",
+                                    "disabled": true
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/v1\/notifications?limit=25&cursor="
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Newest first, read and unread."
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\"data\": [{\"id\": \"9b2f6c1e-5d1a-4a53-9a0e-3c8f2b7d1e44\", \"type\": \"student-absent\", \"title\": \"Pia was absent on 12 October 2026.\", \"subject\": {\"type\": \"student\", \"id\": 12, \"student_id\": 12}, \"details\": {\"student_id\": 12, \"first_name\": \"Pia\", \"class\": \"Grade 7 A\", \"date\": \"2026-10-12\"}, \"read_at\": null, \"created_at\": \"2026-10-12T08:15:00+00:00\"}], \"links\": {\"first\": null, \"last\": null, \"prev\": null, \"next\": null}, \"meta\": {\"path\": \"https:\/\/schooldesk.test\/api\/v1\/notifications\", \"per_page\": 25, \"next_cursor\": null, \"prev_cursor\": null}}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Mark as read",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/notifications\/:notification\/read",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/notifications\/:notification\/read",
+                            "variable": [
+                                {
+                                    "id": "notification",
+                                    "key": "notification",
+                                    "value": "9b2f6c1e-5d1a-4a53-9a0e-3c8f2b7d1e44",
+                                    "description": "The notification's id."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\"data\": {\"id\": \"9b2f6c1e-5d1a-4a53-9a0e-3c8f2b7d1e44\", \"type\": \"student-absent\", \"title\": \"Pia was absent on 12 October 2026.\", \"subject\": {\"type\": \"student\", \"id\": 12, \"student_id\": 12}, \"details\": {\"student_id\": 12, \"first_name\": \"Pia\", \"class\": \"Grade 7 A\", \"date\": \"2026-10-12\"}, \"read_at\": \"2026-10-12T17:02:00+00:00\", \"created_at\": \"2026-10-12T08:15:00+00:00\"}}",
+                            "name": ""
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "Authorization",
+                "type": "string"
+            }
+        ]
+    }
+}

@@ -1,0 +1,1414 @@
+openapi: 3.0.3
+info:
+  title: 'SchoolDesk Parent API'
+  description: 'The parent portal as a JSON API for a mobile app: children, attendance, grades, report cards, invoices and notifications.'
+  version: 1.0.0
+servers:
+  -
+    url: 'http://localhost'
+tags:
+  -
+    name: Authentication
+    description: "\nParents sign in with the email address and password of their parent portal account. Each\ntoken is for one device and one school; send it as `Authorization: Bearer <token>`."
+  -
+    name: Account
+    description: ''
+  -
+    name: Children
+    description: "\nThe parent's own children at the token's school. Another family's child is a 403; a\nstudent of another school a 404."
+  -
+    name: Invoices
+    description: "\nThe invoices of all the parent's children. Amounts are integers in minor units (cents) of\n`currency`."
+  -
+    name: Notifications
+    description: "\nWhat the school told the parent: absences, published report cards, invoices, payments\nand reminders. `subject` names the record (student, report_card or invoice)."
+components:
+  securitySchemes:
+    default:
+      type: http
+      scheme: bearer
+      description: 'Get a token from <code>POST /api/v1/auth/token</code> and send it as <code>Authorization: Bearer {token}</code>.'
+security:
+  -
+    default: []
+paths:
+  /api/v1/auth/token:
+    post:
+      summary: 'Get a token'
+      operationId: getAToken
+      description: "Parents at several schools choose one with `school_id` (the error lists their schools).\nTokens expire after 90 days. Limited to 5 attempts a minute per email address."
+      parameters: []
+      responses:
+        201:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    token: 12|sd_Xb3k…
+                    token_type: Bearer
+                    school_id: 1
+                    expires_at: '2027-01-23T10:00:00+00:00'
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: 12|sd_Xb3k…
+                      token_type:
+                        type: string
+                        example: Bearer
+                      school_id:
+                        type: integer
+                        example: 1
+                      expires_at:
+                        type: string
+                        example: '2027-01-23T10:00:00+00:00'
+        403:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'The API is for parents. Please use the web app.'
+                  code: forbidden
+                properties:
+                  message:
+                    type: string
+                    example: 'The API is for parents. Please use the web app.'
+                  code:
+                    type: string
+                    example: forbidden
+        422:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'These credentials do not match our records.'
+                  code: validation_failed
+                  errors:
+                    email:
+                      - 'These credentials do not match our records.'
+                properties:
+                  message:
+                    type: string
+                    example: 'These credentials do not match our records.'
+                  code:
+                    type: string
+                    example: validation_failed
+                  errors:
+                    type: object
+                    properties:
+                      email:
+                        type: array
+                        example:
+                          - 'These credentials do not match our records.'
+                        items:
+                          type: string
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: "The parent account's email address. Must be a valid email address. Must not be greater than 255 characters."
+                  example: parent@riverside.demo
+                password:
+                  type: string
+                  description: "The account's password. Must not be greater than 255 characters."
+                  example: DemoPass123!
+                device_name:
+                  type: string
+                  description: 'A name for the device, shown to the parent later. Must not be greater than 100 characters.'
+                  example: "Paula's iPhone"
+                school_id:
+                  type: integer
+                  description: 'Only for parents at several schools: the school the token is for.'
+                  example: null
+                  nullable: true
+              required:
+                - email
+                - password
+                - device_name
+      security: []
+    delete:
+      summary: 'Revoke the token'
+      operationId: revokeTheToken
+      description: 'Signs this device out. Other devices keep their tokens.'
+      parameters: []
+      responses:
+        204:
+          description: Revoked
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: ''
+      tags:
+        - Authentication
+  /api/v1/me:
+    get:
+      summary: 'The signed-in parent'
+      operationId: theSignedInParent
+      description: "With the token's school: its currency is the currency of every amount in the API, in\nminor units (cents)."
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    user:
+                      id: 7
+                      name: 'Paula Parent'
+                      email: parent@riverside.demo
+                      locale: en
+                    school:
+                      id: 1
+                      name: 'Riverside International School'
+                      locale: en
+                      currency: EUR
+                      timezone: Europe/Berlin
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 7
+                          name:
+                            type: string
+                            example: 'Paula Parent'
+                          email:
+                            type: string
+                            example: parent@riverside.demo
+                          locale:
+                            type: string
+                            example: en
+                      school:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          name:
+                            type: string
+                            example: 'Riverside International School'
+                          locale:
+                            type: string
+                            example: en
+                          currency:
+                            type: string
+                            example: EUR
+                          timezone:
+                            type: string
+                            example: Europe/Berlin
+      tags:
+        - Account
+  /api/v1/children:
+    get:
+      summary: 'List children'
+      operationId: listChildren
+      description: ''
+      parameters:
+        -
+          in: query
+          name: limit
+          description: 'Items per page, 1 to 100. Must be at least 1. Must not be greater than 100.'
+          example: 25
+          required: false
+          schema:
+            type: integer
+            description: 'Items per page, 1 to 100. Must be at least 1. Must not be greater than 100.'
+            example: 25
+            nullable: true
+        -
+          in: query
+          name: cursor
+          description: 'meta.next_cursor of the previous page. Must not be greater than 1000 characters.'
+          example: null
+          required: false
+          schema:
+            type: string
+            description: 'meta.next_cursor of the previous page. Must not be greater than 1000 characters.'
+            example: null
+            nullable: true
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    -
+                      id: 12
+                      first_name: Pia
+                      last_name: Parent
+                      name: 'Pia Parent'
+                      admission_no: RIS-0012
+                      status: active
+                      class:
+                        id: 3
+                        name: 'Grade 7 A'
+                  links:
+                    first: null
+                    last: null
+                    prev: null
+                    next: null
+                  meta:
+                    path: 'https://schooldesk.test/api/v1/children'
+                    per_page: 25
+                    next_cursor: null
+                    prev_cursor: null
+                properties:
+                  data:
+                    type: array
+                    example:
+                      -
+                        id: 12
+                        first_name: Pia
+                        last_name: Parent
+                        name: 'Pia Parent'
+                        admission_no: RIS-0012
+                        status: active
+                        class:
+                          id: 3
+                          name: 'Grade 7 A'
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 12
+                        first_name:
+                          type: string
+                          example: Pia
+                        last_name:
+                          type: string
+                          example: Parent
+                        name:
+                          type: string
+                          example: 'Pia Parent'
+                        admission_no:
+                          type: string
+                          example: RIS-0012
+                        status:
+                          type: string
+                          example: active
+                        class:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 3
+                            name:
+                              type: string
+                              example: 'Grade 7 A'
+                  links:
+                    type: object
+                    properties:
+                      first:
+                        type: string
+                        example: null
+                        nullable: true
+                      last:
+                        type: string
+                        example: null
+                        nullable: true
+                      prev:
+                        type: string
+                        example: null
+                        nullable: true
+                      next:
+                        type: string
+                        example: null
+                        nullable: true
+                  meta:
+                    type: object
+                    properties:
+                      path:
+                        type: string
+                        example: 'https://schooldesk.test/api/v1/children'
+                      per_page:
+                        type: integer
+                        example: 25
+                      next_cursor:
+                        type: string
+                        example: null
+                        nullable: true
+                      prev_cursor:
+                        type: string
+                        example: null
+                        nullable: true
+      tags:
+        - Children
+  '/api/v1/children/{student_id}/attendance':
+    get:
+      summary: 'Attendance in a month'
+      operationId: attendanceInAMonth
+      description: "Every day of the month with its status (`present`, `absent`, `late`, `excused`, or null\nwhere no attendance was taken), the totals and the attendance rate in percent."
+      parameters:
+        -
+          in: query
+          name: month
+          description: 'The month, YYYY-MM. Defaults to the current month; future months are refused. Must be a valid date in the format <code>Y-m</code>.'
+          example: 2026-10
+          required: false
+          schema:
+            type: string
+            description: 'The month, YYYY-MM. Defaults to the current month; future months are refused. Must be a valid date in the format <code>Y-m</code>.'
+            example: 2026-10
+            nullable: true
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    month: 2026-10
+                    previous_month: 2026-09
+                    next_month: null
+                    days:
+                      -
+                        date: '2026-10-01'
+                        weekday: 4
+                        status: present
+                      -
+                        date: '2026-10-02'
+                        weekday: 5
+                        status: late
+                    totals:
+                      present: 15
+                      absent: 1
+                      late: 1
+                      excused: 0
+                    recorded_days: 17
+                    attendance_rate: 94.1
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      month:
+                        type: string
+                        example: 2026-10
+                      previous_month:
+                        type: string
+                        example: 2026-09
+                      next_month:
+                        type: string
+                        example: null
+                        nullable: true
+                      days:
+                        type: array
+                        example:
+                          -
+                            date: '2026-10-01'
+                            weekday: 4
+                            status: present
+                          -
+                            date: '2026-10-02'
+                            weekday: 5
+                            status: late
+                        items:
+                          type: object
+                          properties:
+                            date:
+                              type: string
+                              example: '2026-10-01'
+                            weekday:
+                              type: integer
+                              example: 4
+                            status:
+                              type: string
+                              example: present
+                      totals:
+                        type: object
+                        properties:
+                          present:
+                            type: integer
+                            example: 15
+                          absent:
+                            type: integer
+                            example: 1
+                          late:
+                            type: integer
+                            example: 1
+                          excused:
+                            type: integer
+                            example: 0
+                      recorded_days:
+                        type: integer
+                        example: 17
+                      attendance_rate:
+                        type: number
+                        example: 94.1
+      tags:
+        - Children
+    parameters:
+      -
+        in: path
+        name: student_id
+        description: "The child's id."
+        example: 12
+        required: true
+        schema:
+          type: integer
+  '/api/v1/children/{student_id}/grades':
+    get:
+      summary: 'Grades in a term'
+      operationId: gradesInATerm
+      description: "The results so far: per subject the weighted percentage, the grade on the school's\nscale and the marks of each assessment. Percentages are decimal strings."
+      parameters:
+        -
+          in: query
+          name: term
+          description: 'A term of the current academic year. Defaults to the current term.'
+          example: 4
+          required: false
+          schema:
+            type: integer
+            description: 'A term of the current academic year. Defaults to the current term.'
+            example: 4
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    student:
+                      id: 12
+                      first_name: Pia
+                    class:
+                      id: 3
+                      name: 'Grade 7 A'
+                    term:
+                      id: 4
+                      name: 'Autumn term'
+                      starts_on: '2026-08-17'
+                      ends_on: '2026-12-18'
+                    overall:
+                      percentage: '81.50'
+                      grade: B
+                    attendance:
+                      days: 40
+                      present: 37
+                      absent: 2
+                      late: 1
+                      excused: 0
+                      rate: 95.0
+                    subjects:
+                      -
+                        id: 1
+                        name: Mathematics
+                        code: MATH
+                        percentage: '86.25'
+                        grade: B
+                        assessments:
+                          -
+                            id: 9
+                            name: 'Test 1'
+                            type: test
+                            held_on: '2026-09-10'
+                            max_marks: 20
+                            weight: '1.00'
+                            marks: '18.00'
+                    grade_scale:
+                      -
+                        label: A
+                        min_percent: '90.00'
+                        max_percent: '100.00'
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      student:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 12
+                          first_name:
+                            type: string
+                            example: Pia
+                      class:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 3
+                          name:
+                            type: string
+                            example: 'Grade 7 A'
+                      term:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 4
+                          name:
+                            type: string
+                            example: 'Autumn term'
+                          starts_on:
+                            type: string
+                            example: '2026-08-17'
+                          ends_on:
+                            type: string
+                            example: '2026-12-18'
+                      overall:
+                        type: object
+                        properties:
+                          percentage:
+                            type: string
+                            example: '81.50'
+                          grade:
+                            type: string
+                            example: B
+                      attendance:
+                        type: object
+                        properties:
+                          days:
+                            type: integer
+                            example: 40
+                          present:
+                            type: integer
+                            example: 37
+                          absent:
+                            type: integer
+                            example: 2
+                          late:
+                            type: integer
+                            example: 1
+                          excused:
+                            type: integer
+                            example: 0
+                          rate:
+                            type: number
+                            example: 95.0
+                      subjects:
+                        type: array
+                        example:
+                          -
+                            id: 1
+                            name: Mathematics
+                            code: MATH
+                            percentage: '86.25'
+                            grade: B
+                            assessments:
+                              -
+                                id: 9
+                                name: 'Test 1'
+                                type: test
+                                held_on: '2026-09-10'
+                                max_marks: 20
+                                weight: '1.00'
+                                marks: '18.00'
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 1
+                            name:
+                              type: string
+                              example: Mathematics
+                            code:
+                              type: string
+                              example: MATH
+                            percentage:
+                              type: string
+                              example: '86.25'
+                            grade:
+                              type: string
+                              example: B
+                            assessments:
+                              type: array
+                              example:
+                                -
+                                  id: 9
+                                  name: 'Test 1'
+                                  type: test
+                                  held_on: '2026-09-10'
+                                  max_marks: 20
+                                  weight: '1.00'
+                                  marks: '18.00'
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: integer
+                                    example: 9
+                                  name:
+                                    type: string
+                                    example: 'Test 1'
+                                  type:
+                                    type: string
+                                    example: test
+                                  held_on:
+                                    type: string
+                                    example: '2026-09-10'
+                                  max_marks:
+                                    type: integer
+                                    example: 20
+                                  weight:
+                                    type: string
+                                    example: '1.00'
+                                  marks:
+                                    type: string
+                                    example: '18.00'
+                      grade_scale:
+                        type: array
+                        example:
+                          -
+                            label: A
+                            min_percent: '90.00'
+                            max_percent: '100.00'
+                        items:
+                          type: object
+                          properties:
+                            label:
+                              type: string
+                              example: A
+                            min_percent:
+                              type: string
+                              example: '90.00'
+                            max_percent:
+                              type: string
+                              example: '100.00'
+      tags:
+        - Children
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                term:
+                  type: integer
+                  description: ''
+                  example: 16
+                  nullable: true
+    parameters:
+      -
+        in: path
+        name: student_id
+        description: "The child's id."
+        example: 12
+        required: true
+        schema:
+          type: integer
+  '/api/v1/children/{student_id}/report-cards':
+    get:
+      summary: 'List report cards'
+      operationId: listReportCards
+      description: 'Published report cards only, newest first. `pdf_url` downloads the PDF (with the token).'
+      parameters:
+        -
+          in: query
+          name: limit
+          description: 'Items per page, 1 to 100.'
+          example: 25
+          required: false
+          schema:
+            type: integer
+            description: 'Items per page, 1 to 100.'
+            example: 25
+        -
+          in: query
+          name: cursor
+          description: 'meta.next_cursor of the previous page.'
+          example: null
+          required: false
+          schema:
+            type: string
+            description: 'meta.next_cursor of the previous page.'
+            example: null
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    -
+                      id: 31
+                      student_id: 12
+                      term:
+                        id: 4
+                        name: 'Autumn term'
+                      class: 'Grade 7 A'
+                      overall:
+                        percentage: '81.50'
+                        grade: B
+                      attendance_rate: 95.0
+                      comment: 'Pia has worked with great care this term.'
+                      published_at: '2026-12-18T14:00:00+00:00'
+                      pdf_url: 'https://schooldesk.test/api/v1/report-cards/31/pdf'
+                  links:
+                    first: null
+                    last: null
+                    prev: null
+                    next: null
+                  meta:
+                    path: 'https://schooldesk.test/api/v1/children/12/report-cards'
+                    per_page: 25
+                    next_cursor: null
+                    prev_cursor: null
+                properties:
+                  data:
+                    type: array
+                    example:
+                      -
+                        id: 31
+                        student_id: 12
+                        term:
+                          id: 4
+                          name: 'Autumn term'
+                        class: 'Grade 7 A'
+                        overall:
+                          percentage: '81.50'
+                          grade: B
+                        attendance_rate: 95
+                        comment: 'Pia has worked with great care this term.'
+                        published_at: '2026-12-18T14:00:00+00:00'
+                        pdf_url: 'https://schooldesk.test/api/v1/report-cards/31/pdf'
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 31
+                        student_id:
+                          type: integer
+                          example: 12
+                        term:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 4
+                            name:
+                              type: string
+                              example: 'Autumn term'
+                        class:
+                          type: string
+                          example: 'Grade 7 A'
+                        overall:
+                          type: object
+                          properties:
+                            percentage:
+                              type: string
+                              example: '81.50'
+                            grade:
+                              type: string
+                              example: B
+                        attendance_rate:
+                          type: number
+                          example: 95.0
+                        comment:
+                          type: string
+                          example: 'Pia has worked with great care this term.'
+                        published_at:
+                          type: string
+                          example: '2026-12-18T14:00:00+00:00'
+                        pdf_url:
+                          type: string
+                          example: 'https://schooldesk.test/api/v1/report-cards/31/pdf'
+                  links:
+                    type: object
+                    properties:
+                      first:
+                        type: string
+                        example: null
+                        nullable: true
+                      last:
+                        type: string
+                        example: null
+                        nullable: true
+                      prev:
+                        type: string
+                        example: null
+                        nullable: true
+                      next:
+                        type: string
+                        example: null
+                        nullable: true
+                  meta:
+                    type: object
+                    properties:
+                      path:
+                        type: string
+                        example: 'https://schooldesk.test/api/v1/children/12/report-cards'
+                      per_page:
+                        type: integer
+                        example: 25
+                      next_cursor:
+                        type: string
+                        example: null
+                        nullable: true
+                      prev_cursor:
+                        type: string
+                        example: null
+                        nullable: true
+      tags:
+        - Children
+    parameters:
+      -
+        in: path
+        name: student_id
+        description: "The child's id."
+        example: 12
+        required: true
+        schema:
+          type: integer
+  '/api/v1/report-cards/{reportCard_id}/pdf':
+    get:
+      summary: 'Download a report card'
+      operationId: downloadAReportCard
+      description: "The PDF of a published report card of one's own child."
+      parameters: []
+      responses:
+        200:
+          description: 'The PDF'
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: '[binary application/pdf]'
+        403:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'This action is unauthorized.'
+                  code: forbidden
+                properties:
+                  message:
+                    type: string
+                    example: 'This action is unauthorized.'
+                  code:
+                    type: string
+                    example: forbidden
+      tags:
+        - Children
+    parameters:
+      -
+        in: path
+        name: reportCard_id
+        description: "The report card's id."
+        example: 31
+        required: true
+        schema:
+          type: integer
+  /api/v1/invoices:
+    get:
+      summary: 'List invoices'
+      operationId: listInvoices
+      description: 'Newest first; void invoices are left out.'
+      parameters:
+        -
+          in: query
+          name: limit
+          description: 'Items per page, 1 to 100. Must be at least 1. Must not be greater than 100.'
+          example: 25
+          required: false
+          schema:
+            type: integer
+            description: 'Items per page, 1 to 100. Must be at least 1. Must not be greater than 100.'
+            example: 25
+            nullable: true
+        -
+          in: query
+          name: cursor
+          description: 'meta.next_cursor of the previous page. Must not be greater than 1000 characters.'
+          example: null
+          required: false
+          schema:
+            type: string
+            description: 'meta.next_cursor of the previous page. Must not be greater than 1000 characters.'
+            example: null
+            nullable: true
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    -
+                      id: 88
+                      number: SD-2026-000088
+                      student:
+                        id: 12
+                        name: 'Pia Parent'
+                      class: null
+                      term: 'Autumn term'
+                      total: 145000
+                      paid: 50000
+                      balance: 95000
+                      currency: EUR
+                      status: partially_paid
+                      status_label: 'Partially paid'
+                      overdue: false
+                      due_on: '2026-08-31'
+                  links:
+                    first: null
+                    last: null
+                    prev: null
+                    next: null
+                  meta:
+                    path: 'https://schooldesk.test/api/v1/invoices'
+                    per_page: 25
+                    next_cursor: null
+                    prev_cursor: null
+                properties:
+                  data:
+                    type: array
+                    example:
+                      -
+                        id: 88
+                        number: SD-2026-000088
+                        student:
+                          id: 12
+                          name: 'Pia Parent'
+                        class: null
+                        term: 'Autumn term'
+                        total: 145000
+                        paid: 50000
+                        balance: 95000
+                        currency: EUR
+                        status: partially_paid
+                        status_label: 'Partially paid'
+                        overdue: false
+                        due_on: '2026-08-31'
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 88
+                        number:
+                          type: string
+                          example: SD-2026-000088
+                        student:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 12
+                            name:
+                              type: string
+                              example: 'Pia Parent'
+                        class:
+                          type: string
+                          example: null
+                          nullable: true
+                        term:
+                          type: string
+                          example: 'Autumn term'
+                        total:
+                          type: integer
+                          example: 145000
+                        paid:
+                          type: integer
+                          example: 50000
+                        balance:
+                          type: integer
+                          example: 95000
+                        currency:
+                          type: string
+                          example: EUR
+                        status:
+                          type: string
+                          example: partially_paid
+                        status_label:
+                          type: string
+                          example: 'Partially paid'
+                        overdue:
+                          type: boolean
+                          example: false
+                        due_on:
+                          type: string
+                          example: '2026-08-31'
+                  links:
+                    type: object
+                    properties:
+                      first:
+                        type: string
+                        example: null
+                        nullable: true
+                      last:
+                        type: string
+                        example: null
+                        nullable: true
+                      prev:
+                        type: string
+                        example: null
+                        nullable: true
+                      next:
+                        type: string
+                        example: null
+                        nullable: true
+                  meta:
+                    type: object
+                    properties:
+                      path:
+                        type: string
+                        example: 'https://schooldesk.test/api/v1/invoices'
+                      per_page:
+                        type: integer
+                        example: 25
+                      next_cursor:
+                        type: string
+                        example: null
+                        nullable: true
+                      prev_cursor:
+                        type: string
+                        example: null
+                        nullable: true
+      tags:
+        - Invoices
+  '/api/v1/invoices/{invoice_id}/checkout-session':
+    post:
+      summary: 'Pay online'
+      operationId: payOnline
+      description: "Starts a Stripe Checkout session for the open balance; open `url` in a browser. The\npayment is recorded once Stripe confirms it, not when the browser returns."
+      parameters: []
+      responses:
+        201:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    url: 'https://checkout.stripe.com/c/pay/cs_test_…'
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        example: 'https://checkout.stripe.com/c/pay/cs_test_…'
+        422:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'This invoice has nothing left to pay.'
+                  code: validation_failed
+                  errors:
+                    payment:
+                      - 'This invoice has nothing left to pay.'
+                properties:
+                  message:
+                    type: string
+                    example: 'This invoice has nothing left to pay.'
+                  code:
+                    type: string
+                    example: validation_failed
+                  errors:
+                    type: object
+                    properties:
+                      payment:
+                        type: array
+                        example:
+                          - 'This invoice has nothing left to pay.'
+                        items:
+                          type: string
+      tags:
+        - Invoices
+    parameters:
+      -
+        in: path
+        name: invoice_id
+        description: "The invoice's id."
+        example: 88
+        required: true
+        schema:
+          type: integer
+  /api/v1/notifications:
+    get:
+      summary: 'List notifications'
+      operationId: listNotifications
+      description: 'Newest first, read and unread.'
+      parameters:
+        -
+          in: query
+          name: limit
+          description: 'Items per page, 1 to 100. Must be at least 1. Must not be greater than 100.'
+          example: 25
+          required: false
+          schema:
+            type: integer
+            description: 'Items per page, 1 to 100. Must be at least 1. Must not be greater than 100.'
+            example: 25
+            nullable: true
+        -
+          in: query
+          name: cursor
+          description: 'meta.next_cursor of the previous page. Must not be greater than 1000 characters.'
+          example: null
+          required: false
+          schema:
+            type: string
+            description: 'meta.next_cursor of the previous page. Must not be greater than 1000 characters.'
+            example: null
+            nullable: true
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    -
+                      id: 9b2f6c1e-5d1a-4a53-9a0e-3c8f2b7d1e44
+                      type: student-absent
+                      title: 'Pia was absent on 12 October 2026.'
+                      subject:
+                        type: student
+                        id: 12
+                        student_id: 12
+                      details:
+                        student_id: 12
+                        first_name: Pia
+                        class: 'Grade 7 A'
+                        date: '2026-10-12'
+                      read_at: null
+                      created_at: '2026-10-12T08:15:00+00:00'
+                  links:
+                    first: null
+                    last: null
+                    prev: null
+                    next: null
+                  meta:
+                    path: 'https://schooldesk.test/api/v1/notifications'
+                    per_page: 25
+                    next_cursor: null
+                    prev_cursor: null
+                properties:
+                  data:
+                    type: array
+                    example:
+                      -
+                        id: 9b2f6c1e-5d1a-4a53-9a0e-3c8f2b7d1e44
+                        type: student-absent
+                        title: 'Pia was absent on 12 October 2026.'
+                        subject:
+                          type: student
+                          id: 12
+                          student_id: 12
+                        details:
+                          student_id: 12
+                          first_name: Pia
+                          class: 'Grade 7 A'
+                          date: '2026-10-12'
+                        read_at: null
+                        created_at: '2026-10-12T08:15:00+00:00'
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: 9b2f6c1e-5d1a-4a53-9a0e-3c8f2b7d1e44
+                        type:
+                          type: string
+                          example: student-absent
+                        title:
+                          type: string
+                          example: 'Pia was absent on 12 October 2026.'
+                        subject:
+                          type: object
+                          properties:
+                            type:
+                              type: string
+                              example: student
+                            id:
+                              type: integer
+                              example: 12
+                            student_id:
+                              type: integer
+                              example: 12
+                        details:
+                          type: object
+                          properties:
+                            student_id:
+                              type: integer
+                              example: 12
+                            first_name:
+                              type: string
+                              example: Pia
+                            class:
+                              type: string
+                              example: 'Grade 7 A'
+                            date:
+                              type: string
+                              example: '2026-10-12'
+                        read_at:
+                          type: string
+                          example: null
+                          nullable: true
+                        created_at:
+                          type: string
+                          example: '2026-10-12T08:15:00+00:00'
+                  links:
+                    type: object
+                    properties:
+                      first:
+                        type: string
+                        example: null
+                        nullable: true
+                      last:
+                        type: string
+                        example: null
+                        nullable: true
+                      prev:
+                        type: string
+                        example: null
+                        nullable: true
+                      next:
+                        type: string
+                        example: null
+                        nullable: true
+                  meta:
+                    type: object
+                    properties:
+                      path:
+                        type: string
+                        example: 'https://schooldesk.test/api/v1/notifications'
+                      per_page:
+                        type: integer
+                        example: 25
+                      next_cursor:
+                        type: string
+                        example: null
+                        nullable: true
+                      prev_cursor:
+                        type: string
+                        example: null
+                        nullable: true
+      tags:
+        - Notifications
+  '/api/v1/notifications/{notification}/read':
+    post:
+      summary: 'Mark as read'
+      operationId: markAsRead
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    id: 9b2f6c1e-5d1a-4a53-9a0e-3c8f2b7d1e44
+                    type: student-absent
+                    title: 'Pia was absent on 12 October 2026.'
+                    subject:
+                      type: student
+                      id: 12
+                      student_id: 12
+                    details:
+                      student_id: 12
+                      first_name: Pia
+                      class: 'Grade 7 A'
+                      date: '2026-10-12'
+                    read_at: '2026-10-12T17:02:00+00:00'
+                    created_at: '2026-10-12T08:15:00+00:00'
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: 9b2f6c1e-5d1a-4a53-9a0e-3c8f2b7d1e44
+                      type:
+                        type: string
+                        example: student-absent
+                      title:
+                        type: string
+                        example: 'Pia was absent on 12 October 2026.'
+                      subject:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                            example: student
+                          id:
+                            type: integer
+                            example: 12
+                          student_id:
+                            type: integer
+                            example: 12
+                      details:
+                        type: object
+                        properties:
+                          student_id:
+                            type: integer
+                            example: 12
+                          first_name:
+                            type: string
+                            example: Pia
+                          class:
+                            type: string
+                            example: 'Grade 7 A'
+                          date:
+                            type: string
+                            example: '2026-10-12'
+                      read_at:
+                        type: string
+                        example: '2026-10-12T17:02:00+00:00'
+                      created_at:
+                        type: string
+                        example: '2026-10-12T08:15:00+00:00'
+      tags:
+        - Notifications
+    parameters:
+      -
+        in: path
+        name: notification
+        description: "The notification's id."
+        example: 9b2f6c1e-5d1a-4a53-9a0e-3c8f2b7d1e44
+        required: true
+        schema:
+          type: string
