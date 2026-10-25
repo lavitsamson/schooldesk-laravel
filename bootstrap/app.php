@@ -10,7 +10,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -27,9 +27,11 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         // Route model binding must already see the school, or school-owned records cannot be
-        // resolved (and another school's id must resolve to a 404, not an error).
+        // resolved (and another school's id must resolve to a 404, not an error). Rate limits
+        // are per school, so throttling must see it too; ThrottleRequests runs before
+        // SubstituteBindings, so this covers both.
         $middleware->prependToPriorityList(
-            before: SubstituteBindings::class,
+            before: ThrottleRequests::class,
             prepend: SetCurrentSchool::class,
         );
 
