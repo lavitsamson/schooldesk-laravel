@@ -30,6 +30,16 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // Report-card comment drafts. Without a key, FakeLlmClient writes the drafts (no network).
+    'anthropic' => [
+        'key' => env('ANTHROPIC_API_KEY'),
+        'model' => env('ANTHROPIC_MODEL', 'claude-opus-5-5'),
+        'max_tokens' => (int) env('ANTHROPIC_MAX_TOKENS', 2048),
+        'effort' => env('ANTHROPIC_EFFORT', 'low'),
+        'fallbacks' => (bool) env('ANTHROPIC_FALLBACKS', true),
+        'timeout' => (int) env('ANTHROPIC_TIMEOUT', 30),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
