@@ -126,7 +126,7 @@ const backUrl = computed(() =>
                     <h2
                         class="flex flex-wrap items-center gap-3 text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
                     >
-                        Invoice {{ invoice.number }}
+                        {{ $t('Invoice :number', { number: invoice.number }) }}
                         <InvoiceStatusBadge
                             :status="invoice.status"
                             :label="invoice.status_label"
@@ -207,8 +207,8 @@ const backUrl = computed(() =>
                                 <dt class="text-gray-600 dark:text-gray-400">
                                     {{
                                         invoice.balance < 0
-                                            ? 'Credit'
-                                            : 'Balance due'
+                                            ? $t('Credit')
+                                            : $t('Balance due')
                                     }}
                                 </dt>
                                 <dd
@@ -235,7 +235,13 @@ const backUrl = computed(() =>
                         <p
                             class="mt-4 text-sm text-gray-600 dark:text-gray-400"
                         >
-                            Issued {{ formatDateTime(invoice.issued_at) }}
+                            {{
+                                $t('Issued :issued_at', {
+                                    issued_at: formatDateTime(
+                                        invoice.issued_at,
+                                    ),
+                                })
+                            }}
                             <template v-if="invoice.voided_at">
                                 · {{ $t('voided') }}
                                 {{
@@ -271,7 +277,11 @@ const backUrl = computed(() =>
                             :disabled="paying"
                             @click="pay"
                         >
-                            Pay {{ money(invoice.balance) }} online
+                            {{
+                                $t('Pay :balance online', {
+                                    balance: money(invoice.balance),
+                                })
+                            }}
                         </PrimaryButton>
                         <DangerButton
                             v-if="can.void"
@@ -393,7 +403,12 @@ const backUrl = computed(() =>
                                         v-if="payment.recorded_by"
                                         class="block text-xs text-gray-600 dark:text-gray-400"
                                     >
-                                        Recorded by {{ payment.recorded_by }}
+                                        {{
+                                            $t('Recorded by :recorded_by', {
+                                                recorded_by:
+                                                    payment.recorded_by,
+                                            })
+                                        }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 text-right tabular-nums">
@@ -513,7 +528,7 @@ const backUrl = computed(() =>
                                 for="payment-reference"
                                 :value="
                                     isBankTransfer
-                                        ? 'Bank reference'
+                                        ? $t('Bank reference')
                                         : 'Note (optional)'
                                 "
                             />
@@ -564,11 +579,21 @@ const backUrl = computed(() =>
                 <h2
                     class="text-lg font-medium text-gray-900 dark:text-gray-100"
                 >
-                    Void invoice {{ invoice.number }}?
+                    {{
+                        $t('Void invoice :number?', { number: invoice.number })
+                    }}
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    {{ invoice.student.name }} will not have to pay it, and no
-                    new invoice is generated for the {{ invoice.term.name }}.
+                    {{
+                        $t(':name will not have to pay it, and no', {
+                            name: invoice.student.name,
+                        })
+                    }}
+                    {{
+                        $t('new invoice is generated for the :name.', {
+                            name: invoice.term.name,
+                        })
+                    }}
                     {{ $t('This cannot be undone.') }}
                 </p>
                 <div class="mt-6 flex justify-end gap-3">

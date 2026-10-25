@@ -8,6 +8,7 @@ import { errorFor } from '@/composables/formErrors';
 import SetupLayout from '@/Layouts/SetupLayout.vue';
 import type { SetupStepProps, TermInput } from '@/types/setup';
 import { useForm } from '@inertiajs/vue3';
+import { trans } from 'laravel-vue-i18n';
 
 const props = defineProps<
     SetupStepProps & {
@@ -22,20 +23,24 @@ const props = defineProps<
 
 const year = new Date().getFullYear();
 
+// Default names in the user's language ("Term 1", "Halbjahr 1"); the school can rename them.
+const termName = (number: number) =>
+    trans('Term :number', { number: String(number) });
+
 const form = useForm({
     name: props.academicYear?.name ?? `${year}/${String(year + 1).slice(2)}`,
     starts_on: props.academicYear?.starts_on ?? `${year}-08-01`,
     ends_on: props.academicYear?.ends_on ?? `${year + 1}-07-31`,
     terms: props.academicYear?.terms ?? [
-        { name: 'Term 1', starts_on: '', ends_on: '' },
-        { name: 'Term 2', starts_on: '', ends_on: '' },
-        { name: 'Term 3', starts_on: '', ends_on: '' },
+        { name: termName(1), starts_on: '', ends_on: '' },
+        { name: termName(2), starts_on: '', ends_on: '' },
+        { name: termName(3), starts_on: '', ends_on: '' },
     ],
 });
 
 const addTerm = () =>
     form.terms.push({
-        name: `Term ${form.terms.length + 1}`,
+        name: termName(form.terms.length + 1),
         starts_on: '',
         ends_on: '',
     });

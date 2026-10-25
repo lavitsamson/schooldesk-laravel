@@ -56,7 +56,7 @@ const submit = () =>
             <h2
                 class="mt-1 text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
             >
-                Edit {{ student.name }}
+                {{ $t('Edit :name', { name: student.name }) }}
             </h2>
         </template>
 

@@ -189,7 +189,7 @@ const buttonClasses =
                         id="assessments-title"
                         class="px-4 pt-4 text-lg font-medium text-gray-900 dark:text-gray-100"
                     >
-                        Assessments in {{ term.name }}
+                        {{ $t('Assessments in :name', { name: term.name }) }}
                     </h3>
                     <table
                         v-if="assessments.length > 0"
@@ -433,7 +433,11 @@ const buttonClasses =
                 <h2
                     class="text-lg font-medium text-gray-900 dark:text-gray-100"
                 >
-                    {{ editing ? `Edit ${editing.name}` : 'Add an assessment' }}
+                    {{
+                        editing
+                            ? `Edit ${editing.name}`
+                            : $t('Add an assessment')
+                    }}
                 </h2>
                 <p class="text-sm text-gray-600 dark:text-gray-400">
                     {{ subject.name }} · {{ schoolClass.name }} ·
@@ -544,7 +548,7 @@ const buttonClasses =
                         {{ $t('Cancel') }}
                     </SecondaryButton>
                     <PrimaryButton :disabled="form.processing">
-                        {{ editing ? 'Save' : 'Add and enter marks' }}
+                        {{ editing ? $t('Save') : $t('Add and enter marks') }}
                     </PrimaryButton>
                 </div>
             </form>
@@ -559,11 +563,15 @@ const buttonClasses =
                 <h2
                     class="text-lg font-medium text-gray-900 dark:text-gray-100"
                 >
-                    Delete {{ deleting?.name }}?
+                    {{ $t('Delete :name?', { name: deleting?.name }) }}
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     <template v-if="deleting && deleting.graded_count > 0">
-                        The marks of {{ deleting.graded_count }} students are
+                        {{
+                            $t('The marks of :count students are', {
+                                count: String(deleting.graded_count),
+                            })
+                        }}
                         {{ $t('deleted with it.') }}
                     </template>
                     <template v-else>{{

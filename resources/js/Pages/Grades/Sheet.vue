@@ -275,8 +275,16 @@ const inputClasses =
                 </h2>
                 <p class="text-sm text-gray-600 dark:text-gray-400">
                     {{ assessment.type_label }} ·
-                    {{ formatDate(assessment.held_on) }} · out of
-                    {{ assessment.max_marks }} · weight
+                    {{
+                        $t(':held_on · out of', {
+                            held_on: formatDate(assessment.held_on),
+                        })
+                    }}
+                    {{
+                        $t(':max_marks · weight', {
+                            max_marks: assessment.max_marks,
+                        })
+                    }}
                     {{ formatMarks(assessment.weight) }}
                 </p>
             </div>
@@ -290,7 +298,9 @@ const inputClasses =
                 >
                     <p class="text-sm text-gray-700 dark:text-gray-300">
                         <span class="font-medium">{{ marked }}</span> of
-                        {{ rows.length }} marked
+                        {{
+                            $t(':count marked', { count: String(rows.length) })
+                        }}
                     </p>
                     <p
                         class="text-sm"

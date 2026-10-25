@@ -8,6 +8,8 @@ import SetupLayout from '@/Layouts/SetupLayout.vue';
 import type { Option } from '@/types';
 import type { SetupStepProps } from '@/types/setup';
 import { useForm } from '@inertiajs/vue3';
+import { getActiveLanguage } from 'laravel-vue-i18n';
+import { computed } from 'vue';
 
 const props = defineProps<
     SetupStepProps & {
@@ -24,19 +26,16 @@ const props = defineProps<
     }
 >();
 
-const countries: Option[] = [
-    { value: 'AT', label: 'Austria' },
-    { value: 'BE', label: 'Belgium' },
-    { value: 'FR', label: 'France' },
-    { value: 'DE', label: 'Germany' },
-    { value: 'IN', label: 'India' },
-    { value: 'IE', label: 'Ireland' },
-    { value: 'LU', label: 'Luxembourg' },
-    { value: 'NL', label: 'Netherlands' },
-    { value: 'CH', label: 'Switzerland' },
-    { value: 'GB', label: 'United Kingdom' },
-    { value: 'US', label: 'United States' },
-];
+// Country names come from the browser's Intl data, in the active language.
+const countries = computed<Option[]>(() => {
+    const names = new Intl.DisplayNames(getActiveLanguage(), {
+        type: 'region',
+    });
+
+    return ['AT', 'BE', 'FR', 'DE', 'IN', 'IE', 'LU', 'NL', 'CH', 'GB', 'US']
+        .map((code) => ({ value: code, label: names.of(code) ?? code }))
+        .sort((a, b) => a.label.localeCompare(b.label, getActiveLanguage()));
+});
 
 const form = useForm({ ...props.school });
 

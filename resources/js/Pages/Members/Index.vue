@@ -85,10 +85,10 @@ const remove = () => {
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                         {{
                             $t(
-                                'They get an email with a link that is valid for',
+                                'They get an email with a link that is valid for :days days.',
+                                { days: String(invitationExpiresAfterDays) },
                             )
                         }}
-                        {{ invitationExpiresAfterDays }} days.
                     </p>
 
                     <form
@@ -211,8 +211,8 @@ const remove = () => {
                                     >
                                         {{
                                             member.status === 'active'
-                                                ? 'Active'
-                                                : 'Invited'
+                                                ? $t('Active')
+                                                : $t('Invited')
                                         }}
                                     </span>
                                 </td>
@@ -236,8 +236,8 @@ const remove = () => {
                                     >
                                         {{
                                             member.status === 'active'
-                                                ? 'Remove'
-                                                : 'Revoke'
+                                                ? $t('Remove')
+                                                : $t('Revoke')
                                         }}
                                     </DangerButton>
                                 </td>
@@ -257,7 +257,7 @@ const remove = () => {
                 <h2
                     class="text-lg font-medium text-gray-900 dark:text-gray-100"
                 >
-                    Remove {{ removing?.name }}?
+                    {{ $t('Remove :name?', { name: removing?.name }) }}
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     {{

@@ -49,7 +49,7 @@ const monthName = (month: string) =>
                             {{ child.name }}
                         </h3>
                         <p class="text-sm text-gray-600 dark:text-gray-400">
-                            {{ child.class ?? 'Not in a class this year' }}
+                            {{ child.class ?? $t('Not in a class this year') }}
                         </p>
 
                         <dl class="mt-4 grid grid-cols-3 gap-3 text-sm">
@@ -67,7 +67,13 @@ const monthName = (month: string) =>
                                     v-if="child.attendance.absent > 0"
                                     class="text-red-700 dark:text-red-300"
                                 >
-                                    {{ child.attendance.absent }} absent
+                                    {{
+                                        $t(':absent absent', {
+                                            absent: String(
+                                                child.attendance.absent,
+                                            ),
+                                        })
+                                    }}
                                 </dd>
                             </div>
                             <div>
@@ -83,7 +89,13 @@ const monthName = (month: string) =>
                                     v-if="child.invoices.overdue > 0"
                                     class="text-red-700 dark:text-red-300"
                                 >
-                                    {{ child.invoices.overdue }} overdue
+                                    {{
+                                        $t(':overdue overdue', {
+                                            overdue: String(
+                                                child.invoices.overdue,
+                                            ),
+                                        })
+                                    }}
                                 </dd>
                             </div>
                             <div>

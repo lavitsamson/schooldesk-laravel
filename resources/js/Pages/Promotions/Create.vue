@@ -119,7 +119,7 @@ const promote = () =>
             <h2
                 class="mt-1 text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
             >
-                Promote students from {{ fromYear.name }}
+                {{ $t('Promote students from :name', { name: fromYear.name }) }}
             </h2>
         </template>
 
@@ -162,9 +162,16 @@ const promote = () =>
                             class="text-sm text-gray-600 dark:text-gray-400"
                             role="status"
                         >
-                            {{ summary.promoted }} promoted ·
-                            {{ summary.graduated }} graduate ·
-                            {{ summary.staying }} not promoted
+                            {{
+                                $t(
+                                    ':promoted promoted · :graduated graduate · :staying not promoted',
+                                    {
+                                        promoted: String(summary.promoted),
+                                        graduated: String(summary.graduated),
+                                        staying: String(summary.staying),
+                                    },
+                                )
+                            }}
                         </p>
                     </div>
                     <InputError class="mt-2" :message="errors.to_year_id" />
@@ -206,7 +213,17 @@ const promote = () =>
                                 <span
                                     class="text-sm font-normal text-gray-600 dark:text-gray-400"
                                 >
-                                    ({{ c.students.length }} students)
+                                    ({{
+                                        $tChoice(
+                                            ':count student|:count students',
+                                            c.students.length,
+                                            {
+                                                count: String(
+                                                    c.students.length,
+                                                ),
+                                            },
+                                        )
+                                    }})
                                 </span>
                             </h3>
                             <div>
@@ -246,8 +263,8 @@ const promote = () =>
                             >
                                 {{
                                     open.includes(c.id)
-                                        ? 'Hide students'
-                                        : 'Students'
+                                        ? $t('Hide students')
+                                        : $t('Students')
                                 }}
                             </SecondaryButton>
                         </div>
@@ -311,17 +328,23 @@ const promote = () =>
                 <h2
                     class="text-lg font-medium text-gray-900 dark:text-gray-100"
                 >
-                    Promote {{ summary.promoted }} and graduate
-                    {{ summary.graduated }} students?
+                    {{
+                        $t(
+                            'Promote :promoted and graduate :graduated students?',
+                            {
+                                promoted: String(summary.promoted),
+                                graduated: String(summary.graduated),
+                            },
+                        )
+                    }}
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     {{
                         $t(
-                            "Promoted students are enrolled in next year's classes. Graduates are marked as graduated at the end of",
+                            "Promoted students are enrolled in next year's classes. Graduates are marked as graduated at the end of :year. Running this again skips students who are already enrolled.",
+                            { year: fromYear.name },
                         )
                     }}
-                    {{ fromYear.name }}. Running this again skips students who
-                    {{ $t('are already enrolled.') }}
                 </p>
                 <div class="mt-6 flex justify-end gap-3">
                     <SecondaryButton type="button" @click="confirming = false">

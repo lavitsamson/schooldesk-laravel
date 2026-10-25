@@ -154,7 +154,11 @@ const secondaryButton =
             >
                 <div class="space-y-4 lg:col-span-3">
                     <p class="text-sm text-gray-600 dark:text-gray-400">
-                        Calculated {{ dateTime(report.calculated_at) }}.
+                        {{
+                            $t('Calculated :calculated_at.', {
+                                calculated_at: dateTime(report.calculated_at),
+                            })
+                        }}
                         <template v-if="isDraft">
                             {{
                                 $t(
@@ -263,10 +267,10 @@ const secondaryButton =
                                 >
                                     {{
                                         busy === 'draft'
-                                            ? 'Drafting…'
+                                            ? $t('Drafting…')
                                             : draft
-                                              ? 'New draft'
-                                              : 'Draft comment'
+                                              ? $t('New draft')
+                                              : $t('Draft comment')
                                     }}
                                 </button>
                             </div>
@@ -294,7 +298,13 @@ const secondaryButton =
                                     <span
                                         class="text-xs text-gray-600 dark:text-gray-400"
                                     >
-                                        Drafted {{ dateTime(draft.created_at) }}
+                                        {{
+                                            $t('Drafted :created_at', {
+                                                created_at: String(
+                                                    dateTime(draft.created_at),
+                                                ),
+                                            })
+                                        }}
                                     </span>
                                     <button
                                         type="button"
@@ -322,7 +332,11 @@ const secondaryButton =
                             v-if="card.approved_by && card.approved_at"
                             class="text-sm text-gray-700 dark:text-gray-300"
                         >
-                            Approved by {{ card.approved_by }},
+                            {{
+                                $t('Approved by :approved_by,', {
+                                    approved_by: card.approved_by,
+                                })
+                            }}
                             {{ dateTime(card.approved_at) }}.
                             <template v-if="card.published_at">
                                 {{ $t('Published to parents') }}
@@ -392,7 +406,11 @@ const secondaryButton =
                                 target="_blank"
                                 rel="noopener"
                             >
-                                {{ isDraft ? 'Preview PDF' : 'Download PDF' }}
+                                {{
+                                    isDraft
+                                        ? $t('Preview PDF')
+                                        : $t('Download PDF')
+                                }}
                             </a>
                         </div>
                     </section>

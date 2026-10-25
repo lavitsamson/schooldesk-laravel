@@ -132,7 +132,7 @@ const destroy = () =>
                             <span class="font-mono">{{
                                 student.admission_no
                             }}</span>
-                            · {{ student.class?.name ?? 'Not enrolled' }} ·
+                            · {{ student.class?.name ?? $t('Not enrolled') }} ·
                             {{ student.status_label }}
                         </p>
                     </div>
@@ -186,7 +186,8 @@ const destroy = () =>
                                 </dt>
                                 <dd class="text-gray-900 dark:text-gray-100">
                                     {{
-                                        student.gender_label ?? 'Not specified'
+                                        student.gender_label ??
+                                        $t('Not specified')
                                     }}
                                 </dd>
                             </div>
@@ -245,7 +246,7 @@ const destroy = () =>
                                     !classId || classId === student.class?.id
                                 "
                             >
-                                {{ student.class ? 'Move' : 'Enrol' }}
+                                {{ student.class ? $t('Move') : $t('Enrol') }}
                             </PrimaryButton>
                         </form>
                         <InputError
@@ -317,7 +318,7 @@ const destroy = () =>
                                             [guardian.email, guardian.phone]
                                                 .filter(Boolean)
                                                 .join(' · ') ||
-                                            'No contact details'
+                                            $t('No contact details')
                                         }}
                                     </p>
                                     <p
@@ -393,7 +394,11 @@ const destroy = () =>
                                         value="existing"
                                         class="text-indigo-600 focus:ring-indigo-500"
                                     />
-                                    Existing guardian (e.g. of a sibling)
+                                    {{
+                                        $t(
+                                            'Existing guardian (e.g. of a sibling)',
+                                        )
+                                    }}
                                 </label>
                             </fieldset>
 
@@ -421,7 +426,9 @@ const destroy = () =>
                                         :value="
                                             guardianForm.mode === 'new'
                                                 ? 'Email (optional)'
-                                                : 'Email of the existing guardian'
+                                                : $t(
+                                                      'Email of the existing guardian',
+                                                  )
                                         "
                                     />
                                     <TextInput
@@ -491,9 +498,9 @@ const destroy = () =>
                                 />
                                 {{
                                     $t(
-                                        'Primary contact (gets absence notifications',
+                                        'Primary contact (gets absence notifications)',
                                     )
-                                }})
+                                }}
                             </label>
 
                             <div class="flex justify-end gap-3">
@@ -592,11 +599,19 @@ const destroy = () =>
                 <h2
                     class="text-lg font-medium text-gray-900 dark:text-gray-100"
                 >
-                    Remove {{ unlinking?.name }} as a guardian?
+                    {{
+                        $t('Remove :name as a guardian?', {
+                            name: unlinking?.name,
+                        })
+                    }}
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    Only the link to {{ student.first_name }} is removed. The
-                    {{ $t('guardian stays linked to any other children.') }}
+                    {{
+                        $t(
+                            'Only the link to :first_name is removed. The guardian stays linked to any other children.',
+                            { first_name: student.first_name },
+                        )
+                    }}
                 </p>
                 <div class="mt-6 flex justify-end gap-3">
                     <SecondaryButton type="button" @click="unlinking = null">
@@ -618,7 +633,7 @@ const destroy = () =>
                 <h2
                     class="text-lg font-medium text-gray-900 dark:text-gray-100"
                 >
-                    Delete {{ student.name }}?
+                    {{ $t('Delete :name?', { name: student.name }) }}
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     {{

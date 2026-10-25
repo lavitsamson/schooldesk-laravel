@@ -32,7 +32,11 @@ watch(
                 <h2
                     class="text-xl leading-tight font-semibold break-all text-gray-800 dark:text-gray-200"
                 >
-                    Import: {{ batch.original_name }}
+                    {{
+                        $t('Import: :original_name', {
+                            original_name: batch.original_name,
+                        })
+                    }}
                 </h2>
                 <Link
                     :href="route('imports.index')"
@@ -81,10 +85,16 @@ watch(
                         <p
                             class="mt-2 text-sm text-gray-600 dark:text-gray-400"
                         >
-                            {{ batch.processed_rows }} of
-                            {{ batch.total_rows }} rows processed ({{
-                                batch.progress
-                            }}%)
+                            {{
+                                $t(
+                                    ':processed of :total rows processed (:progress %)',
+                                    {
+                                        processed: String(batch.processed_rows),
+                                        total: String(batch.total_rows),
+                                        progress: String(batch.progress),
+                                    },
+                                )
+                            }}
                         </p>
                     </div>
 
@@ -180,8 +190,15 @@ watch(
                                 )
                             }}
                             <template v-if="batch.failed_rows > shownFailures">
-                                The first {{ shownFailures }} of
-                                {{ batch.failed_rows }} are shown here.
+                                {{
+                                    $t(
+                                        'The first :shown of :failed are shown here.',
+                                        {
+                                            shown: String(shownFailures),
+                                            failed: String(batch.failed_rows),
+                                        },
+                                    )
+                                }}
                             </template>
                         </p>
                     </div>

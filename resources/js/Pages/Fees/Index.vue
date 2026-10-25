@@ -297,7 +297,11 @@ const invoicesUrl = (params: Record<string, string | number> = {}) =>
                     v-else
                     class="bg-white p-6 text-sm text-gray-600 shadow-xs sm:rounded-lg dark:bg-gray-800 dark:text-gray-400"
                 >
-                    No invoices for the {{ term.name }} yet.
+                    {{
+                        $t('No invoices for the :name yet.', {
+                            name: term.name,
+                        })
+                    }}
                 </p>
             </div>
         </div>

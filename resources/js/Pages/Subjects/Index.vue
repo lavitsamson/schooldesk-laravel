@@ -200,7 +200,17 @@ const destroy = () => {
                                         />
                                     </td>
                                     <td class="px-4 py-2">
-                                        {{ subject.classes_count }} classes
+                                        {{
+                                            $tChoice(
+                                                ':count class|:count classes',
+                                                subject.classes_count,
+                                                {
+                                                    count: String(
+                                                        subject.classes_count,
+                                                    ),
+                                                },
+                                            )
+                                        }}
                                     </td>
                                     <td
                                         class="space-x-2 px-4 py-2 text-right whitespace-nowrap"
@@ -228,7 +238,17 @@ const destroy = () => {
                                         {{ subject.code }}
                                     </td>
                                     <td class="px-4 py-3">
-                                        {{ subject.classes_count }} classes
+                                        {{
+                                            $tChoice(
+                                                ':count class|:count classes',
+                                                subject.classes_count,
+                                                {
+                                                    count: String(
+                                                        subject.classes_count,
+                                                    ),
+                                                },
+                                            )
+                                        }}
                                     </td>
                                     <td
                                         class="space-x-2 px-4 py-3 text-right whitespace-nowrap"
@@ -281,7 +301,7 @@ const destroy = () => {
                 <h2
                     class="text-lg font-medium text-gray-900 dark:text-gray-100"
                 >
-                    Delete {{ deleting?.name }}?
+                    {{ $t('Delete :name?', { name: deleting?.name }) }}
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     {{ $t('It is removed from every class it is taught in.') }}

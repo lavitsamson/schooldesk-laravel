@@ -29,7 +29,7 @@ const open = computed(() =>
                 {{ $t('Invoices') }}
             </h2>
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                Open: {{ money(open) }}
+                {{ $t('Open: :open', { open: money(open) }) }}
             </p>
         </template>
 
@@ -54,7 +54,11 @@ const open = computed(() =>
                                 {{ invoice.term }}
                             </Link>
                             <p class="text-sm text-gray-600 dark:text-gray-400">
-                                {{ invoice.number }} · due
+                                {{
+                                    $t(':number · due', {
+                                        number: invoice.number,
+                                    })
+                                }}
                                 {{ formatDate(invoice.due_on) }}
                             </p>
                         </div>

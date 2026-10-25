@@ -89,7 +89,11 @@ const share = (count: number, total: number) =>
                             :aria-pressed="aiDrafts.enabled"
                             @click="toggleAiDrafts"
                         >
-                            {{ aiDrafts.enabled ? 'Turn off' : 'Turn on' }}
+                            {{
+                                aiDrafts.enabled
+                                    ? $t('Turn off')
+                                    : $t('Turn on')
+                            }}
                         </button>
                     </div>
                 </section>
@@ -152,8 +156,16 @@ const share = (count: number, total: number) =>
                             />
                         </div>
                         <p class="text-sm text-gray-700 dark:text-gray-300">
-                            {{ c.students }} students ·
-                            {{ c.published }} published ·
+                            {{
+                                $t(':students students ·', {
+                                    students: String(c.students),
+                                })
+                            }}
+                            {{
+                                $t(':published published ·', {
+                                    published: String(c.published),
+                                })
+                            }}
                             {{ c.approved }} approved · {{ c.draft }} drafts
                         </p>
                     </li>

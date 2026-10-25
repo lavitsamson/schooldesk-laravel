@@ -134,7 +134,11 @@ const publish = () => {
                                 }"
                                 @click="generate"
                             >
-                                {{ generated > 0 ? 'Regenerate' : 'Generate' }}
+                                {{
+                                    generated > 0
+                                        ? $t('Regenerate')
+                                        : $t('Generate')
+                                }}
                                 {{ $t('report cards') }}
                             </PrimaryButton>
                             <button
@@ -144,7 +148,11 @@ const publish = () => {
                                 :disabled="publishForm.processing"
                                 @click="publish"
                             >
-                                Publish {{ approved }} approved
+                                {{
+                                    $t('Publish :approved approved', {
+                                        approved: String(approved),
+                                    })
+                                }}
                             </button>
                         </div>
                     </div>
@@ -171,8 +179,16 @@ const publish = () => {
                         <p
                             class="mt-2 text-sm text-gray-600 dark:text-gray-400"
                         >
-                            Generating: {{ batch.processed }} of
-                            {{ batch.total }} done
+                            {{
+                                $t('Generating: :processed of', {
+                                    processed: String(batch.processed),
+                                })
+                            }}
+                            {{
+                                $t(':total done', {
+                                    total: String(batch.total),
+                                })
+                            }}
                         </p>
                     </div>
                     <p

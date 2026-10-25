@@ -63,12 +63,13 @@ const dateTime = (iso: string) =>
                         {{ $t('Upload a file') }}
                     </h3>
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                        CSV or Excel (.xlsx), up to {{ maxFileMb }} MB, with the
                         {{
                             $t(
-                                'column headings in the first row. Students whose admission number already exists are updated, so you can upload a corrected file again. Download the',
+                                'CSV or Excel (.xlsx), up to :size MB, with the column headings in the first row. Students whose admission number already exists are updated, so you can upload a corrected file again.',
+                                { size: String(maxFileMb) },
                             )
                         }}
+                        {{ $t('Templates:') }}
                         <a
                             :href="
                                 route('imports.template', { format: 'xlsx' })
@@ -76,12 +77,12 @@ const dateTime = (iso: string) =>
                             class="font-medium text-indigo-700 underline dark:text-indigo-300"
                             >{{ $t('Excel template') }}</a
                         >
-                        {{ $t('or the') }}
+                        ·
                         <a
                             :href="route('imports.template')"
                             class="font-medium text-indigo-700 underline dark:text-indigo-300"
                             >{{ $t('CSV template') }}</a
-                        >.
+                        >
                     </p>
 
                     <form
@@ -105,7 +106,11 @@ const dateTime = (iso: string) =>
                         <PrimaryButton
                             :disabled="!form.file || form.processing"
                         >
-                            {{ form.processing ? 'Uploading…' : 'Import' }}
+                            {{
+                                form.processing
+                                    ? $t('Uploading…')
+                                    : $t('Import')
+                            }}
                         </PrimaryButton>
                     </form>
                     <progress
@@ -258,7 +263,7 @@ const dateTime = (iso: string) =>
                                             class="text-red-700 dark:text-red-400"
                                         >
                                             *<span class="sr-only">
-                                                (required)</span
+                                                ({{ $t('required') }})</span
                                             >
                                         </span>
                                     </th>

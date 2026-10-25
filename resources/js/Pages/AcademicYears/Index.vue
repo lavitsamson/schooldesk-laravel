@@ -11,6 +11,7 @@ import { errorFor } from '@/composables/formErrors';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import type { AcademicYear, Term } from '@/types/school';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
+import { trans } from 'laravel-vue-i18n';
 import { computed, ref } from 'vue';
 
 const props = defineProps<{ years: AcademicYear[]; canPromote: boolean }>();
@@ -44,7 +45,12 @@ const openCreate = () => {
         ends_on: latest ? plusOneYear(latest.ends_on) : '',
         terms: (
             latest?.terms ?? [
-                { id: null, name: 'Term 1', starts_on: '', ends_on: '' },
+                {
+                    id: null,
+                    name: trans('Term :number', { number: '1' }),
+                    starts_on: '',
+                    ends_on: '',
+                },
             ]
         ).map((t) => ({
             id: null,
@@ -75,7 +81,7 @@ const openEdit = (year: AcademicYear) => {
 const addTerm = () =>
     form.terms.push({
         id: null,
-        name: `Term ${form.terms.length + 1}`,
+        name: trans('Term :number', { number: String(form.terms.length + 1) }),
         starts_on: '',
         ends_on: '',
     });
@@ -170,8 +176,25 @@ const destroy = () => {
                             </h3>
                             <p class="text-sm text-gray-600 dark:text-gray-400">
                                 {{ year.starts_on }} – {{ year.ends_on }} ·
-                                {{ year.classes_count }} classes ·
-                                {{ year.enrollments_count }} enrolments
+                                {{
+                                    $tChoice(
+                                        ':count class|:count classes',
+                                        year.classes_count,
+                                        { count: String(year.classes_count) },
+                                    )
+                                }}
+                                ·
+                                {{
+                                    $tChoice(
+                                        ':count enrolment|:count enrolments',
+                                        year.enrollments_count,
+                                        {
+                                            count: String(
+                                                year.enrollments_count,
+                                            ),
+                                        },
+                                    )
+                                }}
                             </p>
                         </div>
                         <div class="flex flex-wrap gap-2">
@@ -233,8 +256,8 @@ const destroy = () => {
                 >
                     {{
                         editing === 'new'
-                            ? 'Add academic year'
-                            : `Edit ${form.name}`
+                            ? $t('Add academic year')
+                            : $t('Edit :name', { name: form.name })
                     }}
                 </h2>
 
@@ -398,7 +421,11 @@ const destroy = () => {
                             {{ $t('Start without classes') }}
                         </option>
                         <option v-for="y in years" :key="y.id" :value="y.id">
-                            Copy the classes of {{ y.name }}
+                            {{
+                                $t('Copy the classes of :name', {
+                                    name: y.name,
+                                })
+                            }}
                         </option>
                     </SelectInput>
                     <InputError
@@ -427,7 +454,7 @@ const destroy = () => {
                 <h2
                     class="text-lg font-medium text-gray-900 dark:text-gray-100"
                 >
-                    Delete {{ deleting?.name }}?
+                    {{ $t('Delete :name?', { name: deleting?.name }) }}
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     {{

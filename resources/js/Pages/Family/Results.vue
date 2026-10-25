@@ -34,7 +34,11 @@ defineProps<{
             <div class="mx-auto max-w-5xl space-y-6 px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <p class="text-sm text-gray-600 dark:text-gray-400">
-                        Results so far in the {{ term.name }}. The report card
+                        {{
+                            $t('Results so far in the :name. The report card', {
+                                name: term.name,
+                            })
+                        }}
                         is what counts; it may still change until then.
                     </p>
                     <TermSelect

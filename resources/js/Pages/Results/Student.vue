@@ -40,7 +40,7 @@ const name = computed(
                     "
                     class="text-gray-600 hover:underline dark:text-gray-400"
                 >
-                    Results · {{ schoolClass.name }}
+                    {{ $t('Results · :name', { name: schoolClass.name }) }}
                 </Link>
             </nav>
             <div class="mt-1 flex flex-wrap items-center justify-between gap-3">

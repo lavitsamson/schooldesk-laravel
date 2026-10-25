@@ -276,7 +276,11 @@ const statusClasses: Record<StudentRow['status'], string> = {
                         class="self-center text-sm font-medium text-indigo-900 dark:text-indigo-100"
                         role="status"
                     >
-                        {{ selected.length }} selected
+                        {{
+                            $t(':count selected', {
+                                count: String(selected.length),
+                            })
+                        }}
                     </p>
                     <div>
                         <InputLabel for="bulk-action" :value="$t('Action')" />
@@ -507,7 +511,11 @@ const statusClasses: Record<StudentRow['status'], string> = {
                 <h2
                     class="text-lg font-medium text-gray-900 dark:text-gray-100"
                 >
-                    Mark {{ selected.length }} students as left?
+                    {{
+                        $t('Mark :count students as left?', {
+                            count: String(selected.length),
+                        })
+                    }}
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     {{

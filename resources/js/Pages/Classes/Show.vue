@@ -79,7 +79,11 @@ const destroy = () =>
                     "
                     class="text-gray-600 hover:underline dark:text-gray-400"
                 >
-                    Classes {{ schoolClass.academic_year.name }}
+                    {{
+                        $t('Classes :name', {
+                            name: schoolClass.academic_year.name,
+                        })
+                    }}
                 </Link>
             </nav>
             <div class="mt-1 flex flex-wrap items-center justify-between gap-3">
@@ -292,9 +296,11 @@ const destroy = () =>
                         <caption
                             class="px-6 pt-6 text-left text-lg font-medium text-gray-900 dark:text-gray-100"
                         >
-                            Students ({{
-                                students.length
-                            }})
+                            {{
+                                $t('Students (:count)', {
+                                    count: String(students.length),
+                                })
+                            }}
                         </caption>
                         <thead>
                             <tr
@@ -360,7 +366,11 @@ const destroy = () =>
                 <h2
                     class="text-lg font-medium text-gray-900 dark:text-gray-100"
                 >
-                    Delete {{ schoolClass.display_name }}?
+                    {{
+                        $t('Delete :display_name?', {
+                            display_name: schoolClass.display_name,
+                        })
+                    }}
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     {{ $t('Only classes without students can be deleted.') }}

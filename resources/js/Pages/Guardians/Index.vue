@@ -197,8 +197,8 @@ const destroy = () => {
                                 <td class="px-4 py-3">
                                     {{
                                         guardian.has_portal_access
-                                            ? 'Invited'
-                                            : 'Not invited'
+                                            ? $t('Invited')
+                                            : $t('Not invited')
                                     }}
                                 </td>
                                 <td
@@ -261,7 +261,7 @@ const destroy = () => {
                 <h2
                     class="text-lg font-medium text-gray-900 dark:text-gray-100"
                 >
-                    Edit {{ editing?.name }}
+                    {{ $t('Edit :name', { name: editing?.name }) }}
                 </h2>
                 <div>
                     <InputLabel for="edit-name" :value="$t('Name')" />
@@ -348,7 +348,7 @@ const destroy = () => {
                 <h2
                     class="text-lg font-medium text-gray-900 dark:text-gray-100"
                 >
-                    Delete {{ deleting?.name }}?
+                    {{ $t('Delete :name?', { name: deleting?.name }) }}
                 </h2>
                 <div class="mt-6 flex justify-end gap-3">
                     <SecondaryButton type="button" @click="deleting = null">

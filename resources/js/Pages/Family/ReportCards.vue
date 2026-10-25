@@ -115,7 +115,9 @@ defineProps<{
                     class="bg-white p-6 text-sm text-gray-600 shadow-xs sm:rounded-lg dark:bg-gray-800 dark:text-gray-400"
                 >
                     {{ $t('No report cards have been published for') }}
-                    {{ child.first_name }} yet.
+                    {{
+                        $t(':first_name yet.', { first_name: child.first_name })
+                    }}
                 </p>
             </div>
         </div>

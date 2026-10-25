@@ -32,12 +32,15 @@ const submit = () =>
         <Head :title="$t('Accept invitation')" />
 
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            Join {{ schoolName }}
+            {{ $t('Join :school', { school: schoolName }) }}
         </h1>
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            You were invited as {{ roles.join(', ') || 'a member' }} with
-            <strong>{{ email }}</strong
-            >.
+            {{
+                $t('You were invited as :roles with :email.', {
+                    roles: roles.join(', ') || $t('a member'),
+                    email,
+                })
+            }}
         </p>
 
         <form

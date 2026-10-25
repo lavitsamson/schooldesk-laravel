@@ -125,7 +125,11 @@ const destroy = () => {
                         id="fee-form-title"
                         class="text-lg font-medium text-gray-900 dark:text-gray-100"
                     >
-                        {{ editingId === null ? 'Add a fee' : 'Edit fee' }}
+                        {{
+                            editingId === null
+                                ? $t('Add a fee')
+                                : $t('Edit fee')
+                        }}
                     </h3>
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                         Changes apply to invoices generated from now on; issued
@@ -235,7 +239,9 @@ const destroy = () => {
                         </div>
                         <div class="flex gap-3 sm:mt-6">
                             <PrimaryButton :disabled="form.processing">
-                                {{ editingId === null ? 'Add' : 'Save' }}
+                                {{
+                                    editingId === null ? $t('Add') : $t('Save')
+                                }}
                             </PrimaryButton>
                             <SecondaryButton
                                 v-if="editingId !== null"
@@ -293,7 +299,7 @@ const destroy = () => {
                                     {{ fee.name }}
                                 </td>
                                 <td class="px-4 py-3">
-                                    {{ fee.class ?? 'Every class' }}
+                                    {{ fee.class ?? $t('Every class') }}
                                 </td>
                                 <td class="px-4 py-3">
                                     {{ fee.frequency_label }}
@@ -302,7 +308,15 @@ const destroy = () => {
                                     {{ money(fee.amount) }}
                                 </td>
                                 <td class="px-4 py-3">
-                                    {{ fee.due_day_offset }} days after the term
+                                    {{
+                                        $t(
+                                            ':due_day_offset days after the term',
+                                            {
+                                                due_day_offset:
+                                                    fee.due_day_offset,
+                                            },
+                                        )
+                                    }}
                                     {{ $t('starts') }}
                                 </td>
                                 <td
@@ -353,7 +367,7 @@ const destroy = () => {
                 <h2
                     class="text-lg font-medium text-gray-900 dark:text-gray-100"
                 >
-                    Delete {{ deleting?.name }}?
+                    {{ $t('Delete :name?', { name: deleting?.name }) }}
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     {{
