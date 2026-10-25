@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\Grades\BuildClassResults;
+use App\Enums\ReportCardStatus;
 use App\Enums\Role;
 use App\Models\Assessment;
 use App\Models\AttendanceRecord;
@@ -10,6 +11,7 @@ use App\Models\Enrollment;
 use App\Models\Grade;
 use App\Models\Guardian;
 use App\Models\GuardianStudent;
+use App\Models\ReportCard;
 use App\Models\School;
 use App\Models\SchoolClass;
 use App\Models\Student;
@@ -19,8 +21,10 @@ use App\Models\Term;
 use App\Models\User;
 use App\Support\CurrentSchool;
 use Database\Seeders\DemoSchoolsSeeder;
+use Illuminate\Support\Facades\Storage;
 
 it('seeds two set-up demo schools with working logins', function (): void {
+    Storage::fake('local');
     $this->travelTo('2026-10-14 10:00:00'); // a Wednesday, two months into the demo year
     $this->seed(DemoSchoolsSeeder::class);
 
@@ -67,7 +71,17 @@ it('seeds two set-up demo schools with working logins', function (): void {
         $results = app(BuildClassResults::class)->handle($class, $term);
         expect($results['subjects'])->toHaveCount(10)
             ->and(collect($results['students'])->pluck('overall.grade')->filter()->count())->toBe(32);
+
+        // Grade 7 A's report cards at every stage; Pia's is published for the parent portal.
+        $cards = ReportCard::query()->with('student')->get();
+        expect($cards)->toHaveCount(32)
+            ->and($cards->countBy(fn (ReportCard $card): string => $card->status->value)->sortKeys()->all())->toBe(['approved' => 2, 'draft' => 28, 'published' => 2])
+            ->and($cards->whereNotNull('teacher_comment'))->toHaveCount(5)
+            ->and($cards->first(fn (ReportCard $card): bool => $card->student->first_name === 'Pia')?->status)->toBe(ReportCardStatus::Published)
+            ->and($cards->whereNotNull('pdf_path')->every(fn (ReportCard $card): bool => Storage::disk('local')->exists((string) $card->pdf_path)))->toBeTrue();
     });
+
+    expect($riverside->refresh()->aiCommentDraftsEnabled())->toBeTrue();
 
     $gymnasium = School::query()->where('slug', 'gymnasium-am-main')->sole();
     expect(app(CurrentSchool::class)->run($gymnasium, fn () => Student::query()->count()))->toBe(120);

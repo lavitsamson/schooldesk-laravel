@@ -21,8 +21,8 @@ use Illuminate\Database\Seeder;
 
 /**
  * The two demo schools, set up through the same actions as the setup wizard, with teachers,
- * students and guardians (DemoRosterSeeder), attendance (DemoAttendanceSeeder) and
- * assessments with marks (DemoGradesSeeder).
+ * students and guardians (DemoRosterSeeder), attendance (DemoAttendanceSeeder),
+ * assessments with marks (DemoGradesSeeder) and report cards (DemoReportCardsSeeder).
  */
 class DemoSchoolsSeeder extends Seeder
 {
@@ -34,6 +34,7 @@ class DemoSchoolsSeeder extends Seeder
         private readonly DemoRosterSeeder $roster,
         private readonly DemoAttendanceSeeder $attendance,
         private readonly DemoGradesSeeder $grades,
+        private readonly DemoReportCardsSeeder $reportCards,
     ) {}
 
     public function run(): void
@@ -88,6 +89,9 @@ class DemoSchoolsSeeder extends Seeder
 
         $this->grades->seedSchool($riverside);
         $this->grades->seedSchool($gymnasium);
+
+        // Tom Teacher is class teacher of Grade 7 A, Pia's class.
+        $this->reportCards->seedSchool($riverside, 'Grade 7 A', $riversideTeachers[0]);
     }
 
     /**
