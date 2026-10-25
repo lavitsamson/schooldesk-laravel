@@ -84,7 +84,14 @@
 
 ## 9. Parent portal & API
 
-- [ ] Portal pages, Sanctum API, Scribe docs
+- [x] Parent portal: family overview as the parents' dashboard, per child an attendance calendar, results so far and published report cards (signed PDFs), sibling switcher; invoices and online payment from milestone 8
+- [x] Notifications page with unread badge; notifications store their school (`SchoolDatabaseChannel`), so a parent at two schools sees each school's only there
+- [x] Parent API `/api/v1` with Sanctum: one token per device and school, `SetCurrentSchool` reads the school from the token and checks the membership on every request (ADR 0009)
+- [x] Endpoints: token issue/revoke, `/me`, children, attendance by month, grades by term, report cards and PDFs, invoices and Stripe Checkout sessions, notifications and mark as read
+- [x] API Resources shared with the portal, cursor pagination, one error JSON shape (`message`, `code`, `errors`), 60 requests/min per token, 5 sign-in attempts/min
+- [x] Scribe docs at `/docs` (static HTML, OpenAPI, Postman), generated from routes, Form Requests and `@response` examples
+- [x] Isolation: API cross-school 404 suite; fix: the `school` guard now runs before route binding, so a user without a school gets the school picker instead of an error
+- [x] Demo seed: notifications for the demo parent; E2E for the parent portal
 
 ## 10. GDPR, i18n, audit
 

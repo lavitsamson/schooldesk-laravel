@@ -43,8 +43,10 @@ Available now:
 
 - **Fees and payments.** Admins set fees per year and class (every term, once a year, or one-off for new students). Two weeks before a term starts, a daily job issues every student's invoice, with gapless numbers (`SD-2026-000123`); running it again only fills gaps. Parents pay online through Stripe Checkout (test mode), and the office records cash and bank transfers, also in parts. Payments are recorded from Stripe's signed webhooks only, de-duplicated, and refunds made in Stripe flow back. Receipts are rendered as PDFs in a queued job, and the primary guardian gets the invoice, a payment confirmation and reminders 3 and 10 days after the due date. A dashboard per term shows collected, outstanding and overdue amounts per class. All money is integer cents in a `Money` value object.
 
+- **Parent portal.** Parents land on a family overview: per child this month's attendance, what is left to pay and the latest report card. Each child has an attendance calendar, the results so far in the term, and the published report cards as PDFs, with a switcher between siblings. Invoices are paid online from the portal. Notifications (absences, report cards, invoices, payments, reminders) have an unread badge, and a parent with children at two schools sees each school's notifications only there.
+- **Parent API** for a mobile app (`/api/v1`, Sanctum bearer tokens). Each token is for one device and one school, and every request acts for that school only. The endpoints are children, attendance by month, grades by term, report cards and their PDFs, invoices with Stripe Checkout, notifications and `/me`. Lists use cursor pagination, errors have one JSON shape (`message`, `code`, `errors`), and requests are rate-limited to 60 a minute. The portal and the API share the same actions, Form Requests and resources. Docs: [/docs](http://localhost/docs/) (Scribe, with OpenAPI and Postman exports).
+
 Planned for v1:
-- **Parent portal and REST API** (Sanctum) for a future mobile app.
 - **GDPR.** Data export, right to erasure (anonymisation) and retention settings.
 - **Fully bilingual** in English and German.
 
@@ -95,6 +97,7 @@ Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) _(coming soon)_.
 | Database | MySQL 8 and PostgreSQL (CI runs on both) |
 | Cache / queues / sessions | Redis, Laravel Horizon |
 | Auth | Breeze (session), Sanctum (parent API) |
+| API docs | Scribe (static HTML, OpenAPI, Postman) |
 | Testing | Pest (feature, unit, architecture), Playwright (E2E) |
 | Quality | Larastan level 8, Pint, ESLint, Prettier, vue-tsc |
 | Local dev | Laravel Sail (MySQL, Redis, Mailpit) |
@@ -140,6 +143,19 @@ stripe listen --forward-to localhost/webhooks/stripe   # prints the whsec_… fo
 Then log in as `parent@riverside.demo`, open Lotta's invoice and pay with the test card
 `4242 4242 4242 4242`. The payment shows once Stripe's webhook arrives.
 
+**Parent API.** The docs are at <http://localhost/docs/> (also as `openapi.yaml` and a Postman
+collection in `public/docs`). Try it with the demo parent:
+
+```bash
+curl -X POST localhost/api/v1/auth/token -H 'Accept: application/json' \
+  -d email=parent@riverside.demo -d password=DemoPass123! -d device_name=curl
+curl localhost/api/v1/children -H 'Accept: application/json' -H 'Authorization: Bearer <token>'
+```
+
+The docs are generated from the routes, Form Requests and the `@response` examples in the API
+controllers. After changing an endpoint, run `./vendor/bin/sail artisan scribe:generate` and commit
+`public/docs`.
+
 > **Windows:** keep the project inside the WSL2 filesystem (e.g. `~/code/schooldesk`). Serving it
 > from a Windows-mounted folder (`/mnt/c/...`) makes every request take several seconds.
 >
@@ -168,7 +184,8 @@ signed webhook: give the app a test `STRIPE_WEBHOOK_SECRET` and Playwright the s
 
 **Tenant isolation.** [`tests/Support/CrossSchoolRoutes.php`](tests/Support/CrossSchoolRoutes.php)
 lists, for every route with a parameter, a request for another school's record. Each must return 404.
-A guard test fails when a new route is neither listed nor explicitly exempted. A second guard
+A guard test fails when a new route is neither listed nor explicitly exempted. The parent API has
+its own list: a parent with a token for School A gets 404 for School B's records. A second guard
 checks that every model with a `school_id` column uses `BelongsToSchool`.
 
 Pest runs against a real database (the `testing` database Sail creates), not SQLite, so behaviour
@@ -186,6 +203,7 @@ matches production. CI runs the suite on both **MySQL 8.4** and **PostgreSQL 17*
 | [0006 — Assessments and grade calculation](docs/adr/0006-assessments-and-grade-calculation.md) | A subject's result is the weighted mean of its marked assessments (missing marks are left out, not counted as zero), and overall is the mean of the rounded subject results. All arithmetic uses exact decimals (bcmath), so boundary cases always land in the same band. The mark grid autosaves changed rows as JSON. |
 | [0007 — Report cards and AI comment drafts](docs/adr/0007-report-cards-and-ai-comment-drafts.md) | A report card stores the calculated snapshot, and approval freezes it and renders the PDF, so parents always read what was signed off. Class generation is a Laravel job batch with one job per student. AI drafts are off by default, sit beside the comment instead of in it, and get only a minimised, test-enforced payload. |
 | [0008 — Fees, invoices and Stripe payments](docs/adr/0008-fees-invoices-and-stripe-payments.md) | Money is integer cents. Term invoices are generated idempotently (unique per student and term, a lock per run) with gapless numbers from a locked counter. Card payments exist only once Stripe's signed webhook confirms them; the event id is claimed in the same transaction as the payment, so duplicates do nothing and failures retry. What is paid is derived from payments, never stored twice. |
+| [0009 — Parent portal and API](docs/adr/0009-parent-portal-and-api.md) | One Sanctum token per device and school. `SetCurrentSchool` reads the school from the token, as it reads it from the session on the web, and checks the membership on every request. Notifications store their school. The portal and the API share actions, Form Requests and resources. API errors have one shape, lists use cursor pagination, and the docs are generated by Scribe as static files. |
 
 ## Security and GDPR
 
