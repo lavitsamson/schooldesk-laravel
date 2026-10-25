@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Child } from '@/types/family';
 import { Link } from '@inertiajs/vue3';
+import { trans } from 'laravel-vue-i18n';
 
 /**
  * The header of the parent portal's child pages: the child, a switcher to the same page for
@@ -15,9 +16,9 @@ defineProps<{
 }>();
 
 const tabs: { route: ChildPage; label: string }[] = [
-    { route: 'family.attendance', label: 'Attendance' },
-    { route: 'family.results', label: 'Results' },
-    { route: 'family.report-cards', label: 'Report cards' },
+    { route: 'family.attendance', label: trans('Attendance') },
+    { route: 'family.results', label: trans('Results') },
+    { route: 'family.report-cards', label: trans('Report cards') },
 ];
 </script>
 

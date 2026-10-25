@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { trans, transChoice } from 'laravel-vue-i18n';
 import InputError from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TermSelect from '@/Components/TermSelect.vue';
@@ -39,24 +40,31 @@ const share = computed(() =>
 
 const cards = computed(() => [
     {
-        label: 'Invoiced',
+        label: trans('Invoiced'),
         value: money(props.dashboard.totals.invoiced),
-        note: `${props.dashboard.totals.invoices} invoices`,
+        note: transChoice(
+            ':count invoice|:count invoices',
+            props.dashboard.totals.invoices,
+            { count: String(props.dashboard.totals.invoices) },
+        ),
     },
     {
-        label: 'Collected',
+        label: trans('Collected'),
         value: money(props.dashboard.totals.collected),
-        note: `${share.value} % · ${props.dashboard.totals.paid} paid in full`,
+        note: trans(':share % · :paid paid in full', {
+            share: String(share.value),
+            paid: String(props.dashboard.totals.paid),
+        }),
     },
     {
-        label: 'Outstanding',
+        label: trans('Outstanding'),
         value: money(props.dashboard.totals.outstanding),
-        note: 'Still to pay',
+        note: trans('Still to pay'),
     },
     {
-        label: 'Overdue',
+        label: trans('Overdue'),
         value: money(props.dashboard.totals.overdue),
-        note: 'Past the due date',
+        note: trans('Past the due date'),
     },
 ]);
 
@@ -104,18 +112,29 @@ const invoicesUrl = (params: Record<string, string | number> = {}) =>
                         <p
                             class="mt-1 text-sm text-gray-600 dark:text-gray-400"
                         >
-                            Invoices for the {{ term.name }} (starting
-                            {{ formatDate(term.starts_on) }}) are generated
                             {{
                                 $t(
-                                    'automatically two weeks before the term starts, from the',
+                                    'Invoices for the :term (starting :date) are generated automatically two weeks before the term starts, from the fees of this year:',
+                                    {
+                                        term: term.name,
+                                        date: formatDate(term.starts_on),
+                                    },
                                 )
                             }}
                             <Link
                                 :href="route('fee-structures.index')"
                                 class="text-indigo-700 underline hover:no-underline dark:text-indigo-300"
-                                >{{ feeStructures }} fees of this year</Link
-                            >. Generating now only adds the missing ones.
+                                >{{
+                                    $tChoice(
+                                        ':count fee|:count fees',
+                                        feeStructures,
+                                        { count: String(feeStructures) },
+                                    )
+                                }}</Link
+                            >.
+                            {{
+                                $t('Generating now only adds the missing ones.')
+                            }}
                             <template v-if="!onlinePayments">
                                 {{
                                     $t(
@@ -254,7 +273,12 @@ const invoicesUrl = (params: Record<string, string | number> = {}) =>
                                         <span v-else>{{ row.name }}</span>
                                     </th>
                                     <td class="px-4 py-3 text-right">
-                                        {{ row.paid }} / {{ row.invoices }} paid
+                                        {{
+                                            $t(':paid / :count paid', {
+                                                paid: String(row.paid),
+                                                count: String(row.invoices),
+                                            })
+                                        }}
                                     </td>
                                     <td class="px-4 py-3 text-right">
                                         {{ money(row.invoiced) }}

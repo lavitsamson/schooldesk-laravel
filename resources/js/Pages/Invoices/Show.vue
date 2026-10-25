@@ -159,10 +159,9 @@ const backUrl = computed(() =>
                 >
                     {{
                         $t(
-                            'Thank you. Your payment is being confirmed by Stripe and',
+                            'Thank you. Your payment is being confirmed by Stripe and will show here in a moment; the receipt follows by email.',
                         )
                     }}
-                    will show here in a moment; the receipt follows by email.
                 </p>
                 <p
                     v-else-if="checkout === 'cancelled'"
@@ -243,21 +242,28 @@ const backUrl = computed(() =>
                                 })
                             }}
                             <template v-if="invoice.voided_at">
-                                · {{ $t('voided') }}
+                                ·
                                 {{
-                                    formatDateTime(invoice.voided_at)
+                                    $t('voided :time', {
+                                        time: formatDateTime(invoice.voided_at),
+                                    })
                                 }}</template
                             >
                             <template
                                 v-if="can.manage && invoice.reminders_sent"
                             >
-                                · {{ invoice.reminders_sent }}
+                                ·
                                 {{
-                                    invoice.reminders_sent === 1
-                                        ? 'reminder'
-                                        : 'reminders'
-                                }}
-                                sent</template
+                                    $tChoice(
+                                        ':count reminder sent|:count reminders sent',
+                                        invoice.reminders_sent,
+                                        {
+                                            count: String(
+                                                invoice.reminders_sent,
+                                            ),
+                                        },
+                                    )
+                                }}</template
                             >
                         </p>
                     </div>
@@ -417,8 +423,13 @@ const backUrl = computed(() =>
                                         v-if="payment.refunded_amount > 0"
                                         class="block text-xs text-gray-600 dark:text-gray-400"
                                     >
-                                        {{ money(payment.refunded_amount) }}
-                                        {{ $t('refunded') }}
+                                        {{
+                                            $t(':amount refunded', {
+                                                amount: money(
+                                                    payment.refunded_amount,
+                                                ),
+                                            })
+                                        }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 text-right">
@@ -585,14 +596,13 @@ const backUrl = computed(() =>
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     {{
-                        $t(':name will not have to pay it, and no', {
-                            name: invoice.student.name,
-                        })
-                    }}
-                    {{
-                        $t('new invoice is generated for the :name.', {
-                            name: invoice.term.name,
-                        })
+                        $t(
+                            ':student will not have to pay it, and no new invoice is generated for the :term.',
+                            {
+                                student: invoice.student.name,
+                                term: invoice.term.name,
+                            },
+                        )
                     }}
                     {{ $t('This cannot be undone.') }}
                 </p>

@@ -66,11 +66,9 @@ const inputClasses =
                     <p>
                         {{
                             $t(
-                                'Each band turns a percentage into a grade. Bands include both ends and must cover 0 to 100 % without gaps: each',
+                                'Each band turns a percentage into a grade. Bands include both ends and must cover 0 to 100 % without gaps: each band ends 0.01 below where the next one starts. Results follow the scale straight away.',
                             )
                         }}
-                        band ends 0.01 below where the next one starts. Results
-                        {{ $t('follow the scale straight away.') }}
                     </p>
                     <div class="flex flex-wrap items-center gap-2">
                         <span>{{ $t('Start from:') }}</span>

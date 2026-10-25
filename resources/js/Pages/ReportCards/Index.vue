@@ -157,16 +157,16 @@ const share = (count: number, total: number) =>
                         </div>
                         <p class="text-sm text-gray-700 dark:text-gray-300">
                             {{
-                                $t(':students students ·', {
-                                    students: String(c.students),
-                                })
+                                $t(
+                                    ':students students · :published published · :approved approved · :draft drafts',
+                                    {
+                                        students: String(c.students),
+                                        published: String(c.published),
+                                        approved: String(c.approved),
+                                        draft: String(c.draft),
+                                    },
+                                )
                             }}
-                            {{
-                                $t(':published published ·', {
-                                    published: String(c.published),
-                                })
-                            }}
-                            {{ c.approved }} approved · {{ c.draft }} drafts
                         </p>
                     </li>
                 </ul>

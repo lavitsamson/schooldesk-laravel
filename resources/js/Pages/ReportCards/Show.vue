@@ -13,6 +13,7 @@ import type {
     ReportCardSnapshot,
 } from '@/types/school';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
+import { trans } from 'laravel-vue-i18n';
 import { computed, ref, watch } from 'vue';
 
 const props = defineProps<{
@@ -78,7 +79,7 @@ const requestDraft = () => post('draft', 'report-cards.ai-draft');
 
 const approve = () => {
     if (form.isDirty) {
-        alert('Save the comment before approving the report card.');
+        alert(trans('Save the comment before approving the report card.'));
         return;
     }
     post('approve', 'report-cards.approve');
@@ -155,8 +156,8 @@ const secondaryButton =
                 <div class="space-y-4 lg:col-span-3">
                     <p class="text-sm text-gray-600 dark:text-gray-400">
                         {{
-                            $t('Calculated :calculated_at.', {
-                                calculated_at: dateTime(report.calculated_at),
+                            $t('Calculated :time.', {
+                                time: dateTime(report.calculated_at),
                             })
                         }}
                         <template v-if="isDraft">
@@ -299,9 +300,9 @@ const secondaryButton =
                                         class="text-xs text-gray-600 dark:text-gray-400"
                                     >
                                         {{
-                                            $t('Drafted :created_at', {
-                                                created_at: String(
-                                                    dateTime(draft.created_at),
+                                            $t('Drafted :time', {
+                                                time: dateTime(
+                                                    draft.created_at,
                                                 ),
                                             })
                                         }}
@@ -333,15 +334,18 @@ const secondaryButton =
                             class="text-sm text-gray-700 dark:text-gray-300"
                         >
                             {{
-                                $t('Approved by :approved_by,', {
-                                    approved_by: card.approved_by,
+                                $t('Approved by :name, :time.', {
+                                    name: card.approved_by ?? '',
+                                    time: card.approved_at
+                                        ? dateTime(card.approved_at)
+                                        : '',
                                 })
                             }}
-                            {{ dateTime(card.approved_at) }}.
-                            <template v-if="card.published_at">
-                                {{ $t('Published to parents') }}
-                                {{ dateTime(card.published_at) }}.
-                            </template>
+                            <template v-if="card.published_at">{{
+                                $t('Published to parents :time.', {
+                                    time: dateTime(card.published_at),
+                                })
+                            }}</template>
                         </p>
                         <p
                             v-else
@@ -383,7 +387,9 @@ const secondaryButton =
                                         post(
                                             'publish',
                                             'report-cards.publish',
-                                            'Publish this report card? Parents are notified and can read it.',
+                                            $t(
+                                                'Publish this report card? Parents are notified and can read it.',
+                                            ),
                                         )
                                     "
                                 >

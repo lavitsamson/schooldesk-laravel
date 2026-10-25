@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { trans } from 'laravel-vue-i18n';
 import { formatRate } from '@/composables/numbers';
 import { formatDate } from '@/composables/dates';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
@@ -21,7 +22,12 @@ const monthTitle = computed(() =>
     }),
 );
 
-const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+// Monday to Sunday in the active language (1 January 2024 was a Monday).
+const weekdays = computed(() =>
+    [1, 2, 3, 4, 5, 6, 7].map((day) =>
+        formatDate(`2024-01-0${day}`, { weekday: 'short' }),
+    ),
+);
 
 // Empty cells before the 1st, so the days line up under their weekday.
 const leadingBlanks = computed(
@@ -33,31 +39,31 @@ const statuses: Record<
     { label: string; code: string; classes: string }
 > = {
     present: {
-        label: 'Present',
+        label: trans('Present'),
         code: 'P',
         classes:
             'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200',
     },
     absent: {
-        label: 'Absent',
+        label: trans('Absent'),
         code: 'A',
         classes: 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200',
     },
     late: {
-        label: 'Late',
+        label: trans('Late'),
         code: 'L',
         classes:
             'bg-amber-100 text-amber-900 dark:bg-amber-900/50 dark:text-amber-200',
     },
     excused: {
-        label: 'Excused',
+        label: trans('Excused'),
         code: 'E',
         classes: 'bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-200',
     },
 };
 
 const dayLabel = (date: string, status: AttendanceStatus | null) =>
-    `${formatDate(date)}: ${status ? statuses[status].label : 'no attendance taken'}`;
+    `${formatDate(date)}: ${status ? statuses[status].label : trans('no attendance taken')}`;
 </script>
 
 <template>

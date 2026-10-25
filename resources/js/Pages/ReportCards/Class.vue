@@ -11,6 +11,7 @@ import type {
     TermOption,
 } from '@/types/school';
 import { Head, Link, useForm, usePage, usePoll } from '@inertiajs/vue3';
+import { trans } from 'laravel-vue-i18n';
 import { computed, watch } from 'vue';
 
 const props = defineProps<{
@@ -52,7 +53,10 @@ const generated = computed(
 const publish = () => {
     if (
         !confirm(
-            `Publish ${approved.value} approved report cards? Parents are notified and can read them.`,
+            trans(
+                'Publish :count approved report cards? Parents are notified and can read them.',
+                { count: String(approved.value) },
+            ),
         )
     ) {
         return;
@@ -105,21 +109,22 @@ const publish = () => {
                                 id="generate-title"
                                 class="font-medium text-gray-900 dark:text-gray-100"
                             >
-                                {{ generated }} of {{ students.length }} report
-                                {{ $t('cards generated') }}
+                                {{
+                                    $t(
+                                        ':generated of :count report cards generated',
+                                        {
+                                            generated: String(generated),
+                                            count: String(students.length),
+                                        },
+                                    )
+                                }}
                             </h3>
                             <p
                                 class="mt-1 text-sm text-gray-600 dark:text-gray-400"
                             >
                                 {{
                                     $t(
-                                        "Generating calculates each student's results from the current marks and attendance. Drafts",
-                                    )
-                                }}
-                                are updated and keep their comment; approved and
-                                {{
-                                    $t(
-                                        'published report cards stay as they are.',
+                                        "Generating calculates each student's results from the current marks and attendance. Drafts are updated and keep their comment; approved and published report cards stay as they are.",
                                     )
                                 }}
                             </p>
@@ -136,10 +141,9 @@ const publish = () => {
                             >
                                 {{
                                     generated > 0
-                                        ? $t('Regenerate')
-                                        : $t('Generate')
+                                        ? $t('Regenerate report cards')
+                                        : $t('Generate report cards')
                                 }}
-                                {{ $t('report cards') }}
                             </PrimaryButton>
                             <button
                                 v-if="approved > 0"
@@ -180,12 +184,8 @@ const publish = () => {
                             class="mt-2 text-sm text-gray-600 dark:text-gray-400"
                         >
                             {{
-                                $t('Generating: :processed of', {
+                                $t('Generating: :processed of :total done', {
                                     processed: String(batch.processed),
-                                })
-                            }}
-                            {{
-                                $t(':total done', {
                                     total: String(batch.total),
                                 })
                             }}
@@ -196,9 +196,15 @@ const publish = () => {
                         class="text-sm text-red-700 dark:text-red-400"
                         role="status"
                     >
-                        {{ batch.failed }} of {{ batch.total }} report cards
-                        could not be generated. Try again; if it keeps failing,
-                        {{ $t('check the queue dashboard.') }}
+                        {{
+                            $t(
+                                ':failed of :total report cards could not be generated. Try again; if it keeps failing, check the queue dashboard.',
+                                {
+                                    failed: String(batch.failed),
+                                    total: String(batch.total),
+                                },
+                            )
+                        }}
                     </p>
                 </section>
 
@@ -210,10 +216,9 @@ const publish = () => {
                     >
                         <caption class="sr-only">
                             {{
-                                $t('Report cards of')
-                            }}
-                            {{
-                                schoolClass.name
+                                $t('Report cards of :name', {
+                                    name: schoolClass.name,
+                                })
                             }}
                         </caption>
                         <thead class="bg-gray-50 dark:bg-gray-900/50">

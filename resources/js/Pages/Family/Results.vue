@@ -35,11 +35,11 @@ defineProps<{
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <p class="text-sm text-gray-600 dark:text-gray-400">
                         {{
-                            $t('Results so far in the :name. The report card', {
-                                name: term.name,
-                            })
+                            $t(
+                                'Results so far in the :term. The report card is what counts; it may still change until then.',
+                                { term: term.name },
+                            )
                         }}
-                        is what counts; it may still change until then.
                     </p>
                     <TermSelect
                         :terms="terms"

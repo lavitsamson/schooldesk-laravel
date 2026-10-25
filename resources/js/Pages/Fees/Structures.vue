@@ -132,8 +132,11 @@ const destroy = () => {
                         }}
                     </h3>
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                        Changes apply to invoices generated from now on; issued
-                        {{ $t('invoices keep their amounts.') }}
+                        {{
+                            $t(
+                                'Changes apply to invoices generated from now on; issued invoices keep their amounts.',
+                            )
+                        }}
                     </p>
                     <form
                         class="mt-4 grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-3"
@@ -309,15 +312,10 @@ const destroy = () => {
                                 </td>
                                 <td class="px-4 py-3">
                                     {{
-                                        $t(
-                                            ':due_day_offset days after the term',
-                                            {
-                                                due_day_offset:
-                                                    fee.due_day_offset,
-                                            },
-                                        )
+                                        $t(':days days after the term starts', {
+                                            days: String(fee.due_day_offset),
+                                        })
                                     }}
-                                    {{ $t('starts') }}
                                 </td>
                                 <td
                                     class="space-x-2 px-4 py-3 text-right whitespace-nowrap"
@@ -367,7 +365,7 @@ const destroy = () => {
                 <h2
                     class="text-lg font-medium text-gray-900 dark:text-gray-100"
                 >
-                    {{ $t('Delete :name?', { name: deleting?.name }) }}
+                    {{ $t('Delete :name?', { name: deleting?.name ?? '' }) }}
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     {{

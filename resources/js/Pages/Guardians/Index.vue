@@ -261,7 +261,7 @@ const destroy = () => {
                 <h2
                     class="text-lg font-medium text-gray-900 dark:text-gray-100"
                 >
-                    {{ $t('Edit :name', { name: editing?.name }) }}
+                    {{ $t('Edit :name', { name: editing?.name ?? '' }) }}
                 </h2>
                 <div>
                     <InputLabel for="edit-name" :value="$t('Name')" />
@@ -348,7 +348,7 @@ const destroy = () => {
                 <h2
                     class="text-lg font-medium text-gray-900 dark:text-gray-100"
                 >
-                    {{ $t('Delete :name?', { name: deleting?.name }) }}
+                    {{ $t('Delete :name?', { name: deleting?.name ?? '' }) }}
                 </h2>
                 <div class="mt-6 flex justify-end gap-3">
                     <SecondaryButton type="button" @click="deleting = null">

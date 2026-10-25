@@ -55,8 +55,13 @@ const monthName = (month: string) =>
                         <dl class="mt-4 grid grid-cols-3 gap-3 text-sm">
                             <div>
                                 <dt class="text-gray-600 dark:text-gray-400">
-                                    {{ $t('Attendance in') }}
-                                    {{ monthName(child.attendance.month) }}
+                                    {{
+                                        $t('Attendance in :month', {
+                                            month: monthName(
+                                                child.attendance.month,
+                                            ),
+                                        })
+                                    }}
                                 </dt>
                                 <dd
                                     class="mt-1 text-xl font-semibold text-gray-900 tabular-nums dark:text-gray-100"

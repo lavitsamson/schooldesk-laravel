@@ -67,7 +67,11 @@ defineProps<{
                             >
                                 {{ $t('Download PDF') }}
                                 <span class="sr-only">
-                                    for the {{ card.term.name }}</span
+                                    {{
+                                        $t('for the :term', {
+                                            term: card.term.name,
+                                        })
+                                    }}</span
                                 >
                             </a>
                         </div>
@@ -114,9 +118,11 @@ defineProps<{
                     v-else
                     class="bg-white p-6 text-sm text-gray-600 shadow-xs sm:rounded-lg dark:bg-gray-800 dark:text-gray-400"
                 >
-                    {{ $t('No report cards have been published for') }}
                     {{
-                        $t(':first_name yet.', { first_name: child.first_name })
+                        $t(
+                            'No report cards have been published for :first_name yet.',
+                            { first_name: child.first_name },
+                        )
                     }}
                 </p>
             </div>

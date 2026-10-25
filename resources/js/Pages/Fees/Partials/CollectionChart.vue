@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { trans } from 'laravel-vue-i18n';
 import { useMoney } from '@/composables/money';
 import type { FeeClassTotals } from '@/types/school';
 import {
@@ -29,13 +30,13 @@ const data = computed<ChartData<'bar'>>(() => ({
     labels: props.classes.map((c) => c.name),
     datasets: [
         {
-            label: 'Collected',
+            label: trans('Collected'),
             data: props.classes.map((c) => c.collected),
             backgroundColor: '#16a34a',
             stack: 'fees',
         },
         {
-            label: 'Outstanding',
+            label: trans('Outstanding'),
             data: props.classes.map((c) => c.outstanding),
             backgroundColor: '#f59e0b',
             stack: 'fees',

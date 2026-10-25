@@ -601,7 +601,7 @@ const destroy = () =>
                 >
                     {{
                         $t('Remove :name as a guardian?', {
-                            name: unlinking?.name,
+                            name: unlinking?.name ?? '',
                         })
                     }}
                 </h2>

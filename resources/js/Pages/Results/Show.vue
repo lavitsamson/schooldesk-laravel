@@ -32,7 +32,12 @@ defineProps<{
                 <h2
                     class="text-xl leading-tight font-semibold text-gray-800 dark:text-gray-200"
                 >
-                    Results · {{ schoolClass.name }} · {{ term.name }}
+                    {{
+                        $t('Results · :class · :term', {
+                            class: schoolClass.name,
+                            term: term.name,
+                        })
+                    }}
                 </h2>
                 <TermSelect
                     :terms="terms"

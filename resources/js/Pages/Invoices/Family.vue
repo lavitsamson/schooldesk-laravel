@@ -55,11 +55,11 @@ const open = computed(() =>
                             </Link>
                             <p class="text-sm text-gray-600 dark:text-gray-400">
                                 {{
-                                    $t(':number · due', {
+                                    $t(':number · due :date', {
                                         number: invoice.number,
+                                        date: formatDate(invoice.due_on),
                                     })
                                 }}
-                                {{ formatDate(invoice.due_on) }}
                             </p>
                         </div>
                         <div class="flex items-center gap-3">

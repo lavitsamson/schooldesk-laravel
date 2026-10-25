@@ -6,6 +6,7 @@ import { HttpError, sendJson } from '@/composables/http';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import type { AssessmentType, GradeSheetStudent, IdName } from '@/types/school';
 import { Head, Link } from '@inertiajs/vue3';
+import { getActiveLanguage, trans } from 'laravel-vue-i18n';
 import {
     computed,
     nextTick,
@@ -60,9 +61,11 @@ const normalise = (value: string): string | null => {
 const validate = (row: Row): string | null => {
     const marks = normalise(row.marks);
     if (marks === null) return null;
-    if (!/^\d+(\.\d{1,2})?$/.test(marks)) return 'Enter a number.';
+    if (!/^\d+(\.\d{1,2})?$/.test(marks)) return trans('Enter a number.');
     if (Number(marks) > props.assessment.max_marks)
-        return `At most ${props.assessment.max_marks} marks.`;
+        return trans('At most :max marks.', {
+            max: String(props.assessment.max_marks),
+        });
     return null;
 };
 
@@ -140,9 +143,9 @@ const flush = async () => {
                 const match = /^grades\.(\d+)\.(marks|remarks)$/.exec(key);
                 const index = match ? ready[Number(match[1])] : undefined;
                 if (index !== undefined) {
-                    rows[index]!.error = messages[0] ?? 'Not valid.';
+                    rows[index]!.error = messages[0] ?? trans('Not valid.');
                 } else {
-                    generalError.value = messages[0] ?? 'Not saved.';
+                    generalError.value = messages[0] ?? trans('Not saved.');
                 }
             }
             status.value = 'invalid';
@@ -209,29 +212,31 @@ onBeforeUnmount(() => {
 const statusText = computed(() => {
     switch (status.value) {
         case 'pending':
-            return 'Unsaved changes…';
+            return trans('Unsaved changes…');
         case 'saving':
-            return 'Saving…';
+            return trans('Saving…');
         case 'saved':
-            return 'All changes saved';
+            return trans('All changes saved');
         case 'invalid':
-            return 'Some marks are not valid and were not saved.';
+            return trans('Some marks are not valid and were not saved.');
         case 'error':
-            return 'Could not save. Trying again…';
+            return trans('Could not save. Trying again…');
         case 'expired':
-            return 'Your session has expired. Copy your changes and reload the page.';
+            return trans(
+                'Your session has expired. Copy your changes and reload the page.',
+            );
         default:
             return savedAt.value
-                ? 'All changes saved'
-                : 'Marks are saved as you type.';
+                ? trans('All changes saved')
+                : trans('Marks are saved as you type.');
     }
 });
 
 const savedAtText = computed(() =>
     savedAt.value
-        ? new Intl.DateTimeFormat(undefined, { timeStyle: 'short' }).format(
-              new Date(savedAt.value),
-          )
+        ? new Intl.DateTimeFormat(getActiveLanguage(), {
+              timeStyle: 'short',
+          }).format(new Date(savedAt.value))
         : null,
 );
 
@@ -276,16 +281,12 @@ const inputClasses =
                 <p class="text-sm text-gray-600 dark:text-gray-400">
                     {{ assessment.type_label }} ·
                     {{
-                        $t(':held_on · out of', {
-                            held_on: formatDate(assessment.held_on),
+                        $t(':date · out of :max · weight :weight', {
+                            date: formatDate(assessment.held_on),
+                            max: String(assessment.max_marks),
+                            weight: formatMarks(assessment.weight),
                         })
                     }}
-                    {{
-                        $t(':max_marks · weight', {
-                            max_marks: assessment.max_marks,
-                        })
-                    }}
-                    {{ formatMarks(assessment.weight) }}
                 </p>
             </div>
         </template>
@@ -297,9 +298,11 @@ const inputClasses =
                     :aria-label="$t('Summary')"
                 >
                     <p class="text-sm text-gray-700 dark:text-gray-300">
-                        <span class="font-medium">{{ marked }}</span> of
                         {{
-                            $t(':count marked', { count: String(rows.length) })
+                            $t(':marked of :count marked', {
+                                marked: String(marked),
+                                count: String(rows.length),
+                            })
                         }}
                     </p>
                     <p
@@ -344,10 +347,7 @@ const inputClasses =
                     >
                         <caption class="sr-only">
                             {{
-                                $t('Marks for')
-                            }}
-                            {{
-                                assessment.name
+                                $t('Marks for :name', { name: assessment.name })
                             }}
                         </caption>
                         <thead class="bg-gray-50 dark:bg-gray-900/50">
@@ -361,7 +361,11 @@ const inputClasses =
                                     {{ $t('Student') }}
                                 </th>
                                 <th scope="col" class="w-36 px-4 py-3">
-                                    Marks (/ {{ assessment.max_marks }})
+                                    {{
+                                        $t('Marks (/ :max)', {
+                                            max: String(assessment.max_marks),
+                                        })
+                                    }}
                                 </th>
                                 <th
                                     scope="col"

@@ -327,7 +327,13 @@ const buttonClasses =
                                     ({{ average.grade }})
                                 </template>
                             </span>
-                            · {{ marked }} of {{ students.length }} with marks
+                            ·
+                            {{
+                                $t(':marked of :count with marks', {
+                                    marked: String(marked),
+                                    count: String(students.length),
+                                })
+                            }}
                         </p>
                     </div>
                     <table
@@ -435,7 +441,7 @@ const buttonClasses =
                 >
                     {{
                         editing
-                            ? `Edit ${editing.name}`
+                            ? $t('Edit :name', { name: editing.name })
                             : $t('Add an assessment')
                     }}
                 </h2>
@@ -563,16 +569,16 @@ const buttonClasses =
                 <h2
                     class="text-lg font-medium text-gray-900 dark:text-gray-100"
                 >
-                    {{ $t('Delete :name?', { name: deleting?.name }) }}
+                    {{ $t('Delete :name?', { name: deleting?.name ?? '' }) }}
                 </h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     <template v-if="deleting && deleting.graded_count > 0">
                         {{
-                            $t('The marks of :count students are', {
-                                count: String(deleting.graded_count),
-                            })
+                            $t(
+                                'The marks of :count students are deleted with it.',
+                                { count: String(deleting.graded_count) },
+                            )
                         }}
-                        {{ $t('deleted with it.') }}
                     </template>
                     <template v-else>{{
                         $t('No marks have been entered yet.')
