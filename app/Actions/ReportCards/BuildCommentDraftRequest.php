@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Actions\ReportCards;
 
 use App\Actions\Grades\CalculateReportCard;
-use App\Enums\Locale;
 use App\Models\ReportCard;
 use App\Models\Term;
 use App\Services\Llm\LlmRequest;
@@ -70,7 +69,7 @@ final class BuildCommentDraftRequest
         ];
 
         return new LlmRequest(
-            system: sprintf(self::SYSTEM, $school->locale === Locale::German ? 'German' : 'English'),
+            system: sprintf(self::SYSTEM, $school->locale->englishName()),
             prompt: json_encode($payload, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
         );
     }

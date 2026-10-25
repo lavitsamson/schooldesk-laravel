@@ -9,6 +9,7 @@ use App\Enums\Role;
 use App\Support\CurrentSchool;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -33,7 +34,7 @@ use Spatie\Permission\Traits\HasRoles;
  */
 #[Fillable(['name', 'email', 'password', 'locale'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements HasLocalePreference, MustVerifyEmail
 {
     /** @use HasApiTokens<PersonalAccessToken> */
     use HasApiTokens;
@@ -53,6 +54,15 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'is_platform_admin' => 'boolean',
         ];
+    }
+
+    /**
+     * The language of mails and notifications. Null (no own choice) keeps the locale of the
+     * moment, which is the school's when a school context is set.
+     */
+    public function preferredLocale(): ?string
+    {
+        return $this->locale;
     }
 
     /**

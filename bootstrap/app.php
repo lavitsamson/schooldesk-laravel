@@ -6,6 +6,7 @@ use App\Exceptions\ApiExceptionRenderer;
 use App\Http\Middleware\EnsureSchoolMembership;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetCurrentSchool;
+use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -28,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             // Before Inertia, so the shared props can include the current school.
             SetCurrentSchool::class,
+            SetLocale::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
@@ -35,6 +37,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // The parent API: the school comes from the Sanctum token (ADR 0009).
         $middleware->api(append: [
             SetCurrentSchool::class,
+            SetLocale::class,
         ]);
 
         // Route model binding must already see the school, or school-owned records cannot be

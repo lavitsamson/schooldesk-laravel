@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Enums\Locale;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\User;
+use App\Support\EnumOptions;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,6 +27,7 @@ class ProfileController extends Controller
             // Every user must verify their email (User implements MustVerifyEmail).
             'mustVerifyEmail' => true,
             'status' => session('status'),
+            'locales' => EnumOptions::of(Locale::class),
         ]);
     }
 

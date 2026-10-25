@@ -4,6 +4,8 @@ export interface User {
     email: string;
     email_verified_at: string | null;
     is_platform_admin: boolean;
+    /** Their own language; null follows the school's. */
+    locale: string | null;
 }
 
 export interface CurrentSchool {
@@ -34,6 +36,8 @@ export type PageProps<
     };
     school: CurrentSchool | null;
     schools: SchoolSummary[];
+    /** The language of this request (en, de, hi). */
+    locale: string;
     /** Unread notifications in the current school (navigation badge). */
     unreadNotifications: number;
     flash: {

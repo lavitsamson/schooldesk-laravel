@@ -52,8 +52,12 @@ class HandleInertiaRequests extends Middleware
                     'email' => $user->email,
                     'email_verified_at' => $user->email_verified_at?->toIso8601String(),
                     'is_platform_admin' => $user->is_platform_admin,
+                    // Their own choice; null follows the school (see SetLocale).
+                    'locale' => $user->locale,
                 ] : null,
             ],
+            // The language of this request, for translations, dates and numbers.
+            'locale' => app()->getLocale(),
             'school' => fn (): ?array => $user instanceof User ? $this->schoolProps($user) : null,
             'schools' => fn (): array => $user instanceof User
                 ? $user->activeSchools()->orderBy('name')->get(['schools.id', 'schools.name'])

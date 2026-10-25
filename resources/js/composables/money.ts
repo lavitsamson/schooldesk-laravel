@@ -1,4 +1,5 @@
 import { usePage } from '@inertiajs/vue3';
+import { getActiveLanguage } from 'laravel-vue-i18n';
 
 /** Currencies without minor units (as on the server, App\Support\Money). */
 const ZERO_DECIMAL = new Set([
@@ -37,7 +38,7 @@ export function formatMoney(
     }).format(minor / 10 ** decimals);
 }
 
-/** formatMoney() with the current school's currency and locale. */
+/** formatMoney() with the current school's currency, in the active language. */
 export function useMoney() {
     const page = usePage();
 
@@ -45,6 +46,6 @@ export function useMoney() {
         formatMoney(
             minor,
             page.props.school?.currency ?? 'EUR',
-            page.props.school?.locale ?? 'en',
+            getActiveLanguage(),
         );
 }

@@ -2,12 +2,15 @@
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SelectInput from '@/Components/SelectInput.vue';
 import TextInput from '@/Components/TextInput.vue';
+import type { Option } from '@/types';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
 
 defineProps<{
     mustVerifyEmail?: boolean;
     status?: string;
+    locales: Option[];
 }>();
 
 const user = usePage().props.auth.user;
@@ -15,27 +18,36 @@ const user = usePage().props.auth.user;
 const form = useForm({
     name: user.name,
     email: user.email,
+    locale: user.locale ?? '',
 });
+
+function submit(): void {
+    form.transform((data) => ({
+        ...data,
+        locale: data.locale === '' ? null : data.locale,
+    })).patch(route('profile.update'));
+}
 </script>
 
 <template>
     <section>
         <header>
             <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                Profile Information
+                {{ $t('Profile Information') }}
             </h2>
 
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                Update your account's profile information and email address.
+                {{
+                    $t(
+                        "Update your account's profile information and email address.",
+                    )
+                }}
             </p>
         </header>
 
-        <form
-            class="mt-6 space-y-6"
-            @submit.prevent="form.patch(route('profile.update'))"
-        >
+        <form class="mt-6 space-y-6" @submit.prevent="submit">
             <div>
-                <InputLabel for="name" value="Name" />
+                <InputLabel for="name" :value="$t('Name')" />
 
                 <TextInput
                     id="name"
@@ -51,7 +63,7 @@ const form = useForm({
             </div>
 
             <div>
-                <InputLabel for="email" value="Email" />
+                <InputLabel for="email" :value="$t('Email')" />
 
                 <TextInput
                     id="email"
@@ -65,16 +77,40 @@ const form = useForm({
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
+            <div>
+                <InputLabel for="locale" :value="$t('Language')" />
+
+                <SelectInput
+                    id="locale"
+                    v-model="form.locale"
+                    class="mt-1 block w-full"
+                >
+                    <option value="">{{ $t("The school's language") }}</option>
+                    <option
+                        v-for="locale in locales"
+                        :key="locale.value"
+                        :value="locale.value"
+                        :lang="locale.value"
+                    >
+                        {{ locale.label }}
+                    </option>
+                </SelectInput>
+
+                <InputError class="mt-2" :message="form.errors.locale" />
+            </div>
+
             <div v-if="mustVerifyEmail && user.email_verified_at === null">
                 <p class="mt-2 text-sm text-gray-800 dark:text-gray-200">
-                    Your email address is unverified.
+                    {{ $t('Your email address is unverified.') }}
                     <Link
                         :href="route('verification.send')"
                         method="post"
                         as="button"
                         class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
                     >
-                        Click here to re-send the verification email.
+                        {{
+                            $t('Click here to re-send the verification email.')
+                        }}
                     </Link>
                 </p>
 
@@ -82,12 +118,18 @@ const form = useForm({
                     v-show="status === 'verification-link-sent'"
                     class="mt-2 text-sm font-medium text-green-600 dark:text-green-400"
                 >
-                    A new verification link has been sent to your email address.
+                    {{
+                        $t(
+                            'A new verification link has been sent to your email address.',
+                        )
+                    }}
                 </div>
             </div>
 
             <div class="flex items-center gap-4">
-                <PrimaryButton :disabled="form.processing">Save</PrimaryButton>
+                <PrimaryButton :disabled="form.processing">{{
+                    $t('Save')
+                }}</PrimaryButton>
 
                 <Transition
                     enter-active-class="transition ease-in-out"
@@ -99,7 +141,7 @@ const form = useForm({
                         v-if="form.recentlySuccessful"
                         class="text-sm text-gray-600 dark:text-gray-400"
                     >
-                        Saved.
+                        {{ $t('Saved.') }}
                     </p>
                 </Transition>
             </div>
