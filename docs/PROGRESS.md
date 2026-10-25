@@ -71,7 +71,16 @@
 
 ## 8. Fees & payments
 
-- [ ] Fee structures, scheduled invoices, PDFs, Stripe Checkout, webhooks, receipts, reminders, dashboard
+- [x] Money as integer minor units in a `Money` value object (parsing "1.200,50" and "1,200.50", per-locale formatting) (ADR 0008)
+- [x] Fee structures per academic year and class: every term, once a year, or one-off for new students
+- [x] `fees:generate-term-invoices` (daily, terms starting within 14 days): idempotent, locked per school and term, gapless invoice numbers per school and year; "Generate now" for admins
+- [x] Invoice list (search, class and status filters incl. overdue), invoice page, invoice PDF on signed links, void without payments
+- [x] Cash and bank payments (partial payments, row-locked against overpaying), receipt PDF in a queued job
+- [x] Stripe Checkout (test mode) for parents; webhooks with signature check, event de-duplication in the same transaction, payments, partial payments and refunds; off without keys
+- [x] Notifications to the primary guardian: invoice issued, payment received, overdue reminders after 3 and 10 days (each at most once)
+- [x] Fees dashboard per term: invoiced, collected, outstanding and overdue per class, with a chart
+- [x] Parents see and pay their own children's invoices (the portal in milestone 9 builds on it)
+- [x] Demo seed: Riverside and Gymnasium fees, autumn invoices in mixed states; E2E with a signed, simulated Stripe webhook
 
 ## 9. Parent portal & API
 
