@@ -1,4 +1,4 @@
-import { getActiveLanguage } from 'laravel-vue-i18n';
+import { localeForIntl } from '@/composables/locale';
 
 /**
  * Percentages arrive as strings with two decimals ("86.50"), exactly as calculated on the
@@ -7,7 +7,7 @@ import { getActiveLanguage } from 'laravel-vue-i18n';
 export function formatPercent(value: string | null): string {
     if (value === null) return '—';
 
-    return `${Number(value).toLocaleString(getActiveLanguage(), {
+    return `${Number(value).toLocaleString(localeForIntl(), {
         minimumFractionDigits: 1,
         maximumFractionDigits: 2,
     })} %`;
@@ -17,7 +17,7 @@ export function formatPercent(value: string | null): string {
 export function formatMarks(value: string | null): string {
     if (value === null) return '—';
 
-    return Number(value).toLocaleString(getActiveLanguage(), {
+    return Number(value).toLocaleString(localeForIntl(), {
         maximumFractionDigits: 2,
     });
 }

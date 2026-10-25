@@ -170,7 +170,7 @@ it('takes no attendance in advance or outside the academic year', function (stri
     expect(($this->records)())->toHaveCount(0);
 })->with([
     'tomorrow' => ['2026-10-15', 'Attendance cannot be taken for a future date.'],
-    'before the year' => ['2026-07-20', '2026-07-20 is outside the academic year 2026/27.'],
+    'before the year' => ['2026-07-20', '20 July 2026 is outside the academic year 2026/27.'],
 ]);
 
 it('uses today in the school\'s timezone', function (): void {

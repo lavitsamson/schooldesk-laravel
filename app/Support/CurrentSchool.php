@@ -6,6 +6,7 @@ namespace App\Support;
 
 use App\Exceptions\MissingSchoolContextException;
 use App\Models\School;
+use Illuminate\Support\Traits\Localizable;
 
 /**
  * The school (tenant) the current request or job acts for.
@@ -15,6 +16,8 @@ use App\Models\School;
  */
 final class CurrentSchool
 {
+    use Localizable;
+
     private ?School $school = null;
 
     public function set(School $school): void
@@ -73,5 +76,22 @@ final class CurrentSchool
         } finally {
             $this->school = $previous;
         }
+    }
+
+    /**
+     * run() in the school's language: for queued jobs and console commands, which have no
+     * user whose language could apply. Stored texts (import errors, PDFs) are then in the
+     * school's language; mails still follow each recipient's preference.
+     *
+     * @template TReturn
+     *
+     * @param  callable(School): TReturn  $callback
+     * @return TReturn
+     */
+    public function runInSchoolLocale(School|int $school, callable $callback): mixed
+    {
+        $school = $school instanceof School ? $school : School::query()->findOrFail($school);
+
+        return $this->withLocale($school->locale->value, fn (): mixed => $this->run($school, $callback));
     }
 }

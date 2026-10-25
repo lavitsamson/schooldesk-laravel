@@ -1,4 +1,4 @@
-import { getActiveLanguage } from 'laravel-vue-i18n';
+import { localeForIntl } from '@/composables/locale';
 
 /**
  * Formats a YYYY-MM-DD date for display in the active language. Parsed as UTC and formatted in
@@ -13,7 +13,7 @@ export function formatDate(
         year: 'numeric',
     },
 ): string {
-    return new Intl.DateTimeFormat(getActiveLanguage(), {
+    return new Intl.DateTimeFormat(localeForIntl(), {
         ...options,
         timeZone: 'UTC',
     }).format(new Date(`${date}T00:00:00Z`));
@@ -23,7 +23,7 @@ export function formatDate(
  * Formats an ISO 8601 timestamp (e.g. when something was approved) in the browser's timezone.
  */
 export function formatDateTime(timestamp: string): string {
-    return new Intl.DateTimeFormat(getActiveLanguage(), {
+    return new Intl.DateTimeFormat(localeForIntl(), {
         day: 'numeric',
         month: 'short',
         year: 'numeric',
