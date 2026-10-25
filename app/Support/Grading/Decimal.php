@@ -20,6 +20,11 @@ final class Decimal
         return bcadd(self::number($a), self::number($b), $scale);
     }
 
+    public static function sub(string $a, string $b, int $scale = self::SCALE): string
+    {
+        return bcsub(self::number($a), self::number($b), $scale);
+    }
+
     public static function mul(string $a, string $b, int $scale = self::SCALE): string
     {
         return bcmul(self::number($a), self::number($b), $scale);

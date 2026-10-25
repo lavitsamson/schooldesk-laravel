@@ -9,6 +9,7 @@ use App\Models\Assessment;
 use App\Models\Guardian;
 use App\Models\ImportBatch;
 use App\Models\Membership;
+use App\Models\ReportCard;
 use App\Models\School;
 use App\Models\SchoolClass;
 use App\Models\Student;
@@ -16,6 +17,7 @@ use App\Models\Subject;
 use App\Models\TeachingAssignment;
 use App\Models\User;
 use Closure;
+use Illuminate\Support\Facades\URL;
 
 /**
  * The tenant isolation harness. Every route that takes a parameter must either have a case
@@ -124,6 +126,21 @@ final class CrossSchoolRoutes
                 'get', route('results.student', [self::schoolClass($other), self::student($other)]),
             ],
 
+            'report-cards.class' => fn (School $other): array => ['get', route('report-cards.class', self::schoolClass($other))],
+            'report-cards.generate' => fn (School $other): array => ['post', route('report-cards.generate', self::schoolClass($other))],
+            'report-cards.publish-class' => fn (School $other): array => ['post', route('report-cards.publish-class', self::schoolClass($other))],
+            'report-cards.show' => fn (School $other): array => ['get', route('report-cards.show', self::reportCard($other))],
+            'report-cards.refresh' => fn (School $other): array => ['post', route('report-cards.refresh', self::reportCard($other))],
+            'report-cards.approve' => fn (School $other): array => ['post', route('report-cards.approve', self::reportCard($other))],
+            'report-cards.reopen' => fn (School $other): array => ['post', route('report-cards.reopen', ReportCard::factory()->for(self::schoolClass($other), 'schoolClass')->approved()->create())],
+            'report-cards.publish' => fn (School $other): array => ['post', route('report-cards.publish', ReportCard::factory()->for(self::schoolClass($other), 'schoolClass')->approved()->create())],
+            'report-cards.comment' => fn (School $other): array => ['put', route('report-cards.comment', self::reportCard($other))],
+            'report-cards.ai-draft' => fn (School $other): array => ['post', route('report-cards.ai-draft', self::reportCard($other))],
+            // Even with a valid signature, another school's report card is not found.
+            'report-cards.pdf' => fn (School $other): array => [
+                'get', URL::temporarySignedRoute('report-cards.pdf', now()->addMinutes(5), ['reportCard' => self::reportCard($other)]),
+            ],
+
             'imports.show' => fn (School $other): array => ['get', route('imports.show', ImportBatch::factory()->for($other)->create())],
             'imports.error-report' => fn (School $other): array => [
                 'get', route('imports.error-report', ImportBatch::factory()->for($other)->withErrorReport()->create()),
@@ -167,6 +184,11 @@ final class CrossSchoolRoutes
         [$class, $subject] = self::classSubject($school);
 
         return Assessment::factory()->for($class, 'schoolClass')->for($subject)->create();
+    }
+
+    private static function reportCard(School $school): ReportCard
+    {
+        return ReportCard::factory()->for(self::schoolClass($school), 'schoolClass')->create();
     }
 
     private static function student(School $school): Student

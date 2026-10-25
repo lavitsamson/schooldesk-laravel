@@ -21,4 +21,11 @@ return [
         'absence_notification_delay_minutes' => (int) env('ABSENCE_NOTIFICATION_DELAY_MINUTES', 10),
     ],
 
+    'report_cards' => [
+        // Teacher comments are kept short enough for one page.
+        'comment_max_length' => 1200,
+        // AI comment drafts per school and hour (all teachers together).
+        'ai_drafts_per_hour' => (int) env('AI_DRAFTS_PER_HOUR', 100),
+    ],
+
 ];

@@ -16,3 +16,16 @@ export function formatDate(
         timeZone: 'UTC',
     }).format(new Date(`${date}T00:00:00Z`));
 }
+
+/**
+ * Formats an ISO 8601 timestamp (e.g. when something was approved) in the browser's timezone.
+ */
+export function formatDateTime(timestamp: string): string {
+    return new Intl.DateTimeFormat(undefined, {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    }).format(new Date(timestamp));
+}

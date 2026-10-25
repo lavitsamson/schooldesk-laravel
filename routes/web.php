@@ -14,6 +14,9 @@ use App\Http\Controllers\Web\ImportController;
 use App\Http\Controllers\Web\InvitationController;
 use App\Http\Controllers\Web\MemberController;
 use App\Http\Controllers\Web\PromotionController;
+use App\Http\Controllers\Web\ReportCardCommentController;
+use App\Http\Controllers\Web\ReportCardController;
+use App\Http\Controllers\Web\ReportCardSettingsController;
 use App\Http\Controllers\Web\ResultController;
 use App\Http\Controllers\Web\SchoolClassController;
 use App\Http\Controllers\Web\SchoolSelectionController;
@@ -147,6 +150,25 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 
         Route::get('/grade-scale', [GradeScaleController::class, 'edit'])->name('grade-scale.edit');
         Route::put('/grade-scale', [GradeScaleController::class, 'update'])->name('grade-scale.update');
+
+        // Report cards
+        Route::put('/report-cards/settings/ai-drafts', [ReportCardSettingsController::class, 'updateAiDrafts'])->name('report-cards.settings.ai-drafts');
+        Route::controller(ReportCardController::class)->prefix('report-cards')->group(function (): void {
+            Route::get('/', 'index')->name('report-cards.index');
+            Route::get('/classes/{schoolClass}', 'class')->name('report-cards.class');
+            Route::post('/classes/{schoolClass}/generate', 'generate')->name('report-cards.generate');
+            Route::post('/classes/{schoolClass}/publish', 'publishClass')->name('report-cards.publish-class');
+            Route::get('/{reportCard}', 'show')->whereNumber('reportCard')->name('report-cards.show');
+            Route::post('/{reportCard}/refresh', 'refresh')->name('report-cards.refresh');
+            Route::post('/{reportCard}/approve', 'approve')->name('report-cards.approve');
+            Route::post('/{reportCard}/reopen', 'reopen')->name('report-cards.reopen');
+            Route::post('/{reportCard}/publish', 'publish')->name('report-cards.publish');
+            Route::get('/{reportCard}/pdf', 'pdf')->middleware('signed')->name('report-cards.pdf');
+        });
+        Route::put('/report-cards/{reportCard}/comment', [ReportCardCommentController::class, 'update'])->name('report-cards.comment');
+        Route::post('/report-cards/{reportCard}/ai-draft', [ReportCardCommentController::class, 'draft'])
+            ->middleware('throttle:ai-drafts')
+            ->name('report-cards.ai-draft');
     });
 });
 

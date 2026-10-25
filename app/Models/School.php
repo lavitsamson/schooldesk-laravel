@@ -27,6 +27,7 @@ use Illuminate\Support\Carbon;
  * @property string $timezone
  * @property Locale $locale
  * @property string $currency
+ * @property string|null $logo_path
  * @property array<string, mixed>|null $settings
  * @property Carbon|null $setup_completed_at
  */
@@ -49,9 +50,20 @@ class School extends Model
         ];
     }
 
+    /**
+     * settings key: whether teachers may ask the LLM for report-card comment drafts. Off
+     * unless a school admin turns it on (ADR 0007).
+     */
+    public const SETTING_AI_COMMENT_DRAFTS = 'ai_comment_drafts';
+
     public function isSetUp(): bool
     {
         return $this->setup_completed_at !== null;
+    }
+
+    public function aiCommentDraftsEnabled(): bool
+    {
+        return ($this->settings[self::SETTING_AI_COMMENT_DRAFTS] ?? false) === true;
     }
 
     /**

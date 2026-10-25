@@ -30,6 +30,12 @@ const links = computed(() =>
             permission: 'grades.enter',
         },
         {
+            label: 'Report cards',
+            route: 'report-cards.index',
+            active: 'report-cards.*',
+            permission: 'report_cards.generate',
+        },
+        {
             label: 'Students',
             route: 'students.index',
             active: 'students.*',

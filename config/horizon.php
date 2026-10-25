@@ -213,11 +213,11 @@ return [
             'timeout' => 60,
             'nice' => 0,
         ],
-        // Long jobs on their own workers (bulk imports, later report-card batches), so they
-        // never hold up notifications. The timeout must stay below the queue's retry_after.
+        // Long jobs on their own workers (bulk imports, report-card batches), so they never
+        // hold up notifications. The timeout must stay below the queue's retry_after.
         'supervisor-imports' => [
             'connection' => 'redis',
-            'queue' => ['imports'],
+            'queue' => ['imports', 'reports'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
             'maxProcesses' => 1,

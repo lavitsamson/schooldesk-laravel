@@ -3,13 +3,17 @@
 declare(strict_types=1);
 
 use App\Actions\Members\GrantRole;
+use App\Actions\ReportCards\SaveReportCardSnapshot;
 use App\Actions\Setup\ApplyGradeScalePreset;
 use App\Enums\GradeScalePreset;
 use App\Enums\Role;
 use App\Http\Middleware\SetCurrentSchool;
 use App\Models\AcademicYear;
+use App\Models\Assessment;
 use App\Models\Enrollment;
+use App\Models\Grade;
 use App\Models\Membership;
+use App\Models\ReportCard;
 use App\Models\School;
 use App\Models\SchoolClass;
 use App\Models\Student;
@@ -111,4 +115,32 @@ function setUpGradebook(): array
     });
 
     return compact('school', 'year', 'class', 'term', 'nextTerm', 'subject', 'teacher', 'students');
+}
+
+/**
+ * setUpGradebook() with a class teacher for Grade 7 A and marks in the autumn term: one maths
+ * test (Ada 18/20 = 90 %, Ben 12/20 = 60 %, Cleo not marked).
+ *
+ * @return array{school: School, year: AcademicYear, class: SchoolClass, term: Term, nextTerm: Term, subject: Subject, teacher: User, students: Collection<int, Student>, classTeacher: User, assessment: Assessment}
+ */
+function setUpReportCards(): array
+{
+    $setup = setUpGradebook();
+    $classTeacher = memberOf($setup['school'], Role::Teacher);
+    $setup['class']->update(['class_teacher_id' => $classTeacher->id]);
+
+    $assessment = Assessment::factory()->for($setup['class'], 'schoolClass')->for($setup['subject'])->for($setup['term'])
+        ->create(['name' => 'Test 1', 'max_marks' => 20, 'held_on' => '2026-09-10']);
+    Grade::factory()->for($assessment)->for($setup['students'][0])->create(['marks' => '18']);
+    Grade::factory()->for($assessment)->for($setup['students'][1])->create(['marks' => '12']);
+
+    return [...$setup, 'classTeacher' => $classTeacher, 'assessment' => $assessment];
+}
+
+/**
+ * Generates (or recalculates) a student's report card as the class batch would.
+ */
+function reportCardFor(School $school, Student $student, Term $term, SchoolClass $class): ReportCard
+{
+    return inSchool($school, fn () => app(SaveReportCardSnapshot::class)->handle($student, $term, $class));
 }

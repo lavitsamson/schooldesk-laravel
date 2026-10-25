@@ -277,3 +277,58 @@ export interface ReportCardSnapshot {
     grade_scale: { label: string; min_percent: string; max_percent: string }[];
     calculated_at: string;
 }
+
+export type ReportCardStatus = 'draft' | 'approved' | 'published';
+
+export type CommentSource = 'manual' | 'ai_draft_edited';
+
+export interface ReportCardClass {
+    id: number;
+    name: string;
+    class_teacher: string | null;
+    students: number;
+    draft: number;
+    approved: number;
+    published: number;
+}
+
+export interface ReportCardBatch {
+    id: number;
+    total: number;
+    processed: number;
+    failed: number;
+    progress: number;
+    is_finished: boolean;
+    started_at: string;
+}
+
+export interface ClassReportCardStudent {
+    id: number;
+    name: string;
+    roll_no: number | null;
+    card: {
+        id: number;
+        status: ReportCardStatus;
+        overall_grade: string | null;
+        has_comment: boolean;
+        comment_source: CommentSource | null;
+        calculated_at: string;
+    } | null;
+}
+
+export interface ReportCardDetails {
+    id: number;
+    status: ReportCardStatus;
+    comment: string | null;
+    comment_source: CommentSource | null;
+    approved_by: string | null;
+    approved_at: string | null;
+    published_at: string | null;
+    pdf_url: string;
+}
+
+export interface AiCommentDraft {
+    id: number;
+    text: string;
+    created_at: string;
+}
