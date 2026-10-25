@@ -10,6 +10,7 @@ use App\Actions\Setup\CompleteSetup;
 use App\Actions\Setup\SaveAcademicYear;
 use App\Actions\Setup\SyncClasses;
 use App\Actions\Setup\SyncSubjects;
+use App\Enums\FeeFrequency;
 use App\Enums\GradeScalePreset;
 use App\Enums\Locale;
 use App\Enums\MembershipStatus;
@@ -22,7 +23,8 @@ use Illuminate\Database\Seeder;
 /**
  * The two demo schools, set up through the same actions as the setup wizard, with teachers,
  * students and guardians (DemoRosterSeeder), attendance (DemoAttendanceSeeder),
- * assessments with marks (DemoGradesSeeder) and report cards (DemoReportCardsSeeder).
+ * assessments with marks (DemoGradesSeeder), report cards (DemoReportCardsSeeder) and fees
+ * with invoices and payments (DemoFeesSeeder).
  */
 class DemoSchoolsSeeder extends Seeder
 {
@@ -35,6 +37,7 @@ class DemoSchoolsSeeder extends Seeder
         private readonly DemoAttendanceSeeder $attendance,
         private readonly DemoGradesSeeder $grades,
         private readonly DemoReportCardsSeeder $reportCards,
+        private readonly DemoFeesSeeder $fees,
     ) {}
 
     public function run(): void
@@ -59,7 +62,7 @@ class DemoSchoolsSeeder extends Seeder
             'KU' => 'Kunst', 'SP' => 'Sport',
         ]);
 
-        $this->member($riverside, 'admin@riverside.demo', 'Rachel Admin', Role::SchoolAdmin);
+        $riversideAdmin = $this->member($riverside, 'admin@riverside.demo', 'Rachel Admin', Role::SchoolAdmin);
         $riversideTeachers = [
             $this->member($riverside, 'teacher@riverside.demo', 'Tom Teacher', Role::Teacher),
             $this->member($riverside, 's.okafor@riverside.demo', 'Sarah Okafor', Role::Teacher),
@@ -70,7 +73,7 @@ class DemoSchoolsSeeder extends Seeder
         ];
         $parent = $this->member($riverside, 'parent@riverside.demo', 'Paula Parent', Role::Parent);
 
-        $this->member($gymnasium, 'admin@gymnasium.demo', 'Anna Schulleitung', Role::SchoolAdmin);
+        $gymnasiumAdmin = $this->member($gymnasium, 'admin@gymnasium.demo', 'Anna Schulleitung', Role::SchoolAdmin);
         $gymnasiumTeachers = [
             $this->member($gymnasium, 'm.becker@gymnasium.demo', 'Markus Becker', Role::Teacher),
             $this->member($gymnasium, 's.yilmaz@gymnasium.demo', 'Selin Yılmaz', Role::Teacher),
@@ -92,6 +95,17 @@ class DemoSchoolsSeeder extends Seeder
 
         // Tom Teacher is class teacher of Grade 7 A, Pia's class.
         $this->reportCards->seedSchool($riverside, 'Grade 7 A', $riversideTeachers[0]);
+
+        // Paula's children: Pia's autumn invoice paid by card, Lotta's partly paid.
+        $this->fees->seedSchool($riverside, [
+            ['name' => 'Tuition', 'amount' => 145_000, 'frequency' => FeeFrequency::Term],
+            ['name' => 'Activities and trips', 'amount' => 18_000, 'frequency' => FeeFrequency::Annual],
+            ['name' => 'Science lab fee', 'amount' => 6_000, 'frequency' => FeeFrequency::Term, 'classes' => ['Grade 9 A', 'Grade 9 B', 'Grade 10 A', 'Grade 10 B']],
+        ], $riversideAdmin, 'parent@riverside.demo');
+        // German public schools charge no tuition: only small contributions.
+        $this->fees->seedSchool($gymnasium, [
+            ['name' => 'Kopiergeld', 'amount' => 2_500, 'frequency' => FeeFrequency::Annual],
+        ], $gymnasiumAdmin);
     }
 
     /**

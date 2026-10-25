@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Actions\Fees\SendOverdueReminders;
 use App\Actions\Grades\BuildClassResults;
+use App\Enums\InvoiceStatus;
+use App\Enums\PaymentMethod;
 use App\Enums\ReportCardStatus;
 use App\Enums\Role;
 use App\Models\Assessment;
@@ -11,6 +14,8 @@ use App\Models\Enrollment;
 use App\Models\Grade;
 use App\Models\Guardian;
 use App\Models\GuardianStudent;
+use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\ReportCard;
 use App\Models\School;
 use App\Models\SchoolClass;
@@ -21,10 +26,12 @@ use App\Models\Term;
 use App\Models\User;
 use App\Support\CurrentSchool;
 use Database\Seeders\DemoSchoolsSeeder;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
 it('seeds two set-up demo schools with working logins', function (): void {
     Storage::fake('local');
+    Notification::fake();
     $this->travelTo('2026-10-14 10:00:00'); // a Wednesday, two months into the demo year
     $this->seed(DemoSchoolsSeeder::class);
 
@@ -79,7 +86,24 @@ it('seeds two set-up demo schools with working logins', function (): void {
             ->and($cards->whereNotNull('teacher_comment'))->toHaveCount(5)
             ->and($cards->first(fn (ReportCard $card): bool => $card->student->first_name === 'Pia')?->status)->toBe(ReportCardStatus::Published)
             ->and($cards->whereNotNull('pdf_path')->every(fn (ReportCard $card): bool => Storage::disk('local')->exists((string) $card->pdf_path)))->toBeTrue();
+
+        // Autumn invoices for every student in mixed states; Paula's: Pia paid by card, Lotta partly.
+        $invoices = Invoice::query()->with(['student', 'payments'])->get();
+        $pia = $invoices->first(fn (Invoice $i): bool => $i->student->first_name === 'Pia' && $i->student->guardians()->where('email', 'parent@riverside.demo')->exists());
+        $lotta = $invoices->first(fn (Invoice $i): bool => $i->student->first_name === 'Lotta');
+        expect($invoices)->toHaveCount(384)
+            ->and($invoices->map(fn (Invoice $i): string => $i->status->value)->unique()->sort()->values()->all())->toBe(['issued', 'paid', 'partially_paid', 'void'])
+            ->and($invoices->every(fn (Invoice $i): bool => $i->due_on->toDateString() === '2026-08-31'))->toBeTrue()
+            ->and($pia?->total)->toBe(163_000) // tuition 1,450 + activities 180
+            ->and($pia?->status)->toBe(InvoiceStatus::Paid)
+            ->and($pia?->payments->sole()->method)->toBe(PaymentMethod::Stripe)
+            ->and($lotta?->status)->toBe(InvoiceStatus::PartiallyPaid)
+            ->and(Payment::query()->where('paid_at', '>', now())->exists())->toBeFalse()
+            // Overdue invoices count their reminders as sent: the scheduler has nothing to mail.
+            ->and(app(SendOverdueReminders::class)->handle())->toBe(0);
     });
+
+    Notification::assertNothingSent();
 
     expect($riverside->refresh()->aiCommentDraftsEnabled())->toBeTrue();
 
