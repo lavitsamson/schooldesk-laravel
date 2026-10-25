@@ -16,7 +16,9 @@ use Illuminate\Support\Carbon;
 /**
  * A payment towards an invoice, in minor units. Stripe payments are recorded by the webhook
  * (keyed by the payment intent, so a payment is never recorded twice); cash and bank transfers
- * by a school admin. A refund lowers refunded_amount instead of deleting the payment.
+ * by a school admin. A bank transfer's reference is unique per school (bank_reference), so
+ * the same transfer is never recorded twice. A refund lowers refunded_amount instead of deleting
+ * the payment.
  *
  * @property int $id
  * @property int $invoice_id
@@ -25,6 +27,7 @@ use Illuminate\Support\Carbon;
  * @property PaymentMethod $method
  * @property string|null $stripe_payment_intent_id
  * @property string|null $reference
+ * @property string|null $bank_reference
  * @property Carbon $paid_at
  * @property Carbon|null $refunded_at
  * @property int|null $recorded_by
@@ -32,7 +35,7 @@ use Illuminate\Support\Carbon;
  * @property-read Invoice $invoice
  * @property-read User|null $recorder
  */
-#[Fillable(['school_id', 'invoice_id', 'amount', 'refunded_amount', 'method', 'stripe_payment_intent_id', 'reference', 'paid_at', 'refunded_at', 'recorded_by', 'receipt_path'])]
+#[Fillable(['school_id', 'invoice_id', 'amount', 'refunded_amount', 'method', 'stripe_payment_intent_id', 'reference', 'bank_reference', 'paid_at', 'refunded_at', 'recorded_by', 'receipt_path'])]
 class Payment extends Model
 {
     use BelongsToSchool;
@@ -52,6 +55,15 @@ class Payment extends Model
             'paid_at' => 'datetime',
             'refunded_at' => 'datetime',
         ];
+    }
+
+    /**
+     * The key a bank transfer is unique by within a school: "sepa 123" and "SEPA123" are the
+     * same transfer.
+     */
+    public static function normalizeBankReference(string $reference): string
+    {
+        return mb_strtoupper((string) preg_replace('/\s+/u', '', $reference));
     }
 
     /**

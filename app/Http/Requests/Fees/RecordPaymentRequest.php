@@ -6,6 +6,7 @@ namespace App\Http\Requests\Fees;
 
 use App\Enums\PaymentMethod;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Support\CurrentSchool;
 use App\Support\Money;
 use Carbon\CarbonImmutable;
@@ -17,7 +18,8 @@ use InvalidArgumentException;
 
 /**
  * A cash or bank payment recorded by a school admin. Whether the amount fits the open balance
- * is checked by RecordPayment, with the invoice locked.
+ * is checked by RecordPayment, with the invoice locked; it also turns a duplicate bank reference
+ * entered at the same moment by someone else into the same validation error.
  */
 class RecordPaymentRequest extends FormRequest
 {
@@ -41,7 +43,31 @@ class RecordPaymentRequest extends FormRequest
             }],
             'method' => ['required', Rule::in(array_map(fn (PaymentMethod $m): string => $m->value, PaymentMethod::manual()))],
             'paid_on' => ['required', 'date_format:Y-m-d', 'before_or_equal:'.$today],
-            'reference' => ['nullable', 'string', 'max:100'],
+            // The bank's reference for a transfer (required, unique per school); a note for cash.
+            'reference' => ['nullable', 'string', 'max:100', 'required_if:method,'.PaymentMethod::BankTransfer->value, function (string $attribute, mixed $value, Closure $fail): void {
+                if ($this->input('method') !== PaymentMethod::BankTransfer->value || ! is_string($value)) {
+                    return;
+                }
+
+                $existing = Payment::query()
+                    ->with('invoice:id,number')
+                    ->where('bank_reference', Payment::normalizeBankReference($value))
+                    ->first();
+
+                if ($existing !== null) {
+                    $fail("This bank transfer is already recorded, on invoice {$existing->invoice->number}.");
+                }
+            }],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'reference.required_if' => 'Enter the bank reference of the transfer.',
         ];
     }
 

@@ -85,6 +85,8 @@ const recordPayment = () =>
         },
     });
 
+const isBankTransfer = computed(() => paymentForm.method === 'bank_transfer');
+
 const confirmingVoid = ref(false);
 const voidInvoice = () =>
     router.post(
@@ -481,14 +483,32 @@ const backUrl = computed(() =>
                         <div>
                             <InputLabel
                                 for="payment-reference"
-                                value="Reference (optional)"
+                                :value="
+                                    isBankTransfer
+                                        ? 'Bank reference'
+                                        : 'Note (optional)'
+                                "
                             />
                             <TextInput
                                 id="payment-reference"
                                 v-model="paymentForm.reference"
                                 type="text"
                                 class="mt-1 block w-full"
+                                :required="isBankTransfer"
+                                :aria-describedby="
+                                    isBankTransfer
+                                        ? 'payment-reference-hint'
+                                        : undefined
+                                "
                             />
+                            <p
+                                v-if="isBankTransfer"
+                                id="payment-reference-hint"
+                                class="mt-1 text-xs text-gray-600 dark:text-gray-400"
+                            >
+                                As on the bank statement. Each transfer can be
+                                recorded once.
+                            </p>
                             <InputError
                                 class="mt-1"
                                 :message="paymentForm.errors.reference"

@@ -66,6 +66,15 @@ Several things make this harder than it looks:
    (`SELECT … FOR UPDATE`). Two admins recording cash at once therefore cannot overpay an
    invoice: the second one sees the first payment and gets a validation error.
 
+   **A bank transfer is recorded once per school.** It needs its bank reference, which is
+   stored normalised (upper case, no spaces) in `payments.bank_reference`, with a unique index
+   on `(school_id, bank_reference)`. The form request names the invoice the transfer is already
+   on, and the index stops two admins who pass that check at the same moment. The scope is the
+   school, not the invoice, so the same transfer cannot land on a sibling's invoice either; two
+   schools may of course see the same reference from their own banks. Cash payments keep an
+   optional free-text note, which is not checked. Invoice numbers are already unique per
+   school (decision 5).
+
 7. **Stripe payments exist only when Stripe's webhook says so.**
    - `StartCheckout` creates a Checkout session for the open balance. It carries the school,
      invoice and user ids as metadata (also copied to the payment intent), and sends the invoice

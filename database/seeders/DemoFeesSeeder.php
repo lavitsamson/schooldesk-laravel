@@ -12,6 +12,7 @@ use App\Models\AcademicYear;
 use App\Models\FeeStructure;
 use App\Models\Guardian;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\School;
 use App\Models\SchoolClass;
 use App\Models\Term;
@@ -94,7 +95,7 @@ class DemoFeesSeeder extends Seeder
     private function payInvoices(School $school, Term $term, CarbonImmutable $dueOn, User $office, array $family): void
     {
         $today = $school->today();
-        $invoices = Invoice::query()->where('term_id', $term->id)->orderBy('number')->get(['id', 'student_id', 'total']);
+        $invoices = Invoice::query()->where('term_id', $term->id)->orderBy('number')->get(['id', 'student_id', 'number', 'total']);
         $methods = [PaymentMethod::BankTransfer, PaymentMethod::Stripe, PaymentMethod::Cash];
         $payments = [];
         $statuses = [];
@@ -122,6 +123,10 @@ class DemoFeesSeeder extends Seeder
 
             if ($amount > 0) {
                 $paidAt = CarbonImmutable::parse($paidOn->toDateString().' 10:30', $school->timezone)->utc();
+                // Families quote the invoice number; the bank adds its own transaction id.
+                $bankReference = $method === PaymentMethod::BankTransfer
+                    ? sprintf('%s TRX%08d', $invoice->number, crc32("{$school->slug}-{$invoice->id}") % 100_000_000)
+                    : null;
                 $payments[] = [
                     'school_id' => $school->id,
                     'invoice_id' => $invoice->id,
@@ -129,7 +134,8 @@ class DemoFeesSeeder extends Seeder
                     'refunded_amount' => 0,
                     'method' => $method->value,
                     'stripe_payment_intent_id' => $method === PaymentMethod::Stripe ? "pi_demo_{$school->id}_{$invoice->id}" : null,
-                    'reference' => $method === PaymentMethod::BankTransfer ? 'SEPA transfer' : null,
+                    'reference' => $bankReference,
+                    'bank_reference' => $bankReference === null ? null : Payment::normalizeBankReference($bankReference),
                     'paid_at' => $paidAt,
                     'recorded_by' => $method === PaymentMethod::Stripe ? null : $office->id,
                     'created_at' => $paidAt,

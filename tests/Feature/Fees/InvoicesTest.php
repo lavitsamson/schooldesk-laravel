@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Actions\Fees\RecordPayment;
 use App\Enums\InvoiceStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\Role;
@@ -10,10 +11,12 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\User;
 use App\Notifications\PaymentReceived;
+use App\Support\Money;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Validation\ValidationException;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function (): void {
@@ -131,7 +134,51 @@ it('validates manual payments', function (array $input, string $field): void {
     'not an amount' => [['amount' => 'lots'], 'amount'],
     'card payments come from Stripe' => [['method' => 'stripe'], 'method'],
     'in the future' => [['paid_on' => '2026-09-11'], 'paid_on'],
+    'bank transfer without its reference' => [['method' => 'bank_transfer', 'reference' => '  '], 'reference'],
 ]);
+
+it('records each bank transfer once per school', function (): void {
+    // Another school, set up before the first request (requests leave a school context behind).
+    $other = setUpFees();
+    generateInvoices($other['school'], $other['term']);
+    $otherInvoice = inSchool($other['school'], fn () => Invoice::query()->where('student_id', $other['students'][0]->id)->sole());
+    $bens = inSchool($this->school, fn () => Invoice::query()->where('student_id', $this->students[1]->id)->sole());
+    $transfer = ['amount' => '200', 'method' => 'bank_transfer', 'paid_on' => '2026-09-08'];
+
+    ($this->pay)([...$transfer, 'reference' => 'SEPA 123 abc'])->assertSessionHasNoErrors();
+    $payment = inSchool($this->school, fn () => Payment::query()->sole());
+    expect($payment->reference)->toBe('SEPA 123 abc')
+        ->and($payment->bank_reference)->toBe('SEPA123ABC');
+
+    // The same transfer again, also written differently or on a sibling's invoice.
+    ($this->pay)([...$transfer, 'reference' => 'sepa123abc'])
+        ->assertSessionHasErrors(['reference' => 'This bank transfer is already recorded, on invoice SD-2026-000001.']);
+    ($this->as)()->post(route('invoices.payments.store', $bens), [...$transfer, 'reference' => 'SEPA 123 ABC'])
+        ->assertSessionHasErrors('reference');
+
+    // Notes on cash payments are not references, and other schools have their own banks.
+    ($this->pay)(['amount' => '10', 'method' => 'cash', 'reference' => 'SEPA 123 abc'])->assertSessionHasNoErrors();
+    actingInSchool($other['admin'], $other['school'])
+        ->post(route('invoices.payments.store', $otherInvoice), [...$transfer, 'reference' => 'SEPA 123 abc'])
+        ->assertSessionHasNoErrors();
+
+    expect(inSchool($this->school, fn () => Payment::query()->count()))->toBe(2)
+        ->and(inSchool($other['school'], fn () => Payment::query()->count()))->toBe(1);
+});
+
+it('lets the database stop a duplicate transfer recorded at the same moment', function (): void {
+    Queue::fake();
+    // Two admins pass the request's check at once; the unique index lets only one through.
+    $record = fn () => inSchool($this->school, fn () => app(RecordPayment::class)->handle(
+        $this->invoice, new Money(10_000, 'EUR'), PaymentMethod::BankTransfer, $this->admin, now(), 'SEPA 777',
+    ));
+
+    $record();
+
+    expect($record)->toThrow(ValidationException::class, 'This bank transfer is already recorded.')
+        ->and(inSchool($this->school, fn () => Payment::query()->count()))->toBe(1)
+        ->and($this->invoice->refresh()->status)->toBe(InvoiceStatus::PartiallyPaid);
+});
 
 it('stores the receipt and tells the primary guardian', function (): void {
     Notification::fake();
