@@ -1,12 +1,18 @@
-{{-- Rendered by dompdf (RenderReportCardPdf): tables and plain CSS only, no flexbox or grid. --}}
+{{-- Rendered by dompdf (RenderReportCardPdf) in the school's language: tables and plain CSS only, no flexbox or grid. --}}
+@php
+    use App\Support\LocalDate;
+    use App\Support\LocalNumber;
+    use Illuminate\Support\Carbon;
+@endphp
 <!DOCTYPE html>
-<html lang="{{ $school->locale->value }}">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
-    <title>Report card · {{ $report['student']['first_name'] }} {{ $report['student']['last_name'] }} · {{ $report['term']['name'] }}</title>
+    <title>{{ __('Report card') }} · {{ $report['student']['first_name'] }} {{ $report['student']['last_name'] }} · {{ $report['term']['name'] }}</title>
     <style>
+        {!! \App\Support\PdfFont::css() !!}
         @page { margin: 18mm 16mm; }
-        body { font-family: "DejaVu Sans", sans-serif; font-size: 10pt; color: #1f2937; }
+        body { font-size: 10pt; color: #1f2937; }
         h1 { font-size: 16pt; margin: 0; }
         h2 { font-size: 11pt; margin: 18px 0 6px; text-transform: uppercase; letter-spacing: 0.05em; color: #4b5563; }
         .muted { color: #6b7280; }
@@ -26,16 +32,16 @@
 </head>
 <body>
     @if ($isDraft)
-        <div class="watermark">DRAFT</div>
+        <div class="watermark">{{ mb_strtoupper(__('Draft')) }}</div>
     @endif
 
     <table class="header">
         <tr>
             <td>
                 <h1>{{ $school->name }}</h1>
-                <div class="muted">Report card · {{ $report['term']['name'] }}
-                    ({{ \Illuminate\Support\Carbon::parse($report['term']['starts_on'])->format('j M Y') }} –
-                    {{ \Illuminate\Support\Carbon::parse($report['term']['ends_on'])->format('j M Y') }})</div>
+                <div class="muted">{{ __('Report card') }} · {{ $report['term']['name'] }}
+                    ({{ LocalDate::short(Carbon::parse($report['term']['starts_on'])) }} –
+                    {{ LocalDate::short(Carbon::parse($report['term']['ends_on'])) }})</div>
             </td>
             @if ($logo)
                 <td style="text-align: right;"><img class="logo" src="{{ $logo }}" alt=""></td>
@@ -43,22 +49,22 @@
         </tr>
     </table>
 
-    <h2>Student</h2>
+    <h2>{{ __('Student') }}</h2>
     <table class="facts">
         <tr>
-            <td style="width: 25%;" class="muted">Name</td>
+            <td style="width: 25%;" class="muted">{{ __('Name') }}</td>
             <td>{{ $report['student']['first_name'] }} {{ $report['student']['last_name'] }}</td>
-            <td style="width: 20%;" class="muted">Admission no.</td>
+            <td style="width: 20%;" class="muted">{{ __('Admission no.') }}</td>
             <td>{{ $report['student']['admission_no'] }}</td>
         </tr>
         <tr>
-            <td class="muted">Class</td>
+            <td class="muted">{{ __('Class') }}</td>
             <td>{{ $report['class']['name'] ?? '—' }}</td>
-            <td class="muted">Attendance</td>
+            <td class="muted">{{ __('Attendance') }}</td>
             <td>
                 @if ($report['attendance']['rate'] !== null)
-                    {{ number_format($report['attendance']['rate'], 1) }} %
-                    <span class="muted">({{ $report['attendance']['absent'] }} absent of {{ $report['attendance']['days'] }} days)</span>
+                    {{ LocalNumber::percent($report['attendance']['rate']) }}
+                    <span class="muted">({{ __(':absent absent of :days days', ['absent' => $report['attendance']['absent'], 'days' => $report['attendance']['days']]) }})</span>
                 @else
                     —
                 @endif
@@ -66,30 +72,30 @@
         </tr>
     </table>
 
-    <h2>Results</h2>
+    <h2>{{ __('Results') }}</h2>
     <table class="grades">
         <thead>
             <tr>
-                <th>Subject</th>
-                <th class="num">Result</th>
-                <th class="num">Grade</th>
+                <th>{{ __('Subject') }}</th>
+                <th class="num">{{ __('Result') }}</th>
+                <th class="num">{{ __('Grade') }}</th>
             </tr>
         </thead>
         <tbody>
             @forelse ($report['subjects'] as $subject)
                 <tr>
                     <td>{{ $subject['name'] }}</td>
-                    <td class="num">{{ $subject['percentage'] === null ? '—' : $subject['percentage'].' %' }}</td>
+                    <td class="num">{{ LocalNumber::percent($subject['percentage'], 2) }}</td>
                     <td class="num">{{ $subject['grade'] ?? '—' }}</td>
                 </tr>
             @empty
-                <tr><td colspan="3" class="muted">No subjects.</td></tr>
+                <tr><td colspan="3" class="muted">{{ __('No subjects.') }}</td></tr>
             @endforelse
         </tbody>
         <tfoot>
             <tr>
-                <td>Overall</td>
-                <td class="num">{{ $report['overall']['percentage'] === null ? '—' : $report['overall']['percentage'].' %' }}</td>
+                <td>{{ __('Overall') }}</td>
+                <td class="num">{{ LocalNumber::percent($report['overall']['percentage'], 2) }}</td>
                 <td class="num">{{ $report['overall']['grade'] ?? '—' }}</td>
             </tr>
         </tfoot>
@@ -97,23 +103,23 @@
 
     @if ($report['grade_scale'] !== [])
         <p class="scale muted" style="font-size: 8.5pt;">
-            Grade scale:
+            {{ __('Grade scale:') }}
             @foreach ($report['grade_scale'] as $band)
-                <span>{{ $band['label'] }} {{ $band['min_percent'] }}–{{ $band['max_percent'] }} %</span>
+                <span>{{ $band['label'] }} {{ LocalNumber::decimal($band['min_percent']) }}–{{ LocalNumber::percent($band['max_percent'], 2) }}</span>
             @endforeach
         </p>
     @endif
 
-    <h2>Comment</h2>
+    <h2>{{ __('Comment') }}</h2>
     <div class="comment">{{ $comment ?? '—' }}</div>
 
     <table class="signature">
         <tr>
             <td class="muted">
                 @if ($approvedBy && $approvedAt)
-                    Approved by {{ $approvedBy }} on {{ $approvedAt->timezone($school->timezone)->format('j F Y') }}
+                    {{ __('Approved by :name on :date', ['name' => $approvedBy, 'date' => LocalDate::long($approvedAt->timezone($school->timezone))]) }}
                 @else
-                    Not approved yet
+                    {{ __('Not approved yet') }}
                 @endif
             </td>
         </tr>

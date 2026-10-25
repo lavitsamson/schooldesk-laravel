@@ -28,13 +28,14 @@ final class StorePaymentReceipt
         $payment->loadMissing(['invoice.term', 'invoice.student', 'recorder']);
         $locale = $school->locale->value;
 
-        $pdf = Pdf::loadView('pdf.receipt', [
+        // A document of the school: in its language.
+        $pdf = $this->currentSchool->runInSchoolLocale($school, fn (): string => Pdf::loadView('pdf.receipt', [
             'school' => $school,
             'logo' => PdfLogo::dataUri($school->logo_path, Invoice::DISK),
             'payment' => $payment,
             'invoice' => $payment->invoice,
             'amount' => (new Money($payment->amount, $school->currency))->format($locale),
-        ])->setPaper('a5')->output();
+        ])->setPaper('a5')->output());
 
         $path = $payment->receiptPath();
         Storage::disk(Invoice::DISK)->put($path, $pdf);

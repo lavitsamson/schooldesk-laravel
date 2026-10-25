@@ -1,12 +1,16 @@
-{{-- Rendered by dompdf (StorePaymentReceipt): tables and plain CSS only, no flexbox or grid. --}}
+{{-- Rendered by dompdf (StorePaymentReceipt) in the school's language: tables and plain CSS only, no flexbox or grid. --}}
+@php
+    use App\Support\LocalDate;
+@endphp
 <!DOCTYPE html>
-<html lang="{{ $school->locale->value }}">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
-    <title>Receipt · {{ $invoice->number }}</title>
+    <title>{{ __('Receipt') }} · {{ $invoice->number }}</title>
     <style>
+        {!! \App\Support\PdfFont::css() !!}
         @page { margin: 14mm 12mm; }
-        body { font-family: "DejaVu Sans", sans-serif; font-size: 10pt; color: #1f2937; }
+        body { font-size: 10pt; color: #1f2937; }
         h1 { font-size: 14pt; margin: 0; }
         h2 { font-size: 10.5pt; margin: 16px 0 6px; text-transform: uppercase; letter-spacing: 0.05em; color: #4b5563; }
         .muted { color: #6b7280; }
@@ -21,7 +25,7 @@
         <tr>
             <td>
                 <h1>{{ $school->name }}</h1>
-                <div class="muted">Payment receipt</div>
+                <div class="muted">{{ __('Payment receipt') }}</div>
             </td>
             @if ($logo)
                 <td style="text-align: right;"><img class="logo" src="{{ $logo }}" alt=""></td>
@@ -33,33 +37,33 @@
 
     <table class="facts">
         <tr>
-            <td style="width: 35%;" class="muted">Received on</td>
-            <td>{{ $payment->paid_at->timezone($school->timezone)->format('j F Y') }}</td>
+            <td style="width: 35%;" class="muted">{{ __('Received on') }}</td>
+            <td>{{ LocalDate::long($payment->paid_at->timezone($school->timezone)) }}</td>
         </tr>
         <tr>
-            <td class="muted">Method</td>
+            <td class="muted">{{ __('Method') }}</td>
             <td>{{ $payment->method->label() }}@if ($payment->reference) <span class="muted">({{ $payment->reference }})</span>@endif</td>
         </tr>
         <tr>
-            <td class="muted">For invoice</td>
+            <td class="muted">{{ __('For invoice') }}</td>
             <td>{{ $invoice->number }} · {{ $invoice->term->name }}</td>
         </tr>
         <tr>
-            <td class="muted">Student</td>
+            <td class="muted">{{ __('Student') }}</td>
             <td>{{ $invoice->student->fullName() }}</td>
         </tr>
         <tr>
-            <td class="muted">Receipt no.</td>
+            <td class="muted">{{ __('Receipt no.') }}</td>
             <td>{{ $invoice->number }}-{{ $payment->id }}</td>
         </tr>
         @if ($payment->recorder)
             <tr>
-                <td class="muted">Recorded by</td>
+                <td class="muted">{{ __('Recorded by') }}</td>
                 <td>{{ $payment->recorder->name }}</td>
             </tr>
         @endif
     </table>
 
-    <p class="muted" style="margin-top: 18px;">Thank you for your payment.</p>
+    <p class="muted" style="margin-top: 18px;">{{ __('Thank you for your payment.') }}</p>
 </body>
 </html>

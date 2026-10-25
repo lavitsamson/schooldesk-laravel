@@ -30,7 +30,8 @@ final class RenderInvoicePdf
         ]);
         $locale = $school->locale->value;
 
-        return Pdf::loadView('pdf.invoice', [
+        // A document of the school: in its language, whoever downloads it.
+        return $this->currentSchool->runInSchoolLocale($school, fn (): string => Pdf::loadView('pdf.invoice', [
             'school' => $school,
             'logo' => PdfLogo::dataUri($school->logo_path, Invoice::DISK),
             'invoice' => $invoice,
@@ -38,7 +39,6 @@ final class RenderInvoicePdf
             'money' => fn (int $minor): string => (new Money($minor, $school->currency))->format($locale),
             'paid' => $invoice->paidMoney()->format($locale),
             'balance' => $invoice->balanceMoney(),
-            'locale' => $locale,
-        ])->setPaper('a4')->output();
+        ])->setPaper('a4')->output());
     }
 }

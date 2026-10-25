@@ -23,7 +23,8 @@ final class RenderReportCardPdf
         $school = $this->currentSchool->get();
         $card->loadMissing('approver');
 
-        return Pdf::loadView('pdf.report-card', [
+        // A document of the school: in its language, as the AI comment draft is (ADR 0010).
+        return $this->currentSchool->runInSchoolLocale($school, fn (): string => Pdf::loadView('pdf.report-card', [
             'school' => $school,
             'logo' => PdfLogo::dataUri($school->logo_path, ReportCard::DISK),
             'report' => $card->data,
@@ -31,6 +32,6 @@ final class RenderReportCardPdf
             'approvedBy' => $card->approver?->name,
             'approvedAt' => $card->approved_at,
             'isDraft' => $card->isDraft(),
-        ])->setPaper('a4')->output();
+        ])->setPaper('a4')->output());
     }
 }
