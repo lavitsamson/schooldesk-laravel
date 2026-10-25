@@ -21,6 +21,7 @@ use App\Models\TeachingAssignment;
 use App\Models\User;
 use Closure;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 
 /**
  * The tenant isolation harness. Every route that takes a parameter must either have a case
@@ -161,7 +162,47 @@ final class CrossSchoolRoutes
             'imports.error-report' => fn (School $other): array => [
                 'get', route('imports.error-report', ImportBatch::factory()->for($other)->withErrorReport()->create()),
             ],
+
+            'family.attendance' => fn (School $other): array => ['get', route('family.attendance', self::student($other))],
+            'family.results' => fn (School $other): array => ['get', route('family.results', self::student($other))],
+            'family.report-cards' => fn (School $other): array => ['get', route('family.report-cards', self::student($other))],
+            'notifications.read' => fn (School $other): array => ['post', route('notifications.read', self::notification($other))],
         ];
+    }
+
+    /**
+     * The parent API: a parent of School A, with a token for School A, asks for School B's
+     * records (ApiTenantIsolationTest). Same rule: 404, never 403.
+     *
+     * @return array<string, Closure(School): array{0: string, 1: string}>
+     */
+    public static function apiCases(): array
+    {
+        return [
+            'api.v1.children.attendance' => fn (School $other): array => ['get', route('api.v1.children.attendance', self::student($other))],
+            'api.v1.children.grades' => fn (School $other): array => ['get', route('api.v1.children.grades', self::student($other))],
+            'api.v1.children.report-cards' => fn (School $other): array => ['get', route('api.v1.children.report-cards', self::student($other))],
+            'api.v1.report-cards.pdf' => fn (School $other): array => [
+                'get', route('api.v1.report-cards.pdf', ReportCard::factory()->for(self::schoolClass($other), 'schoolClass')->published()->create()),
+            ],
+            'api.v1.invoices.checkout-session' => fn (School $other): array => ['post', route('api.v1.invoices.checkout-session', self::invoice($other))],
+            'api.v1.notifications.read' => fn (School $other): array => ['post', route('api.v1.notifications.read', self::notification($other))],
+        ];
+    }
+
+    /**
+     * A notification of one of the school's parents, sent in that school.
+     */
+    private static function notification(School $school): string
+    {
+        $parent = User::factory()->create();
+
+        return $parent->notifications()->create([
+            'id' => (string) Str::uuid(),
+            'school_id' => $school->id,
+            'type' => 'student-absent',
+            'data' => ['student_id' => 1, 'first_name' => 'Ada', 'class' => 'Grade 7 A', 'date' => '2026-10-02'],
+        ])->id;
     }
 
     private static function year(School $school, bool $current = true): AcademicYear

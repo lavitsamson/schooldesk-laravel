@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Concerns\BelongsToSchool;
 use App\Models\Membership;
+use App\Models\PersonalAccessToken;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Schema;
  */
 const NOT_SCOPED = [
     Membership::class => 'memberships are read before a school context exists; route binding is scoped by hand',
+    PersonalAccessToken::class => 'Sanctum finds tokens before a school context exists; the token\'s school is what SetCurrentSchool selects',
 ];
 
 it('uses BelongsToSchool on every model with a school_id column', function (): void {

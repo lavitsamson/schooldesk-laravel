@@ -36,6 +36,7 @@ it('has an isolation case or an exemption for every route with parameters', func
 
     $uncovered = $routes
         ->reject(fn (string $name): bool => array_key_exists($name, CrossSchoolRoutes::cases())
+            || array_key_exists($name, CrossSchoolRoutes::apiCases())
             || CrossSchoolRoutes::isExempt($name))
         ->values()
         ->all();
@@ -45,7 +46,7 @@ it('has an isolation case or an exemption for every route with parameters', func
 
 it('does not keep stale exemptions or cases', function (): void {
     $names = collect(Route::getRoutes()->getRoutes())->map(fn (RoutingRoute $route): ?string => $route->getName());
-    $listed = [...array_keys(CrossSchoolRoutes::cases()), ...array_keys(CrossSchoolRoutes::EXEMPT)];
+    $listed = [...array_keys(CrossSchoolRoutes::cases()), ...array_keys(CrossSchoolRoutes::apiCases()), ...array_keys(CrossSchoolRoutes::EXEMPT)];
 
     $stale = array_values(array_filter(
         $listed,

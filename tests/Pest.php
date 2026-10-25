@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Actions\Api\IssueApiToken;
 use App\Actions\Fees\GenerateTermInvoices;
 use App\Actions\Members\GrantRole;
 use App\Actions\ReportCards\SaveReportCardSnapshot;
@@ -200,6 +201,47 @@ function stripeWebhook(array $event, ?string $secret = null, ?int $timestamp = n
         'CONTENT_TYPE' => 'application/json',
         'HTTP_STRIPE_SIGNATURE' => "t={$timestamp},v1={$signature}",
     ], $payload);
+}
+
+/**
+ * setUpReportCards() with a parent account: Paula Parent is the guardian of Ada and Ben
+ * (siblings); Cleo belongs to another family.
+ *
+ * @return array{school: School, year: AcademicYear, class: SchoolClass, term: Term, nextTerm: Term, subject: Subject, teacher: User, students: Collection<int, Student>, classTeacher: User, assessment: Assessment, parent: User}
+ */
+function setUpFamily(): array
+{
+    $setup = setUpReportCards();
+    $parent = memberOf($setup['school'], Role::Parent, ['name' => 'Paula Parent']);
+    $guardian = Guardian::factory()->for($setup['school'])->create(['user_id' => $parent->id, 'email' => $parent->email]);
+
+    $setup['students'][0]->guardians()->attach($guardian, ['is_primary' => true]);
+    $setup['students'][1]->guardians()->attach($guardian, ['is_primary' => true]);
+
+    return [...$setup, 'parent' => $parent];
+}
+
+/**
+ * A parent API token for the user at the school, issued as POST /api/v1/auth/token would
+ * (factory users have the password "password").
+ */
+function apiToken(User $user, School $school): string
+{
+    return app(IssueApiToken::class)->handle($user->email, 'password', 'Test device', $school->id)->plainTextToken;
+}
+
+/**
+ * The next request sends the bearer token. Sanctum's guard remembers the user of the previous
+ * request in a test, so it is reset first.
+ */
+function withApiToken(string $token): TestCase
+{
+    app('auth')->forgetGuards();
+
+    /** @var TestCase $test */
+    $test = test();
+
+    return $test->withToken($token)->withHeader('Accept', 'application/json');
 }
 
 /**
