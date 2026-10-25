@@ -46,9 +46,9 @@ class SaveFeeStructureRequest extends FormRequest
                 $money = $this->parseAmount((string) $value);
 
                 if ($money === null) {
-                    $fail('Enter an amount such as 1200 or 1200.50.');
+                    $fail(__('Enter an amount such as 1200 or 1200.50.'));
                 } elseif (! $money->isPositive() || $money->minor > self::MAX_MINOR) {
-                    $fail('Enter an amount above zero and at most 1,000,000.');
+                    $fail(__('Enter an amount above zero and at most 1,000,000.'));
                 }
             }],
             'frequency' => ['required', Rule::enum(FeeFrequency::class)],

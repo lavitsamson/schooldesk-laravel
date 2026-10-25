@@ -18,10 +18,10 @@ enum ImportStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Pending => 'Waiting',
-            self::Processing => 'Importing',
-            self::Completed => 'Completed',
-            self::Failed => 'Failed',
+            self::Pending => __('Waiting'),
+            self::Processing => __('Importing'),
+            self::Completed => __('Completed'),
+            self::Failed => __('Failed'),
         };
     }
 

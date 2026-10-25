@@ -23,11 +23,11 @@ final class ApproveReportCard
     public function handle(ReportCard $card, User $approver): ReportCard
     {
         if (! $card->isDraft()) {
-            throw ValidationException::withMessages(['status' => 'This report card has already been approved.']);
+            throw ValidationException::withMessages(['status' => __('This report card has already been approved.')]);
         }
 
         if ($card->teacher_comment === null) {
-            throw ValidationException::withMessages(['comment' => 'Write a comment before approving the report card.']);
+            throw ValidationException::withMessages(['comment' => __('Write a comment before approving the report card.')]);
         }
 
         return DB::transaction(function () use ($card, $approver): ReportCard {

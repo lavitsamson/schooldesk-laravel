@@ -46,13 +46,14 @@ class PromotionController extends Controller
 
         $result = $action->handle($from, $to, $request->mappings(), $request->excludedStudentIds());
 
-        return to_route('academic-years.index')->with('status', sprintf(
-            '%d promoted to %s, %d graduated, %d not promoted. Make %s the current year when it starts.',
-            $result['promoted'],
-            $to->name,
-            $result['graduated'],
-            $result['skipped'],
-            $to->name,
+        return to_route('academic-years.index')->with('status', __(
+            ':promoted promoted to :year, :graduated graduated, :skipped not promoted. Make :year the current year when it starts.',
+            [
+                'promoted' => $result['promoted'],
+                'year' => $to->name,
+                'graduated' => $result['graduated'],
+                'skipped' => $result['skipped'],
+            ],
         ));
     }
 }

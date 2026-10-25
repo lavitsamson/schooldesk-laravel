@@ -12,8 +12,8 @@ enum GradeScalePreset: string
     public function label(): string
     {
         return match ($this) {
-            self::LetterAToF => 'A–F (letter grades)',
-            self::German1To6 => 'German 1–6 (1 = sehr gut, 6 = ungenügend)',
+            self::LetterAToF => __('A–F (letter grades)'),
+            self::German1To6 => __('German 1–6 (1 = sehr gut, 6 = ungenügend)'),
         };
     }
 

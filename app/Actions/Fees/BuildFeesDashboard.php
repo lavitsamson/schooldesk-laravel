@@ -66,7 +66,7 @@ final class BuildFeesDashboard
 
                 return [
                     'id' => $id,
-                    'name' => $id === null ? 'No class' : (string) $names->get($id, 'Deleted class'),
+                    'name' => $id === null ? __('No class') : (string) $names->get($id, __('Deleted class')),
                     'invoices' => (int) $row->invoices,
                     'invoiced' => (int) $row->invoiced,
                     'collected' => (int) $row->collected,

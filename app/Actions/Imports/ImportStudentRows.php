@@ -117,14 +117,14 @@ final class ImportStudentRows
         $conflicts = [];
 
         if ($seenInRow !== null) {
-            $conflicts[] = "The admission number {$admissionNo} already appears in row {$seenInRow} of this file.";
+            $conflicts[] = __('The admission number :number already appears in row :row of this file.', ['number' => $admissionNo, 'row' => $seenInRow]);
         }
 
         if ($student?->trashed() === true) {
-            $conflicts[] = "The admission number {$admissionNo} belongs to a deleted student. Admission numbers are never reused.";
+            $conflicts[] = __('The admission number :number belongs to a deleted student. Admission numbers are never reused.', ['number' => $admissionNo]);
         } elseif ($student !== null && $student->status !== StudentStatus::Active
             && $classId !== null && $classId !== $student->currentEnrollment?->class_id) {
-            $conflicts[] = "{$student->fullName()} is no longer active ({$student->status->label()}). Make them active again before moving them to a class.";
+            $conflicts[] = __(':name is no longer active (:status). Make them active again before moving them to a class.', ['name' => $student->fullName(), 'status' => $student->status->label()]);
         }
 
         return $conflicts;

@@ -50,7 +50,7 @@ class LinkGuardianRequest extends FormRequest
      */
     public function messages(): array
     {
-        return ['email.exists' => 'No guardian of this school has this email address.'];
+        return ['email.exists' => __('No guardian of this school has this email address.')];
     }
 
     /**
@@ -72,7 +72,7 @@ class LinkGuardianRequest extends FormRequest
 
                 if ($this->input('mode') === 'existing' && $existing !== null
                     && $this->student()->guardians()->whereKey($existing->id)->exists()) {
-                    $validator->errors()->add('email', 'This guardian is already linked to the student.');
+                    $validator->errors()->add('email', __('This guardian is already linked to the student.'));
                 }
             },
         ];

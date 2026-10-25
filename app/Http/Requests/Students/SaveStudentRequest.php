@@ -59,9 +59,9 @@ class SaveStudentRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'admission_no.unique' => 'This admission number is already used (admission numbers are never reused).',
-            'admission_no.regex' => 'Use letters, digits and - _ . / only.',
-            'class_id.exists' => 'Choose a class of the current academic year.',
+            'admission_no.unique' => __('This admission number is already used (admission numbers are never reused).'),
+            'admission_no.regex' => __('Use letters, digits and - _ . / only.'),
+            'class_id.exists' => __('Choose a class of the current academic year.'),
         ];
     }
 

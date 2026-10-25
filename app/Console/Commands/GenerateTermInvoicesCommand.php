@@ -27,7 +27,7 @@ class GenerateTermInvoicesCommand extends Command
 
         School::query()->whereNotNull('setup_completed_at')->orderBy('id')->each(
             function (School $school) use ($currentSchool, $generate, $daysAhead): void {
-                $currentSchool->run($school, function (School $school) use ($generate, $daysAhead): void {
+                $currentSchool->runInSchoolLocale($school, function (School $school) use ($generate, $daysAhead): void {
                     $today = $school->today();
 
                     Term::query()

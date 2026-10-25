@@ -29,7 +29,7 @@ final class SendOverdueReminder implements ShouldQueue
 
     public function handle(CurrentSchool $currentSchool, NotifyPrimaryGuardian $notify): void
     {
-        $currentSchool->run($this->schoolId, function () use ($notify): void {
+        $currentSchool->runInSchoolLocale($this->schoolId, function () use ($notify): void {
             $invoice = DB::transaction(function (): ?Invoice {
                 $invoice = Invoice::query()->lockForUpdate()->find($this->invoiceId);
 

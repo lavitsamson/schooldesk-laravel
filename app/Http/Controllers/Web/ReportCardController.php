@@ -82,7 +82,7 @@ class ReportCardController extends Controller
         $batch = $action->handle($user, $schoolClass, $term);
 
         return to_route('report-cards.class', ['schoolClass' => $schoolClass, 'term' => $term->id])
-            ->with('status', "Generating {$batch->total} report cards.");
+            ->with('status', __('Generating :total report cards.', ['total' => $batch->total]));
     }
 
     public function publishClass(ClassReportCardsRequest $request, SchoolClass $schoolClass, PublishReportCards $action): RedirectResponse
@@ -94,7 +94,7 @@ class ReportCardController extends Controller
             ->where('status', ReportCardStatus::Approved)
             ->get());
 
-        return back()->with('status', $published === 1 ? '1 report card published.' : "{$published} report cards published.");
+        return back()->with('status', trans_choice(':count report card published.|:count report cards published.', $published));
     }
 
     public function show(ReportCard $reportCard, #[CurrentUser] User $user): Response
@@ -133,13 +133,13 @@ class ReportCardController extends Controller
         Gate::authorize('update', $reportCard);
 
         if (! $reportCard->isDraft()) {
-            throw ValidationException::withMessages(['status' => 'Reopen the report card to recalculate it.']);
+            throw ValidationException::withMessages(['status' => __('Reopen the report card to recalculate it.')]);
         }
 
         $reportCard->load(['student', 'term', 'schoolClass']);
         $action->handle($reportCard->student, $reportCard->term, $reportCard->schoolClass);
 
-        return back()->with('status', 'Recalculated from the current marks.');
+        return back()->with('status', __('Recalculated from the current marks.'));
     }
 
     public function approve(ReportCard $reportCard, #[CurrentUser] User $user, ApproveReportCard $action): RedirectResponse
@@ -147,7 +147,7 @@ class ReportCardController extends Controller
         Gate::authorize('update', $reportCard);
         $action->handle($reportCard, $user);
 
-        return back()->with('status', 'Report card approved.');
+        return back()->with('status', __('Report card approved.'));
     }
 
     public function reopen(ReportCard $reportCard, ReopenReportCard $action): RedirectResponse
@@ -155,7 +155,7 @@ class ReportCardController extends Controller
         Gate::authorize('update', $reportCard);
         $action->handle($reportCard);
 
-        return back()->with('status', 'Report card reopened.');
+        return back()->with('status', __('Report card reopened.'));
     }
 
     public function publish(ReportCard $reportCard, PublishReportCards $action): RedirectResponse
@@ -164,13 +164,13 @@ class ReportCardController extends Controller
 
         if ($reportCard->status !== ReportCardStatus::Approved) {
             throw ValidationException::withMessages(['status' => $reportCard->isDraft()
-                ? 'Approve the report card before publishing it.'
-                : 'This report card has already been published.']);
+                ? __('Approve the report card before publishing it.')
+                : __('This report card has already been published.')]);
         }
 
         $action->handle(collect([$reportCard]));
 
-        return back()->with('status', 'Report card published.');
+        return back()->with('status', __('Report card published.'));
     }
 
     /**

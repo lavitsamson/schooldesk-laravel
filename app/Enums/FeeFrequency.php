@@ -20,9 +20,9 @@ enum FeeFrequency: string
     public function label(): string
     {
         return match ($this) {
-            self::Term => 'Every term',
-            self::Annual => 'Once a year',
-            self::OneOff => 'One-off (new students)',
+            self::Term => __('Every term'),
+            self::Annual => __('Once a year'),
+            self::OneOff => __('One-off (new students)'),
         };
     }
 }

@@ -18,9 +18,9 @@ enum ReportCardStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Draft => 'Draft',
-            self::Approved => 'Approved',
-            self::Published => 'Published',
+            self::Draft => __('Draft'),
+            self::Approved => __('Approved'),
+            self::Published => __('Published'),
         };
     }
 }

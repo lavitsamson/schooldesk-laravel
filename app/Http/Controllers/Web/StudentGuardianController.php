@@ -37,7 +37,7 @@ class StudentGuardianController extends Controller
             return $guardian;
         });
 
-        return back()->with('status', "{$guardian->name} added as a guardian.");
+        return back()->with('status', __(':name added as a guardian.', ['name' => $guardian->name]));
     }
 
     public function update(Student $student, Guardian $guardian, MakePrimaryGuardian $action): RedirectResponse
@@ -47,7 +47,7 @@ class StudentGuardianController extends Controller
 
         $action->handle($student, $guardian);
 
-        return back()->with('status', "{$guardian->name} is now the primary contact.");
+        return back()->with('status', __(':name is now the primary contact.', ['name' => $guardian->name]));
     }
 
     public function destroy(Student $student, Guardian $guardian, UnlinkGuardian $action): RedirectResponse
@@ -57,7 +57,7 @@ class StudentGuardianController extends Controller
 
         $action->handle($student, $guardian);
 
-        return back()->with('status', "{$guardian->name} removed from {$student->first_name}'s guardians.");
+        return back()->with('status', __(':name removed from :first_name\'s guardians.', ['name' => $guardian->name, 'first_name' => $student->first_name]));
     }
 
     private function ensureLinked(Student $student, Guardian $guardian): void

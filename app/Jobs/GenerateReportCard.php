@@ -35,7 +35,7 @@ final class GenerateReportCard implements ShouldQueue
             return;
         }
 
-        $currentSchool->run($this->schoolId, function () use ($action): void {
+        $currentSchool->runInSchoolLocale($this->schoolId, function () use ($action): void {
             $student = Student::query()->find($this->studentId);
 
             // Removed from the school since the batch started: nothing to write.

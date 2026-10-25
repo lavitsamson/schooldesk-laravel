@@ -144,7 +144,7 @@ class InvoiceController extends Controller
         Gate::authorize('void', $invoice);
         $action->handle($invoice);
 
-        return back()->with('status', "Invoice {$invoice->number} voided.");
+        return back()->with('status', __('Invoice :number voided.', ['number' => $invoice->number]));
     }
 
     /**

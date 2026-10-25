@@ -71,7 +71,7 @@ class SaveAttendanceRequest extends FormRequest
                     ->count();
 
                 if ($enrolled !== count($ids)) {
-                    $validator->errors()->add('records', 'Some students are not in this class on that day. Reload the page and try again.');
+                    $validator->errors()->add('records', __('Some students are not in this class on that day. Reload the page and try again.'));
                 }
             },
         ];

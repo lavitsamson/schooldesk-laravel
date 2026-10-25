@@ -40,7 +40,7 @@ class SubjectController extends Controller
         $data = $request->validated();
         $subject = $action->handle(null, $data);
 
-        return back()->with('status', "Subject {$subject->name} added.");
+        return back()->with('status', __('Subject :name added.', ['name' => $subject->name]));
     }
 
     public function update(SaveSubjectRequest $request, Subject $subject, SaveSubject $action): RedirectResponse
@@ -49,7 +49,7 @@ class SubjectController extends Controller
         $data = $request->validated();
         $action->handle($subject, $data);
 
-        return back()->with('status', 'Subject saved.');
+        return back()->with('status', __('Subject saved.'));
     }
 
     public function destroy(Subject $subject, DeleteSubject $action): RedirectResponse
@@ -58,6 +58,6 @@ class SubjectController extends Controller
 
         $action->handle($subject);
 
-        return back()->with('status', "Subject {$subject->name} deleted.");
+        return back()->with('status', __('Subject :name deleted.', ['name' => $subject->name]));
     }
 }

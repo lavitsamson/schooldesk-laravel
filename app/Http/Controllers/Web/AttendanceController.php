@@ -19,6 +19,7 @@ use App\Models\User;
 use App\Support\AttendanceDates;
 use App\Support\CurrentSchool;
 use App\Support\EnumOptions;
+use App\Support\LocalDate;
 use Carbon\CarbonImmutable;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\RedirectResponse;
@@ -77,9 +78,9 @@ class AttendanceController extends Controller
         $user = $request->user();
         $result = $action->handle($schoolClass, $request->attendanceDate(), $request->entries(), $user);
 
-        $absent = $result['absent'] === 0 ? 'everyone present' : "{$result['absent']} absent";
-
-        return back()->with('status', "Attendance saved for {$schoolClass->displayName()}: {$absent}.");
+        return back()->with('status', $result['absent'] === 0
+            ? __('Attendance saved for :class: everyone present.', ['class' => $schoolClass->displayName()])
+            : __('Attendance saved for :class: :count absent.', ['class' => $schoolClass->displayName(), 'count' => $result['absent']]));
     }
 
     public function report(AttendanceReportRequest $request, SchoolClass $schoolClass, BuildMonthlyAttendanceReport $action): Response
@@ -91,7 +92,7 @@ class AttendanceController extends Controller
             'month' => $month->format('Y-m'),
             'months' => array_map(fn (string $m): array => [
                 'value' => $m,
-                'label' => CarbonImmutable::parse("{$m}-01")->format('F Y'),
+                'label' => LocalDate::monthAndYear(CarbonImmutable::parse("{$m}-01")),
             ], array_reverse($request->months())),
             'report' => $action->handle($schoolClass, $month),
         ]);

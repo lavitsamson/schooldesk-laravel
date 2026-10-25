@@ -44,8 +44,11 @@ final class UpdateAcademicYear
             $withAssessments = (clone $removed)->whereHas('assessments')->pluck('name');
             if ($withAssessments->isNotEmpty()) {
                 throw ValidationException::withMessages([
-                    'terms' => "Assessments have been set in {$withAssessments->join(', ', ' and ')}, so "
-                        .($withAssessments->count() === 1 ? 'it' : 'they').' cannot be removed.',
+                    'terms' => trans_choice(
+                        'Assessments have been set in :terms, so it cannot be removed.|Assessments have been set in :terms, so they cannot be removed.',
+                        $withAssessments->count(),
+                        ['terms' => $withAssessments->join(', ', ' '.__('and').' ')],
+                    ),
                 ]);
             }
 

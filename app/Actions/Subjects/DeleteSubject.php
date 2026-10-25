@@ -13,7 +13,7 @@ final class DeleteSubject
     {
         if ($subject->assessments()->exists()) {
             throw ValidationException::withMessages([
-                'subject' => 'Marks have been entered for this subject, so it is kept as history.',
+                'subject' => __('Marks have been entered for this subject, so it is kept as history.'),
             ]);
         }
 

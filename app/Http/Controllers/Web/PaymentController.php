@@ -30,7 +30,7 @@ class PaymentController extends Controller
             $request->reference(),
         );
 
-        return back()->with('status', "Payment recorded. Invoice {$invoice->number} is now {$invoice->status->label()}.");
+        return back()->with('status', __('Payment recorded. Invoice :number is now :status.', ['number' => $invoice->number, 'status' => $invoice->status->label()]));
     }
 
     /**

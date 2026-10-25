@@ -16,9 +16,9 @@ enum StudentBulkAction: string
     public function label(): string
     {
         return match ($this) {
-            self::MoveToClass => 'Move to class',
-            self::MarkAsLeft => 'Mark as left',
-            self::Export => 'Export selected (Excel)',
+            self::MoveToClass => __('Move to class'),
+            self::MarkAsLeft => __('Mark as left'),
+            self::Export => __('Export selected (Excel)'),
         };
     }
 }

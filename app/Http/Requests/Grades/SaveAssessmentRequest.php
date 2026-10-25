@@ -11,6 +11,7 @@ use App\Models\SchoolClass;
 use App\Models\Subject;
 use App\Models\Term;
 use App\Support\Grading\Decimal;
+use App\Support\LocalDate;
 use App\Support\TermChoice;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -80,7 +81,7 @@ class SaveAssessmentRequest extends FormRequest
                 $heldOn = $this->string('held_on')->toString();
 
                 if ($heldOn < $term->starts_on->toDateString() || $heldOn > $term->ends_on->toDateString()) {
-                    $validator->errors()->add('held_on', "The date must be in {$term->name} ({$term->starts_on->toDateString()} to {$term->ends_on->toDateString()}).");
+                    $validator->errors()->add('held_on', __('The date must be in :term (:from to :to).', ['term' => $term->name, 'from' => LocalDate::long($term->starts_on), 'to' => LocalDate::long($term->ends_on)]));
                 }
 
                 $assessment = $this->assessment();

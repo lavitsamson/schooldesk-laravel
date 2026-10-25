@@ -61,7 +61,7 @@ class SaveClassRequest extends FormRequest
                     ->exists();
 
                 if ($duplicate) {
-                    $validator->errors()->add('name', 'This class already exists in the academic year.');
+                    $validator->errors()->add('name', __('This class already exists in the academic year.'));
                 }
             },
         ];

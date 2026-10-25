@@ -53,7 +53,7 @@ class PromoteStudentsRequest extends FormRequest
                 $to = $this->toYear();
 
                 if ($from === null || ! $to->starts_on->gt($from->starts_on)) {
-                    $validator->errors()->add('to_year_id', 'Choose an academic year after the current one.');
+                    $validator->errors()->add('to_year_id', __('Choose an academic year after the current one.'));
 
                     return;
                 }
@@ -63,11 +63,11 @@ class PromoteStudentsRequest extends FormRequest
 
                 foreach ($this->mappings() as $index => $mapping) {
                     if (! in_array($mapping['from_class_id'], $sourceIds, true)) {
-                        $validator->errors()->add("mappings.{$index}.from_class_id", 'Choose a class of the current year.');
+                        $validator->errors()->add("mappings.{$index}.from_class_id", __('Choose a class of the current year.'));
                     }
 
                     if (is_int($mapping['target']) && ! in_array($mapping['target'], $targetIds, true)) {
-                        $validator->errors()->add("mappings.{$index}.target", 'Choose a class of the target year.');
+                        $validator->errors()->add("mappings.{$index}.target", __('Choose a class of the target year.'));
                     }
                 }
             },

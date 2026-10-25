@@ -37,7 +37,8 @@ class ImportBatchResource extends JsonResource
             'failed_rows' => $this->failed_rows,
             'created_rows' => $this->created_rows,
             'updated_rows' => $this->updated_rows,
-            'failure_message' => $this->failure_message,
+            // Stored as the English text (FailImport), shown in the reader's language.
+            'failure_message' => $this->failure_message === null ? null : __($this->failure_message),
             'error_report_url' => $this->error_report_path === null ? null : route('imports.error-report', $this->id),
             'uploaded_by' => $this->relationLoaded('user') ? $this->user?->name : null,
             'created_at' => $this->created_at->toIso8601String(),

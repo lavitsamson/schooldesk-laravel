@@ -14,7 +14,7 @@ enum ImportType: string
     public function label(): string
     {
         return match ($this) {
-            self::Students => 'Students',
+            self::Students => __('Students'),
         };
     }
 }

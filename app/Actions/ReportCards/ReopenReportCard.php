@@ -19,8 +19,8 @@ final class ReopenReportCard
     {
         if ($card->status !== ReportCardStatus::Approved) {
             throw ValidationException::withMessages(['status' => $card->isDraft()
-                ? 'This report card is still a draft.'
-                : 'A published report card cannot be reopened.']);
+                ? __('This report card is still a draft.')
+                : __('A published report card cannot be reopened.')]);
         }
 
         if ($card->pdf_path !== null) {

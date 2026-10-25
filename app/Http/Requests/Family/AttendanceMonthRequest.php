@@ -27,7 +27,7 @@ class AttendanceMonthRequest extends ChildRequest
                 // "2026-11" > "2026-10" as strings; checked late, so the school is known.
                 function (string $attribute, mixed $value, Closure $fail): void {
                     if (is_string($value) && $value > $this->thisMonth()->format('Y-m')) {
-                        $fail('The month cannot be in the future.');
+                        $fail(__('The month cannot be in the future.'));
                     }
                 },
             ],
@@ -40,7 +40,7 @@ class AttendanceMonthRequest extends ChildRequest
     public function messages(): array
     {
         return [
-            'month.date_format' => 'The month must look like 2026-10.',
+            'month.date_format' => __('The month must look like 2026-10.'),
         ];
     }
 

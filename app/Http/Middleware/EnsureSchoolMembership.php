@@ -21,8 +21,8 @@ class EnsureSchoolMembership
     {
         if (! $this->currentSchool->check()) {
             // API tokens name their school; without an active membership there, the token is no use.
-            abort_if($request->bearerToken() !== null, Response::HTTP_FORBIDDEN, 'Your membership of this token\'s school has ended.');
-            abort_if($request->expectsJson(), Response::HTTP_FORBIDDEN, 'No school selected.');
+            abort_if($request->bearerToken() !== null, Response::HTTP_FORBIDDEN, __("Your membership of this token's school has ended."));
+            abort_if($request->expectsJson(), Response::HTTP_FORBIDDEN, __('No school selected.'));
 
             return redirect()->route('schools.select');
         }

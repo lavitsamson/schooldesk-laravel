@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getActiveLanguage } from 'laravel-vue-i18n';
+import { localeForIntl } from '@/composables/locale';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import Pagination from '@/Components/Pagination.vue';
@@ -24,7 +24,7 @@ const pick = (event: Event) =>
 const submit = () => form.post(route('imports.store'), { forceFormData: true });
 
 const dateTime = (iso: string) =>
-    new Date(iso).toLocaleString(getActiveLanguage(), {
+    new Date(iso).toLocaleString(localeForIntl(), {
         dateStyle: 'medium',
         timeStyle: 'short',
     });

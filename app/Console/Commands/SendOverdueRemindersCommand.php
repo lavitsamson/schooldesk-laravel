@@ -18,7 +18,7 @@ class SendOverdueRemindersCommand extends Command
     public function handle(CurrentSchool $currentSchool, SendOverdueReminders $send): int
     {
         School::query()->orderBy('id')->each(function (School $school) use ($currentSchool, $send): void {
-            $queued = $currentSchool->run($school, fn (): int => $send->handle());
+            $queued = $currentSchool->runInSchoolLocale($school, fn (): int => $send->handle());
 
             if ($queued > 0) {
                 $this->line("{$school->name}: {$queued} reminders.");

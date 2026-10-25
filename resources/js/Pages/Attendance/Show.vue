@@ -12,7 +12,7 @@ import type {
     IdName,
 } from '@/types/school';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { getActiveLanguage } from 'laravel-vue-i18n';
+import { localeForIntl } from '@/composables/locale';
 import { computed } from 'vue';
 
 const props = defineProps<{
@@ -64,7 +64,7 @@ const statusStyles: Record<AttendanceStatus, string> = {
 
 const recordedAt = computed(() =>
     props.recorded.at
-        ? new Intl.DateTimeFormat(getActiveLanguage(), {
+        ? new Intl.DateTimeFormat(localeForIntl(), {
               dateStyle: 'medium',
               timeStyle: 'short',
           }).format(new Date(props.recorded.at))

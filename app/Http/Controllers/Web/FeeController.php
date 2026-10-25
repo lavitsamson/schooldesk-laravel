@@ -46,10 +46,8 @@ class FeeController extends Controller
     {
         $created = $action->handle($request->term());
 
-        return back()->with('status', match ($created) {
-            0 => 'No new invoices: every student has one for this term, or no fee applies.',
-            1 => '1 invoice generated.',
-            default => "{$created} invoices generated.",
-        });
+        return back()->with('status', $created === 0
+            ? __('No new invoices: every student has one for this term, or no fee applies.')
+            : trans_choice(':count invoice generated.|:count invoices generated.', $created));
     }
 }

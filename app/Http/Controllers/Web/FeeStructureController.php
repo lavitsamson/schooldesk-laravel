@@ -62,14 +62,14 @@ class FeeStructureController extends Controller
     {
         $fee = $action->handle(null, $request->feeData());
 
-        return back()->with('status', "Fee {$fee->name} added.");
+        return back()->with('status', __('Fee :name added.', ['name' => $fee->name]));
     }
 
     public function update(SaveFeeStructureRequest $request, FeeStructure $feeStructure, SaveFeeStructure $action): RedirectResponse
     {
         $action->handle($feeStructure, $request->feeData());
 
-        return back()->with('status', 'Fee saved. It applies to invoices generated from now on.');
+        return back()->with('status', __('Fee saved. It applies to invoices generated from now on.'));
     }
 
     public function destroy(FeeStructure $feeStructure): RedirectResponse
@@ -78,6 +78,6 @@ class FeeStructureController extends Controller
 
         $feeStructure->delete();
 
-        return back()->with('status', "Fee {$feeStructure->name} deleted. Issued invoices keep it.");
+        return back()->with('status', __('Fee :name deleted. Issued invoices keep it.', ['name' => $feeStructure->name]));
     }
 }

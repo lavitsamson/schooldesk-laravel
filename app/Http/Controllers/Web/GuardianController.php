@@ -40,7 +40,7 @@ class GuardianController extends Controller
         $data = $request->validated();
         $action->handle($guardian, $data);
 
-        return back()->with('status', 'Guardian saved.');
+        return back()->with('status', __('Guardian saved.'));
     }
 
     public function destroy(Guardian $guardian): RedirectResponse
@@ -49,7 +49,7 @@ class GuardianController extends Controller
 
         $guardian->delete();
 
-        return back()->with('status', "{$guardian->name} deleted.");
+        return back()->with('status', __(':name deleted.', ['name' => $guardian->name]));
     }
 
     public function invite(Guardian $guardian, InviteGuardian $action): RedirectResponse
@@ -59,7 +59,7 @@ class GuardianController extends Controller
         $sent = $action->handle($guardian);
 
         return back()->with('status', $sent
-            ? "Invitation to the parent portal sent to {$guardian->email}."
-            : "{$guardian->name} already has an account here and can now use the parent portal.");
+            ? __('Invitation to the parent portal sent to :email.', ['email' => $guardian->email])
+            : __(':name already has an account here and can now use the parent portal.', ['name' => $guardian->name]));
     }
 }

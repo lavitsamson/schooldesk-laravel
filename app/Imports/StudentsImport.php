@@ -97,7 +97,7 @@ final class StudentsImport extends StringValueBinder implements ShouldQueue, ToC
      */
     private function inSchool(callable $callback): void
     {
-        app(CurrentSchool::class)->run(
+        app(CurrentSchool::class)->runInSchoolLocale(
             $this->schoolId,
             fn () => $callback(ImportBatch::query()->findOrFail($this->batchId)),
         );

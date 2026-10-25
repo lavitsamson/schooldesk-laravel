@@ -6,6 +6,7 @@ namespace App\Notifications;
 
 use App\Models\AttendanceRecord;
 use App\Models\User;
+use App\Support\LocalDate;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -29,13 +30,17 @@ class StudentAbsent extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $school = $this->record->school;
-        $name = $this->record->student->first_name;
+        $replace = [
+            'name' => $this->record->student->first_name,
+            'class' => $this->record->schoolClass->displayName(),
+            'date' => LocalDate::withWeekday($this->record->date),
+            'school' => $this->record->school->name,
+        ];
 
         return (new MailMessage)
-            ->subject("{$name} was absent from school")
-            ->line("{$name} was marked absent in {$this->record->schoolClass->displayName()} on {$this->date()}.")
-            ->line("If you have not told {$school->name} about the absence yet, please contact the school.");
+            ->subject(__(':name was absent from school', $replace))
+            ->line(__(':name was marked absent in :class on :date.', $replace))
+            ->line(__('If you have not told :school about the absence yet, please contact the school.', $replace));
     }
 
     /**
@@ -54,10 +59,5 @@ class StudentAbsent extends Notification
     public function databaseType(object $notifiable): string
     {
         return 'student-absent';
-    }
-
-    private function date(): string
-    {
-        return $this->record->date->format('l, j F Y');
     }
 }

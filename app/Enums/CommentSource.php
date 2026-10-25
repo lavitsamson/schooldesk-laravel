@@ -16,8 +16,8 @@ enum CommentSource: string
     public function label(): string
     {
         return match ($this) {
-            self::Manual => 'Written by the teacher',
-            self::AiDraftEdited => 'AI draft, reviewed by the teacher',
+            self::Manual => __('Written by the teacher'),
+            self::AiDraftEdited => __('AI draft, reviewed by the teacher'),
         };
     }
 }

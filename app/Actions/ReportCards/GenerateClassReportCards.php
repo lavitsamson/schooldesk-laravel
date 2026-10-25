@@ -34,7 +34,7 @@ final class GenerateClassReportCards
             ->first();
 
         if ($running !== null && ! $running->isFinished()) {
-            throw ValidationException::withMessages(['generate' => 'Report cards for this class are already being generated.']);
+            throw ValidationException::withMessages(['generate' => __('Report cards for this class are already being generated.')]);
         }
 
         $studentIds = Enrollment::query()
@@ -45,7 +45,7 @@ final class GenerateClassReportCards
             ->values();
 
         if ($studentIds->isEmpty()) {
-            throw ValidationException::withMessages(['generate' => 'No students are enrolled in this class in this term.']);
+            throw ValidationException::withMessages(['generate' => __('No students are enrolled in this class in this term.')]);
         }
 
         $schoolId = $this->currentSchool->id();

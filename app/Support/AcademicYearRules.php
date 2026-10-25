@@ -43,7 +43,7 @@ final class AcademicYearRules
             if ($previous !== null && $term['starts_on'] <= $previous['ends_on']) {
                 $validator->errors()->add(
                     "terms.{$index}.starts_on",
-                    'Each term must start after the previous term ends.',
+                    __('Each term must start after the previous term ends.'),
                 );
             }
         }

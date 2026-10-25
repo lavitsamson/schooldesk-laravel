@@ -63,7 +63,7 @@ class BulkStudentActionRequest extends FormRequest
                 $ids = array_map('intval', (array) $this->input('student_ids'));
 
                 if ($this->students()->count() !== count($ids)) {
-                    $validator->errors()->add('student_ids', 'Some of the selected students no longer exist. Reload the list and try again.');
+                    $validator->errors()->add('student_ids', __('Some of the selected students no longer exist. Reload the list and try again.'));
                 }
             },
         ];

@@ -18,11 +18,11 @@ enum SetupStep: string
     public function label(): string
     {
         return match ($this) {
-            self::SchoolDetails => 'School details',
-            self::AcademicYear => 'Academic year & terms',
-            self::Classes => 'Classes',
-            self::Subjects => 'Subjects',
-            self::GradeScale => 'Grade scale',
+            self::SchoolDetails => __('School details'),
+            self::AcademicYear => __('Academic year & terms'),
+            self::Classes => __('Classes'),
+            self::Subjects => __('Subjects'),
+            self::GradeScale => __('Grade scale'),
         };
     }
 

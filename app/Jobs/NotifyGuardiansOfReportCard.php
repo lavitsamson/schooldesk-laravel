@@ -29,7 +29,7 @@ final class NotifyGuardiansOfReportCard implements ShouldQueue
 
     public function handle(CurrentSchool $currentSchool): void
     {
-        $currentSchool->run($this->schoolId, function (): void {
+        $currentSchool->runInSchoolLocale($this->schoolId, function (): void {
             $card = ReportCard::query()
                 ->with(['school', 'term', 'student.guardians.user'])
                 ->find($this->reportCardId);

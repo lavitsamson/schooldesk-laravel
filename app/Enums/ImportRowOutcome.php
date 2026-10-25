@@ -13,9 +13,9 @@ enum ImportRowOutcome: string
     public function label(): string
     {
         return match ($this) {
-            self::Created => 'Created',
-            self::Updated => 'Updated',
-            self::Failed => 'Failed',
+            self::Created => __('Created'),
+            self::Updated => __('Updated'),
+            self::Failed => __('Failed'),
         };
     }
 }

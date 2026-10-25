@@ -13,19 +13,19 @@ final class DeleteClass
     {
         if ($class->enrollments()->exists()) {
             throw ValidationException::withMessages([
-                'class' => 'Students are enrolled in this class. Move them to another class first.',
+                'class' => __('Students are enrolled in this class. Move them to another class first.'),
             ]);
         }
 
         if ($class->attendanceRecords()->exists()) {
             throw ValidationException::withMessages([
-                'class' => 'Attendance has been taken in this class, so it is kept as history.',
+                'class' => __('Attendance has been taken in this class, so it is kept as history.'),
             ]);
         }
 
         if ($class->assessments()->exists()) {
             throw ValidationException::withMessages([
-                'class' => 'Assessments have been set in this class, so it is kept as history.',
+                'class' => __('Assessments have been set in this class, so it is kept as history.'),
             ]);
         }
 

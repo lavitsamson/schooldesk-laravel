@@ -65,7 +65,7 @@ final class ValidateStudentRow
             $classId = $classes[self::classKey($values['class'])] ?? null;
 
             if ($classId === null) {
-                $errors[] = "Unknown class \"{$values['class']}\". Use the name of a class of the current academic year, e.g. \"Grade 7 A\".";
+                $errors[] = __('Unknown class ":class". Use the name of a class of the current academic year, e.g. "Grade 7 A".', ['class' => $values['class']]);
             }
         }
 
@@ -142,11 +142,11 @@ final class ValidateStudentRow
     private function messages(): array
     {
         return [
-            'admission_no.regex' => 'The admission number may only contain letters, digits and - _ . /',
-            'date_of_birth.date_format' => 'The date of birth must be a date like 2014-05-17 or 17.05.2014.',
-            'gender.enum' => 'The gender must be female, male or diverse (or empty).',
-            'guardian_relationship.enum' => 'The guardian relationship must be mother, father, grandparent, guardian or other.',
-            'guardian_name.required_with' => 'The guardian name is required when other guardian columns are filled.',
+            'admission_no.regex' => __('The admission number may only contain letters, digits and - _ . /'),
+            'date_of_birth.date_format' => __('The date of birth must be a date like 2014-05-17 or 17.05.2014.'),
+            'gender.enum' => __('The gender must be female, male or diverse (or empty).'),
+            'guardian_relationship.enum' => __('The guardian relationship must be mother, father, grandparent, guardian or other.'),
+            'guardian_name.required_with' => __('The guardian name is required when other guardian columns are filled.'),
         ];
     }
 

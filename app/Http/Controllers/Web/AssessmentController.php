@@ -35,14 +35,14 @@ class AssessmentController extends Controller
             'created_by' => $user->id,
         ]), $request->assessmentData());
 
-        return to_route('assessments.grades', $assessment)->with('status', "{$assessment->name} added. Enter the marks below.");
+        return to_route('assessments.grades', $assessment)->with('status', __(':name added. Enter the marks below.', ['name' => $assessment->name]));
     }
 
     public function update(SaveAssessmentRequest $request, Assessment $assessment, SaveAssessment $action): RedirectResponse
     {
         $action->handle($assessment, $request->assessmentData());
 
-        return back()->with('status', "{$assessment->name} saved.");
+        return back()->with('status', __(':name saved.', ['name' => $assessment->name]));
     }
 
     /**
@@ -55,7 +55,7 @@ class AssessmentController extends Controller
         $assessment->delete();
 
         return to_route('grades.gradebook', [$assessment->class_id, $assessment->subject_id, 'term' => $assessment->term_id])
-            ->with('status', "{$assessment->name} deleted.");
+            ->with('status', __(':name deleted.', ['name' => $assessment->name]));
     }
 
     /**

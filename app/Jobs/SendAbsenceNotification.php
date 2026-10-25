@@ -35,7 +35,7 @@ final class SendAbsenceNotification implements ShouldQueue
 
     public function handle(CurrentSchool $currentSchool): void
     {
-        $currentSchool->run($this->schoolId, function (): void {
+        $currentSchool->runInSchoolLocale($this->schoolId, function (): void {
             $claimed = DB::transaction(function (): ?array {
                 $record = AttendanceRecord::query()->lockForUpdate()->find($this->attendanceRecordId);
 

@@ -39,12 +39,35 @@ const sources = [
     },
 ];
 
+// Keys used by the framework's mails (notification layout, password reset, email
+// verification), which lang/*.json translates too.
+const frameworkKeys = [
+    'Hello!',
+    'Whoops!',
+    'Regards,',
+    'All rights reserved.',
+    'If you\'re having trouble clicking the ":actionText" button, copy and paste the URL below\ninto your web browser:',
+    'Reset your password',
+    'You are receiving this email because we received a password reset request for your account.',
+    'Reset Password',
+    'This password reset link will expire in :count minutes.',
+    'If you did not request a password reset, no further action is required.',
+    'Verify your email address',
+    'Please click the button below to verify your email address.',
+    'Verify Email Address',
+    'If you did not create an account, no further action is required.',
+];
+
+// Constants holding a key that is translated when shown carry a trailing `// i18n`.
+const markedConstant = /const [A-Z_]+ = (['"])((?:\\.|(?!\1).)*)\1;\s*\/\/ i18n/g;
+
 const groupKey = /^[a-z_]+\.[a-z_.]+$/;
-const used = new Map();
+const used = new Map(frameworkKeys.map((key) => [key, 'framework']));
 
 for (const { dir, files, call } of sources) {
     for (const file of walk(path.join(root, dir)).filter((f) => files.test(f))) {
-        for (const match of fs.readFileSync(file, 'utf8').matchAll(call)) {
+        const source = fs.readFileSync(file, 'utf8');
+        for (const match of [...source.matchAll(call), ...source.matchAll(markedConstant)]) {
             const key = match[2].replace(/\\(['"`\\])/g, '$1');
             if (!groupKey.test(key) && !used.has(key)) {
                 used.set(key, path.relative(root, file));

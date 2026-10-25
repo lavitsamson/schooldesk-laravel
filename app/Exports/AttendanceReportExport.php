@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exports;
 
+use App\Support\LocalDate;
 use Carbon\CarbonImmutable;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -34,15 +35,15 @@ final class AttendanceReportExport implements FromArray, ShouldAutoSize, WithHea
     public function headings(): array
     {
         return [
-            'Roll',
-            'Name',
-            'Admission no.',
-            ...array_map(fn (string $day): string => CarbonImmutable::parse($day)->format('D j'), $this->report['days']),
-            'Present',
-            'Absent',
-            'Late',
-            'Excused',
-            'Attendance %',
+            __('Roll'),
+            __('Name'),
+            __('Admission no.'),
+            ...array_map(fn (string $day): string => LocalDate::weekdayAndDay(CarbonImmutable::parse($day)), $this->report['days']),
+            __('Present'),
+            __('Absent'),
+            __('Late'),
+            __('Excused'),
+            __('Attendance %'),
         ];
     }
 
@@ -81,6 +82,6 @@ final class AttendanceReportExport implements FromArray, ShouldAutoSize, WithHea
 
     public function title(): string
     {
-        return $this->month->format('F Y');
+        return LocalDate::monthAndYear($this->month);
     }
 }

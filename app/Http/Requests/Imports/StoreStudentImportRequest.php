@@ -45,8 +45,8 @@ class StoreStudentImportRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'file.extensions' => 'Upload a CSV or Excel (.xlsx) file.',
-            'file.mimes' => 'Upload a CSV or Excel (.xlsx) file.',
+            'file.extensions' => __('Upload a CSV or Excel (.xlsx) file.'),
+            'file.mimes' => __('Upload a CSV or Excel (.xlsx) file.'),
         ];
     }
 
@@ -64,7 +64,7 @@ class StoreStudentImportRequest extends FormRequest
                 $headings = $this->headings();
 
                 if ($headings === null) {
-                    $validator->errors()->add('file', 'The file could not be read. Save it as CSV (UTF-8) or Excel (.xlsx) and try again.');
+                    $validator->errors()->add('file', __('The file could not be read. Save it as CSV (UTF-8) or Excel (.xlsx) and try again.'));
 
                     return;
                 }
@@ -72,7 +72,7 @@ class StoreStudentImportRequest extends FormRequest
                 $missing = array_diff(StudentSheet::REQUIRED, $headings);
 
                 if ($missing !== []) {
-                    $validator->errors()->add('file', 'The first row must contain the column headings. Missing: '.implode(', ', $missing).'. Download the template to see the format.');
+                    $validator->errors()->add('file', __('The first row must contain the column headings. Missing: :columns. Download the template to see the format.', ['columns' => implode(', ', $missing)]));
                 }
             },
         ];

@@ -8,6 +8,7 @@ use App\Models\Invoice;
 use App\Models\User;
 use App\Services\StripeService;
 use App\Support\CurrentSchool;
+use Illuminate\Support\Facades\App;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -36,13 +37,13 @@ final class StartCheckout
     public function handle(Invoice $invoice, User $payer): string
     {
         if (! $this->stripe->isConfigured()) {
-            throw ValidationException::withMessages(['payment' => 'Online payment is not available. Please pay by bank transfer or at the school office.']);
+            throw ValidationException::withMessages(['payment' => __('Online payment is not available. Please pay by bank transfer or at the school office.')]);
         }
 
         $balance = $invoice->balanceMoney();
 
         if (! $invoice->status->isOpen() || ! $balance->isPositive()) {
-            throw ValidationException::withMessages(['payment' => 'This invoice has nothing left to pay.']);
+            throw ValidationException::withMessages(['payment' => __('This invoice has nothing left to pay.')]);
         }
 
         $school = $this->currentSchool->get();
@@ -55,7 +56,8 @@ final class StartCheckout
 
         $session = $this->stripe->createCheckoutSession([
             'mode' => 'payment',
-            'locale' => $school->locale->value,
+            // The payer's language; Stripe Checkout has no Hindi, so it picks one from the browser.
+            'locale' => App::getLocale() === 'hi' ? 'auto' : App::getLocale(),
             'customer_email' => $payer->email,
             'client_reference_id' => (string) $invoice->id,
             'line_items' => [[

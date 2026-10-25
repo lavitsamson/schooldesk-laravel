@@ -44,7 +44,7 @@ final class ApiExceptionRenderer
 
         return match (true) {
             $e instanceof ValidationException => $this->respond(422, $e->getMessage(), ['errors' => $e->errors()]),
-            $e instanceof AuthenticationException => $this->respond(401, 'Unauthenticated. Send a valid token: Authorization: Bearer <token>.'),
+            $e instanceof AuthenticationException => $this->respond(401, __('Unauthenticated. Send a valid token: Authorization: Bearer <token>.')),
             $e instanceof HttpExceptionInterface => $this->respond(
                 $e->getStatusCode(),
                 // A 404 never names the model ("No query results for model [App\Models\…]").
@@ -52,7 +52,7 @@ final class ApiExceptionRenderer
                 headers: $e->getHeaders(),
             ),
             (bool) config('app.debug') => null,
-            default => $this->respond(500, 'Server error.'),
+            default => $this->respond(500, __('Server error.')),
         };
     }
 
@@ -72,10 +72,10 @@ final class ApiExceptionRenderer
     private function defaultMessage(int $status): string
     {
         return match ($status) {
-            403 => 'This action is not allowed.',
-            404 => 'Not found.',
-            429 => 'Too many requests. Please slow down.',
-            default => 'Error.',
+            403 => __('This action is not allowed.'),
+            404 => __('Not found.'),
+            429 => __('Too many requests. Please slow down.'),
+            default => __('Error.'),
         };
     }
 }

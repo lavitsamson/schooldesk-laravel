@@ -13,9 +13,9 @@ enum AssessmentType: string
     public function label(): string
     {
         return match ($this) {
-            self::Test => 'Test',
-            self::Exam => 'Exam',
-            self::Assignment => 'Assignment',
+            self::Test => __('Test'),
+            self::Exam => __('Exam'),
+            self::Assignment => __('Assignment'),
         };
     }
 

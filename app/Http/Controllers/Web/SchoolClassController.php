@@ -56,7 +56,7 @@ class SchoolClassController extends Controller
         $data = $request->validated();
         $class = $action->handle(null, $data);
 
-        return back()->with('status', "Class {$class->displayName()} added.");
+        return back()->with('status', __('Class :class added.', ['class' => $class->displayName()]));
     }
 
     public function show(SchoolClass $schoolClass): Response
@@ -100,7 +100,7 @@ class SchoolClassController extends Controller
         $data = $request->validated();
         $action->handle($schoolClass, $data);
 
-        return back()->with('status', 'Class saved.');
+        return back()->with('status', __('Class saved.'));
     }
 
     public function updateAssignments(
@@ -110,7 +110,7 @@ class SchoolClassController extends Controller
     ): RedirectResponse {
         $action->handle($schoolClass, $request->assignments());
 
-        return back()->with('status', 'Subject teachers saved.');
+        return back()->with('status', __('Subject teachers saved.'));
     }
 
     public function destroy(SchoolClass $schoolClass, DeleteClass $action): RedirectResponse
@@ -120,7 +120,7 @@ class SchoolClassController extends Controller
         $action->handle($schoolClass);
 
         return to_route('classes.index', ['year_id' => $schoolClass->academic_year_id])
-            ->with('status', "Class {$schoolClass->displayName()} deleted.");
+            ->with('status', __('Class :class deleted.', ['class' => $schoolClass->displayName()]));
     }
 
     /**

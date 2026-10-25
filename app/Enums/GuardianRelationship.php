@@ -15,11 +15,11 @@ enum GuardianRelationship: string
     public function label(): string
     {
         return match ($this) {
-            self::Mother => 'Mother',
-            self::Father => 'Father',
-            self::Grandparent => 'Grandparent',
-            self::LegalGuardian => 'Legal guardian',
-            self::Other => 'Other',
+            self::Mother => __('Mother'),
+            self::Father => __('Father'),
+            self::Grandparent => __('Grandparent'),
+            self::LegalGuardian => __('Legal guardian'),
+            self::Other => __('Other'),
         };
     }
 }

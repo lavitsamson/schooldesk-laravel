@@ -24,7 +24,7 @@ class ReportCardCommentController extends Controller
     {
         $action->handle($reportCard, $request->comment(), $request->draft());
 
-        return back()->with('status', 'Comment saved.');
+        return back()->with('status', __('Comment saved.'));
     }
 
     /**
@@ -40,9 +40,9 @@ class ReportCardCommentController extends Controller
         } catch (LlmException $e) {
             report($e);
 
-            return back()->withErrors(['draft' => 'No draft could be written just now. Please try again, or write the comment yourself.']);
+            return back()->withErrors(['draft' => __('No draft could be written just now. Please try again, or write the comment yourself.')]);
         }
 
-        return back()->with('status', 'Draft ready: review it before using it.');
+        return back()->with('status', __('Draft ready: review it before using it.'));
     }
 }

@@ -22,7 +22,7 @@ final class VoidInvoice
             $locked = Invoice::query()->lockForUpdate()->findOrFail($invoice->id);
 
             if ($locked->status !== InvoiceStatus::Issued || $locked->payments()->exists()) {
-                throw ValidationException::withMessages(['status' => 'Only invoices without payments can be voided.']);
+                throw ValidationException::withMessages(['status' => __('Only invoices without payments can be voided.')]);
             }
 
             $locked->forceFill(['status' => InvoiceStatus::Void, 'voided_at' => now()])->save();

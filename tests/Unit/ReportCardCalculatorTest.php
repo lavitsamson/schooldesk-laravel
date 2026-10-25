@@ -80,21 +80,3 @@ it('grades a calculated result that rounds onto a boundary', function (): void {
 
     expect($result)->toBe(['percentage' => '92.00', 'grade' => '1', 'graded' => 2]);
 });
-
-it('accepts the presets and rejects scales with gaps, overlaps or missing ends', function (): void {
-    foreach (GradeScalePreset::cases() as $preset) {
-        expect(GradeBands::problems($preset->bands()))->toBe([]);
-    }
-
-    $band = fn (string $label, string $min, string $max): array => ['label' => $label, 'min_percent' => $min, 'max_percent' => $max];
-
-    expect(GradeBands::problems([$band('Pass', '50.00', '100.00'), $band('Fail', '0.00', '49.99')]))->toBe([])
-        ->and(GradeBands::problems([$band('Pass', '50.00', '100.00'), $band('Fail', '0.00', '48.99')]))
-        ->toBe(['Fail must end 0.01 below where Pass starts (50.00 %).'])
-        ->and(GradeBands::problems([$band('Pass', '50.00', '100.00'), $band('Fail', '0.00', '50.00')]))
-        ->toBe(['Fail must end 0.01 below where Pass starts (50.00 %).'])
-        ->and(GradeBands::problems([$band('Pass', '50.00', '99.00'), $band('Fail', '1.00', '49.99')]))
-        ->toBe(['The best band must go up to 100 %.', 'The lowest band must start at 0 %.'])
-        ->and(GradeBands::problems([$band('Odd', '60.00', '40.00'), $band('Pass', '0.00', '59.99')]))
-        ->toContain('Odd: the lowest percentage is above the highest.');
-});

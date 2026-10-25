@@ -13,9 +13,9 @@ enum StudentStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Active => 'Active',
-            self::Left => 'Left',
-            self::Graduated => 'Graduated',
+            self::Active => __('Active'),
+            self::Left => __('Left'),
+            self::Graduated => __('Graduated'),
         };
     }
 }

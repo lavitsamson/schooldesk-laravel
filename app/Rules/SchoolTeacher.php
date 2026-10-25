@@ -19,7 +19,7 @@ final class SchoolTeacher implements ValidationRule
             && User::query()->teachers()->whereKey((int) $value)->exists();
 
         if (! $isTeacher) {
-            $fail('Choose a teacher of this school.');
+            $fail(__('Choose a teacher of this school.'));
         }
     }
 }

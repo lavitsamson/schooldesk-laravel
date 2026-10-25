@@ -28,7 +28,7 @@ class InvitationController extends Controller
         $this->ensureLatestLink($request, $invitation);
 
         if ($invitation->isActive()) {
-            return to_route('dashboard')->with('status', 'You have already accepted this invitation.');
+            return to_route('dashboard')->with('status', __('You have already accepted this invitation.'));
         }
 
         $invitee = $invitation->user;
@@ -80,7 +80,7 @@ class InvitationController extends Controller
 
         $request->session()->put(SetCurrentSchool::SESSION_KEY, $invitation->school_id);
 
-        return to_route('dashboard')->with('status', "Welcome to {$invitation->school->name}.");
+        return to_route('dashboard')->with('status', __('Welcome to :name.', ['name' => $invitation->school->name]));
     }
 
     private function ensureLatestLink(Request $request, Membership $invitation): void
@@ -88,7 +88,7 @@ class InvitationController extends Controller
         abort_unless(
             $request->integer('sent') === $invitation->invited_at?->getTimestamp(),
             403,
-            'This invitation link has been replaced by a newer one. Please use the latest email.',
+            __('This invitation link has been replaced by a newer one. Please use the latest email.'),
         );
     }
 }

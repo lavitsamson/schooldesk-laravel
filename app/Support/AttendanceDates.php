@@ -36,8 +36,11 @@ final class AttendanceDates
         $year = $class->academicYear;
 
         return match (true) {
-            $date->gt(app(CurrentSchool::class)->get()->today()) => 'Attendance cannot be taken for a future date.',
-            $date->lt($year->starts_on) || $date->gt($year->ends_on) => "{$date->toDateString()} is outside the academic year {$year->name}.",
+            $date->gt(app(CurrentSchool::class)->get()->today()) => (string) __('Attendance cannot be taken for a future date.'),
+            $date->lt($year->starts_on) || $date->gt($year->ends_on) => (string) __(':date is outside the academic year :year.', [
+                'date' => LocalDate::long($date),
+                'year' => $year->name,
+            ]),
             default => null,
         };
     }

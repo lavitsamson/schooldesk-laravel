@@ -35,6 +35,6 @@ class GradeScaleController extends Controller
     {
         $action->handle($request->bands());
 
-        return back()->with('status', 'Grade scale saved.');
+        return back()->with('status', __('Grade scale saved.'));
     }
 }

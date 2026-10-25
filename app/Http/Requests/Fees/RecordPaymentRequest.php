@@ -38,7 +38,7 @@ class RecordPaymentRequest extends FormRequest
         return [
             'amount' => ['required', 'string', 'max:20', function (string $attribute, mixed $value, Closure $fail): void {
                 if ($this->parseAmount((string) $value)?->isPositive() !== true) {
-                    $fail('Enter an amount such as 150 or 150.50.');
+                    $fail(__('Enter an amount such as 150 or 150.50.'));
                 }
             }],
             'method' => ['required', Rule::in(array_map(fn (PaymentMethod $m): string => $m->value, PaymentMethod::manual()))],
@@ -55,7 +55,7 @@ class RecordPaymentRequest extends FormRequest
                     ->first();
 
                 if ($existing !== null) {
-                    $fail("This bank transfer is already recorded, on invoice {$existing->invoice->number}.");
+                    $fail(__('This bank transfer is already recorded, on invoice :number.', ['number' => $existing->invoice->number]));
                 }
             }],
         ];
@@ -67,7 +67,7 @@ class RecordPaymentRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'reference.required_if' => 'Enter the bank reference of the transfer.',
+            'reference.required_if' => __('Enter the bank reference of the transfer.'),
         ];
     }
 

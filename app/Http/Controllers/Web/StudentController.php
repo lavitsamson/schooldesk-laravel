@@ -60,7 +60,7 @@ class StudentController extends Controller
     {
         $student = $action->handle(null, $request->studentData(), $request->photo());
 
-        return to_route('students.show', $student)->with('status', "{$student->fullName()} added.");
+        return to_route('students.show', $student)->with('status', __(':name added.', ['name' => $student->fullName()]));
     }
 
     public function show(Student $student): Response
@@ -99,7 +99,7 @@ class StudentController extends Controller
     {
         $action->handle($student, $request->studentData(), $request->photo(), $request->boolean('remove_photo'));
 
-        return to_route('students.show', $student)->with('status', 'Student saved.');
+        return to_route('students.show', $student)->with('status', __('Student saved.'));
     }
 
     /**
@@ -111,7 +111,7 @@ class StudentController extends Controller
 
         $student->delete();
 
-        return to_route('students.index')->with('status', "{$student->fullName()} deleted.");
+        return to_route('students.index')->with('status', __(':name deleted.', ['name' => $student->fullName()]));
     }
 
     /**

@@ -20,10 +20,10 @@ enum InvoiceStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Issued => 'Issued',
-            self::PartiallyPaid => 'Partially paid',
-            self::Paid => 'Paid',
-            self::Void => 'Void',
+            self::Issued => __('Issued'),
+            self::PartiallyPaid => __('Partially paid'),
+            self::Paid => __('Paid'),
+            self::Void => __('Void'),
         };
     }
 

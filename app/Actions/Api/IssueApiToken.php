@@ -39,14 +39,14 @@ final class IssueApiToken
         }
 
         if (! $user->hasVerifiedEmail()) {
-            throw ValidationException::withMessages(['email' => 'Please verify your email address first.']);
+            throw ValidationException::withMessages(['email' => __('Please verify your email address first.')]);
         }
 
         $school = $this->school($user, $schoolId);
 
         $isParent = $this->currentSchool->run($school, fn (): bool => $user->unsetRelation('roles')->hasRole(Role::Parent));
         if (! $isParent) {
-            throw new AuthorizationException('The API is for parents. Please use the web app.');
+            throw new AuthorizationException(__('The API is for parents. Please use the web app.'));
         }
 
         $plainText = $user->generateTokenString();
@@ -67,17 +67,18 @@ final class IssueApiToken
     {
         if ($schoolId !== null) {
             return $user->activeSchools()->whereKey($schoolId)->first()
-                ?? throw ValidationException::withMessages(['school_id' => 'You are not a member of this school.']);
+                ?? throw ValidationException::withMessages(['school_id' => __('You are not a member of this school.')]);
         }
 
         $schools = $user->activeSchools()->orderBy('name')->get();
 
         return match ($schools->count()) {
-            0 => throw ValidationException::withMessages(['email' => 'Your account has no school yet.']),
+            0 => throw ValidationException::withMessages(['email' => __('Your account has no school yet.')]),
             1 => $schools->firstOrFail(),
             default => throw ValidationException::withMessages([
-                'school_id' => 'You belong to several schools. Choose one: '
-                    .$schools->map(fn (School $s): string => "{$s->id} ({$s->name})")->implode(', ').'.',
+                'school_id' => __('You belong to several schools. Choose one: :schools.', [
+                    'schools' => $schools->map(fn (School $s): string => "{$s->id} ({$s->name})")->implode(', '),
+                ]),
             ]),
         };
     }

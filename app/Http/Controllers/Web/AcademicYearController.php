@@ -48,7 +48,7 @@ class AcademicYearController extends Controller
         $data = $request->safe()->except('copy_classes_from');
         $year = $action->handle($data, $request->copyClassesFrom());
 
-        return back()->with('status', "Academic year {$year->name} added.");
+        return back()->with('status', __('Academic year :name added.', ['name' => $year->name]));
     }
 
     public function update(UpdateAcademicYearRequest $request, AcademicYear $academicYear, UpdateAcademicYear $action): RedirectResponse
@@ -57,7 +57,7 @@ class AcademicYearController extends Controller
         $data = $request->validated();
         $action->handle($academicYear, $data);
 
-        return back()->with('status', "Academic year {$academicYear->name} saved.");
+        return back()->with('status', __('Academic year :name saved.', ['name' => $academicYear->name]));
     }
 
     public function makeCurrent(AcademicYear $academicYear, MakeAcademicYearCurrent $action): RedirectResponse
@@ -66,7 +66,7 @@ class AcademicYearController extends Controller
 
         $action->handle($academicYear);
 
-        return back()->with('status', "{$academicYear->name} is now the current academic year.");
+        return back()->with('status', __(':name is now the current academic year.', ['name' => $academicYear->name]));
     }
 
     public function destroy(AcademicYear $academicYear, DeleteAcademicYear $action): RedirectResponse
@@ -75,6 +75,6 @@ class AcademicYearController extends Controller
 
         $action->handle($academicYear);
 
-        return back()->with('status', "Academic year {$academicYear->name} deleted.");
+        return back()->with('status', __('Academic year :name deleted.', ['name' => $academicYear->name]));
     }
 }

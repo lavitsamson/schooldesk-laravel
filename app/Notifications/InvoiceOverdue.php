@@ -6,9 +6,11 @@ namespace App\Notifications;
 
 use App\Models\Invoice;
 use App\Models\User;
+use App\Support\LocalDate;
 use App\Support\Money;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\App;
 
 /**
  * The first (3 days after the due date) or second (10 days) overdue reminder. Sent by the
@@ -32,18 +34,24 @@ class InvoiceOverdue extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $school = $this->invoice->school;
-        $balance = $this->balance->format($school->locale->value);
-        $subject = $this->reminder === 1 ? 'Payment reminder' : 'Second payment reminder';
+        $replace = [
+            'number' => $this->invoice->number,
+            'name' => $this->invoice->student->first_name,
+            'term' => $this->invoice->term->name,
+            'date' => LocalDate::long($this->invoice->due_on),
+            'balance' => $this->balance->format(App::getLocale()),
+        ];
 
         $mail = (new MailMessage)
-            ->subject("{$subject}: invoice {$this->invoice->number}")
-            ->line("Invoice {$this->invoice->number} ({$this->invoice->student->first_name}, {$this->invoice->term->name}) was due on {$this->invoice->due_on->format('j F Y')}, and {$balance} is still open.")
-            ->line('If you have paid in the last few days, thank you, and please ignore this reminder.');
+            ->subject($this->reminder === 1
+                ? __('Payment reminder: invoice :number', $replace)
+                : __('Second payment reminder: invoice :number', $replace))
+            ->line(__('Invoice :number (:name, :term) was due on :date, and :balance is still open.', $replace))
+            ->line(__('If you have paid in the last few days, thank you, and please ignore this reminder.'));
 
         return $notifiable instanceof User
-            ? $mail->action('Pay the invoice', route('invoices.show', $this->invoice))
-            : $mail->line("Please pay by bank transfer quoting {$this->invoice->number}, or at the school office.");
+            ? $mail->action(__('Pay the invoice'), route('invoices.show', $this->invoice))
+            : $mail->line(__('Please pay by bank transfer quoting :number, or at the school office.', $replace));
     }
 
     /**

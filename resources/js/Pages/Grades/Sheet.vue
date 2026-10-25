@@ -6,7 +6,8 @@ import { HttpError, sendJson } from '@/composables/http';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import type { AssessmentType, GradeSheetStudent, IdName } from '@/types/school';
 import { Head, Link } from '@inertiajs/vue3';
-import { getActiveLanguage, trans } from 'laravel-vue-i18n';
+import { trans } from 'laravel-vue-i18n';
+import { localeForIntl } from '@/composables/locale';
 import {
     computed,
     nextTick,
@@ -234,7 +235,7 @@ const statusText = computed(() => {
 
 const savedAtText = computed(() =>
     savedAt.value
-        ? new Intl.DateTimeFormat(getActiveLanguage(), {
+        ? new Intl.DateTimeFormat(localeForIntl(), {
               timeStyle: 'short',
           }).format(new Date(savedAt.value))
         : null,

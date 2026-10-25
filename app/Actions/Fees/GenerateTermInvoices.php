@@ -47,7 +47,7 @@ final class GenerateTermInvoices
         $lock = Cache::lock("fees:generate:{$school->id}:{$term->id}", 600);
 
         if (! $lock->get()) {
-            throw ValidationException::withMessages(['term' => 'The invoices for this term are being generated already.']);
+            throw ValidationException::withMessages(['term' => __('The invoices for this term are being generated already.')]);
         }
 
         try {

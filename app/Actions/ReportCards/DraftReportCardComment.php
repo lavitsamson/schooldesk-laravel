@@ -27,7 +27,7 @@ final class DraftReportCardComment
     public function handle(ReportCard $card, User $user): AiCommentDraft
     {
         if (! $card->isDraft()) {
-            throw ValidationException::withMessages(['draft' => 'Reopen the report card to change the comment.']);
+            throw ValidationException::withMessages(['draft' => __('Reopen the report card to change the comment.')]);
         }
 
         $request = $this->buildRequest->handle($card);

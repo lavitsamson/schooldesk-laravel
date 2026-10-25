@@ -29,7 +29,7 @@ final class GeneratePaymentReceipt implements ShouldQueue
 
     public function handle(CurrentSchool $currentSchool, StorePaymentReceipt $store, NotifyPrimaryGuardian $notify): void
     {
-        $currentSchool->run($this->schoolId, function () use ($store, $notify): void {
+        $currentSchool->runInSchoolLocale($this->schoolId, function () use ($store, $notify): void {
             $payment = Payment::query()->with(['invoice.school', 'invoice.term', 'invoice.student'])->find($this->paymentId);
 
             if ($payment === null) {

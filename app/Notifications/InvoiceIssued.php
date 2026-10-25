@@ -6,8 +6,10 @@ namespace App\Notifications;
 
 use App\Models\Invoice;
 use App\Models\User;
+use App\Support\LocalDate;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\App;
 
 /**
  * Sent by the queued SendInvoiceIssuedNotification job, so not queued itself. Guardians with a
@@ -29,16 +31,21 @@ class InvoiceIssued extends Notification
     {
         $school = $this->invoice->school;
         $name = $this->invoice->student->first_name;
-        $total = $this->invoice->totalMoney()->format($school->locale->value);
+        $total = $this->invoice->totalMoney()->format(App::getLocale());
 
         $mail = (new MailMessage)
-            ->subject("Invoice {$this->invoice->number} for {$name}: {$this->invoice->term->name}")
-            ->line("{$school->name} has issued invoice {$this->invoice->number} for {$name}'s fees for the {$this->invoice->term->name}.")
-            ->line("Total: {$total}, due on {$this->invoice->due_on->format('j F Y')}.");
+            ->subject(__('Invoice :number for :name: :term', $replace = [
+                'number' => $this->invoice->number,
+                'name' => $name,
+                'term' => $this->invoice->term->name,
+                'school' => $school->name,
+            ]))
+            ->line(__(":school has issued invoice :number for :name's fees for the :term.", $replace))
+            ->line(__('Total: :total, due on :date.', ['total' => $total, 'date' => LocalDate::long($this->invoice->due_on)]));
 
         return $notifiable instanceof User
-            ? $mail->action('View and pay the invoice', route('invoices.show', $this->invoice))
-            : $mail->line("Please pay by bank transfer quoting {$this->invoice->number}, or at the school office.");
+            ? $mail->action(__('View and pay the invoice'), route('invoices.show', $this->invoice))
+            : $mail->line(__('Please pay by bank transfer quoting :number, or at the school office.', $replace));
     }
 
     /**

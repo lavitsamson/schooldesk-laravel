@@ -26,7 +26,7 @@ final class SendInvoiceIssuedNotification implements ShouldQueue
 
     public function handle(CurrentSchool $currentSchool, NotifyPrimaryGuardian $notify): void
     {
-        $currentSchool->run($this->schoolId, function () use ($notify): void {
+        $currentSchool->runInSchoolLocale($this->schoolId, function () use ($notify): void {
             $invoice = Invoice::query()->with(['school', 'term', 'student'])->find($this->invoiceId);
 
             if ($invoice === null || ! $invoice->status->isOpen()) {

@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Http\Resources;
 
 use App\Support\CurrentSchool;
+use App\Support\LocalDate;
 use App\Support\Money;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Support\Facades\App;
 
 /**
  * A database notification for the parent portal and the API: a readable title, the record it
@@ -48,13 +50,30 @@ class NotificationResource extends JsonResource
         $name = (string) ($data['first_name'] ?? '');
         $number = (string) ($data['number'] ?? '');
 
+        // Built when read, so the text follows the reader's language.
         return match ($this->type) {
-            'student-absent' => "{$name} was absent on ".CarbonImmutable::parse((string) $data['date'])->format('j F Y').'.',
-            'report-card-published' => "{$name}'s report card for the {$data['term']} has been published.",
-            'invoice-issued' => "Invoice {$number} for {$name}: {$this->money($data['total'] ?? 0)}.",
-            'payment-received' => "Payment of {$this->money($data['amount'] ?? 0)} received for invoice {$number}.",
-            'invoice-overdue' => "Invoice {$number} is overdue: {$this->money($data['balance'] ?? 0)} left to pay.",
-            default => 'Notification',
+            'student-absent' => __(':name was absent on :date.', [
+                'name' => $name,
+                'date' => LocalDate::long(CarbonImmutable::parse((string) $data['date'])),
+            ]),
+            'report-card-published' => __(":name's report card for the :term has been published.", [
+                'name' => $name,
+                'term' => (string) ($data['term'] ?? ''),
+            ]),
+            'invoice-issued' => __('Invoice :number for :name: :amount.', [
+                'number' => $number,
+                'name' => $name,
+                'amount' => $this->money($data['total'] ?? 0),
+            ]),
+            'payment-received' => __('Payment of :amount received for invoice :number.', [
+                'amount' => $this->money($data['amount'] ?? 0),
+                'number' => $number,
+            ]),
+            'invoice-overdue' => __('Invoice :number is overdue: :amount left to pay.', [
+                'number' => $number,
+                'amount' => $this->money($data['balance'] ?? 0),
+            ]),
+            default => __('Notification'),
         };
     }
 
@@ -80,6 +99,6 @@ class NotificationResource extends JsonResource
     {
         $school = app(CurrentSchool::class)->get();
 
-        return (new Money((int) $minor, $school->currency))->format($school->locale->value);
+        return (new Money((int) $minor, $school->currency))->format(App::getLocale());
     }
 }

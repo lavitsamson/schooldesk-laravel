@@ -49,7 +49,7 @@ class MemberController extends Controller
             $request->role(),
         );
 
-        return back()->with('status', 'Invitation sent.');
+        return back()->with('status', __('Invitation sent.'));
     }
 
     public function resend(Membership $membership, ResendInvitation $action): RedirectResponse
@@ -58,7 +58,7 @@ class MemberController extends Controller
 
         $action->handle($membership);
 
-        return back()->with('status', 'Invitation sent again.');
+        return back()->with('status', __('Invitation sent again.'));
     }
 
     public function destroy(Membership $membership, RemoveMember $action): RedirectResponse
@@ -67,6 +67,6 @@ class MemberController extends Controller
 
         $action->handle($membership);
 
-        return back()->with('status', 'Member removed.');
+        return back()->with('status', __('Member removed.'));
     }
 }

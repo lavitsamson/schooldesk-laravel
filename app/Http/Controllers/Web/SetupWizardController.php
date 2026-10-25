@@ -102,7 +102,7 @@ class SetupWizardController extends Controller
         $applyPreset->handle($request->preset());
         $completeSetup->handle($this->currentSchool->get());
 
-        return to_route('dashboard')->with('status', 'Your school is set up.');
+        return to_route('dashboard')->with('status', __('Your school is set up.'));
     }
 
     private function next(SetupStep $step): RedirectResponse

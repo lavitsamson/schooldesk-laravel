@@ -71,7 +71,7 @@ class ImportController extends Controller
         $user = $request->user();
         $batch = $action->handle($user, $request->upload());
 
-        return to_route('imports.show', $batch)->with('status', 'Import started.');
+        return to_route('imports.show', $batch)->with('status', __('Import started.'));
     }
 
     /**

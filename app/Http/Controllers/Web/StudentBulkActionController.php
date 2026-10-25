@@ -11,7 +11,6 @@ use App\Exports\StudentsExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Students\BulkStudentActionRequest;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Str;
 use Maatwebsite\Excel\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -35,12 +34,16 @@ class StudentBulkActionController extends Controller
         if ($request->action() === StudentBulkAction::MoveToClass) {
             $class = $request->targetClass();
             $count = $moveToClass->handle($students, $class);
-            $done = "moved to {$class->displayName()}";
-        } else {
-            $count = $markAsLeft->handle($students);
-            $done = 'marked as left';
+
+            return back()->with('status', trans_choice(
+                ':count student moved to :class.|:count students moved to :class.',
+                $count,
+                ['class' => $class->displayName()],
+            ));
         }
 
-        return back()->with('status', "{$count} ".Str::plural('student', $count)." {$done}.");
+        $count = $markAsLeft->handle($students);
+
+        return back()->with('status', trans_choice(':count student marked as left.|:count students marked as left.', $count));
     }
 }

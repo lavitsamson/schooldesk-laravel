@@ -73,7 +73,7 @@ final class GradeBands
     public static function problems(array $bands): array
     {
         if ($bands === []) {
-            return ['Add at least one band.'];
+            return [__('Add at least one band.')];
         }
 
         usort($bands, fn (array $a, array $b): int => Decimal::compare($b['min_percent'], $a['min_percent']));
@@ -81,21 +81,21 @@ final class GradeBands
 
         foreach ($bands as $index => $band) {
             if (Decimal::compare($band['min_percent'], $band['max_percent']) > 0) {
-                $problems[] = "{$band['label']}: the lowest percentage is above the highest.";
+                $problems[] = __(':grade: the lowest percentage is above the highest.', ['grade' => $band['label']]);
             }
 
             $higher = $bands[$index - 1] ?? null;
             if ($higher !== null && Decimal::compare(Decimal::add($band['max_percent'], '0.01'), $higher['min_percent']) !== 0) {
-                $problems[] = "{$band['label']} must end 0.01 below where {$higher['label']} starts ({$higher['min_percent']} %).";
+                $problems[] = __(':grade must end 0.01 below where :higher starts (:percent %).', ['grade' => $band['label'], 'higher' => $higher['label'], 'percent' => $higher['min_percent']]);
             }
         }
 
         if (Decimal::compare($bands[0]['max_percent'], '100') !== 0) {
-            $problems[] = 'The best band must go up to 100 %.';
+            $problems[] = __('The best band must go up to 100 %.');
         }
 
         if (Decimal::compare($bands[count($bands) - 1]['min_percent'], '0') !== 0) {
-            $problems[] = 'The lowest band must start at 0 %.';
+            $problems[] = __('The lowest band must start at 0 %.');
         }
 
         return $problems;

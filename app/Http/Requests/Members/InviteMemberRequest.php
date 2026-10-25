@@ -46,7 +46,7 @@ class InviteMemberRequest extends FormRequest
                     ->exists();
 
                 if ($alreadyMember) {
-                    $validator->errors()->add('email', 'This person is already a member of the school.');
+                    $validator->errors()->add('email', __('This person is already a member of the school.'));
                 }
             },
         ];

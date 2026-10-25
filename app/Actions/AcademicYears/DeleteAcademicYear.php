@@ -17,15 +17,15 @@ final class DeleteAcademicYear
     public function handle(AcademicYear $year): void
     {
         if ($year->is_current) {
-            throw ValidationException::withMessages(['year' => 'The current academic year cannot be deleted.']);
+            throw ValidationException::withMessages(['year' => __('The current academic year cannot be deleted.')]);
         }
 
         if ($year->enrollments()->exists()) {
-            throw ValidationException::withMessages(['year' => 'Students are enrolled in this year, so it cannot be deleted.']);
+            throw ValidationException::withMessages(['year' => __('Students are enrolled in this year, so it cannot be deleted.')]);
         }
 
         if (Assessment::query()->whereIn('term_id', $year->terms()->select('id'))->exists()) {
-            throw ValidationException::withMessages(['year' => 'Assessments have been set in this year, so it cannot be deleted.']);
+            throw ValidationException::withMessages(['year' => __('Assessments have been set in this year, so it cannot be deleted.')]);
         }
 
         $year->delete();

@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Support\Money;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\App;
 
 /**
  * Sent by the queued GeneratePaymentReceipt job once the receipt is stored. The receipt itself
@@ -30,15 +31,21 @@ class PaymentReceived extends Notification
     {
         $invoice = $this->payment->invoice;
         $school = $invoice->school;
-        $amount = (new Money($this->payment->amount, $school->currency))->format($school->locale->value);
+        $replace = [
+            'school' => $school->name,
+            'amount' => (new Money($this->payment->amount, $school->currency))->format(App::getLocale()),
+            'number' => $invoice->number,
+            'name' => $invoice->student->first_name,
+            'term' => $invoice->term->name,
+        ];
 
         $mail = (new MailMessage)
-            ->subject("Payment received: invoice {$invoice->number}")
-            ->line("{$school->name} has received your payment of {$amount} for invoice {$invoice->number} ({$invoice->student->first_name}, {$invoice->term->name}).")
-            ->line('Thank you.');
+            ->subject(__('Payment received: invoice :number', $replace))
+            ->line(__(':school has received your payment of :amount for invoice :number (:name, :term).', $replace))
+            ->line(__('Thank you.'));
 
         return $notifiable instanceof User
-            ? $mail->action('View the invoice and receipt', route('invoices.show', $invoice))
+            ? $mail->action(__('View the invoice and receipt'), route('invoices.show', $invoice))
             : $mail;
     }
 

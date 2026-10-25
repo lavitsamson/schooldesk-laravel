@@ -14,9 +14,9 @@ use Illuminate\Support\Facades\Storage;
  */
 final class FailImport
 {
-    public const UNREADABLE = 'The file could not be read. Save it as CSV (UTF-8) or Excel (.xlsx) and upload it again.';
+    public const UNREADABLE = 'The file could not be read. Save it as CSV (UTF-8) or Excel (.xlsx) and upload it again.'; // i18n
 
-    public const STOPPED = 'The import stopped unexpectedly. Rows imported so far are kept; upload the file again to import the rest (rows already imported are only updated).';
+    public const STOPPED = 'The import stopped unexpectedly. Rows imported so far are kept; upload the file again to import the rest (rows already imported are only updated).'; // i18n
 
     public function handle(ImportBatch $batch, string $message = self::STOPPED): void
     {

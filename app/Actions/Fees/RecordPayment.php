@@ -9,10 +9,10 @@ use App\Jobs\GeneratePaymentReceipt;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\User;
-use App\Support\CurrentSchool;
 use App\Support\Money;
 use Carbon\CarbonInterface;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -25,10 +25,7 @@ use Illuminate\Validation\ValidationException;
  */
 final class RecordPayment
 {
-    public function __construct(
-        private readonly CurrentSchool $currentSchool,
-        private readonly RecalculateInvoiceStatus $recalculate,
-    ) {}
+    public function __construct(private readonly RecalculateInvoiceStatus $recalculate) {}
 
     public function handle(
         Invoice $invoice,
@@ -39,11 +36,11 @@ final class RecordPayment
         ?string $reference = null,
     ): Payment {
         if ($method === PaymentMethod::Stripe) {
-            throw ValidationException::withMessages(['method' => 'Card payments are recorded by Stripe.']);
+            throw ValidationException::withMessages(['method' => __('Card payments are recorded by Stripe.')]);
         }
 
         if (! $amount->isPositive()) {
-            throw ValidationException::withMessages(['amount' => 'Enter an amount above zero.']);
+            throw ValidationException::withMessages(['amount' => __('Enter an amount above zero.')]);
         }
 
         $bankReference = $method === PaymentMethod::BankTransfer && $reference !== null
@@ -51,7 +48,7 @@ final class RecordPayment
             : null;
 
         if ($method === PaymentMethod::BankTransfer && ($bankReference ?? '') === '') {
-            throw ValidationException::withMessages(['reference' => 'Enter the bank reference of the transfer.']);
+            throw ValidationException::withMessages(['reference' => __('Enter the bank reference of the transfer.')]);
         }
 
         try {
@@ -59,7 +56,7 @@ final class RecordPayment
         } catch (UniqueConstraintViolationException) {
             // The same transfer recorded by someone else a moment ago (the request's check passed
             // for both): the unique (school, bank reference) index lets only one through.
-            throw ValidationException::withMessages(['reference' => 'This bank transfer is already recorded.']);
+            throw ValidationException::withMessages(['reference' => __('This bank transfer is already recorded.')]);
         }
 
         GeneratePaymentReceipt::dispatch($payment->school_id, $payment->id);
@@ -80,15 +77,15 @@ final class RecordPayment
             $locked = Invoice::query()->lockForUpdate()->findOrFail($invoice->id);
 
             if (! $locked->status->isOpen()) {
-                throw ValidationException::withMessages(['amount' => "This invoice is {$locked->status->label()}: there is nothing to pay."]);
+                throw ValidationException::withMessages(['amount' => __('This invoice is :status: there is nothing to pay.', ['status' => $locked->status->label()])]);
             }
 
             $balance = $locked->balanceMoney();
 
             if ($amount->greaterThan($balance)) {
-                $open = $balance->format($this->currentSchool->get()->locale->value);
+                $open = $balance->format(App::getLocale());
 
-                throw ValidationException::withMessages(['amount' => "The open balance is {$open}. Record at most that."]);
+                throw ValidationException::withMessages(['amount' => __('The open balance is :open. Record at most that.', ['open' => $open])]);
             }
 
             $payment = $locked->payments()->create([

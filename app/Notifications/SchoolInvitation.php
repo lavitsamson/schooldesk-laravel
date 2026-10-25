@@ -18,6 +18,10 @@ class SchoolInvitation extends Notification implements ShouldQueue
     public function __construct(public readonly Membership $membership)
     {
         $this->afterCommit();
+
+        // Queued, so sent without a school context: in the invitee's language if they chose
+        // one, else in the school's.
+        $this->locale($membership->user->locale ?? $membership->school->locale->value);
     }
 
     /**
@@ -34,10 +38,10 @@ class SchoolInvitation extends Notification implements ShouldQueue
         $days = (int) config('schooldesk.invitations.expire_after_days');
 
         return (new MailMessage)
-            ->subject("You're invited to {$school->name} on SchoolDesk")
-            ->line("You have been invited to join {$school->name} on SchoolDesk.")
-            ->action('Accept invitation', self::url($this->membership))
-            ->line("This link expires in {$days} days.");
+            ->subject(__("You're invited to :school on SchoolDesk", ['school' => $school->name]))
+            ->line(__('You have been invited to join :school on SchoolDesk.', ['school' => $school->name]))
+            ->action(__('Accept invitation'), self::url($this->membership))
+            ->line(__('This link expires in :days days.', ['days' => $days]));
     }
 
     /**

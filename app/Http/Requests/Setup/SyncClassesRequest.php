@@ -31,7 +31,7 @@ class SyncClassesRequest extends SetupStepRequest
         return [
             function (Validator $validator): void {
                 if (! AcademicYear::query()->where('is_current', true)->exists()) {
-                    $validator->errors()->add('classes', 'Add the academic year before adding classes.');
+                    $validator->errors()->add('classes', __('Add the academic year before adding classes.'));
                 }
 
                 /** @var list<array{name?: string, section?: string|null}> $classes */
@@ -42,7 +42,7 @@ class SyncClassesRequest extends SetupStepRequest
                     $key = Str::lower(trim(($class['name'] ?? '').' '.($class['section'] ?? '')));
 
                     if (isset($seen[$key])) {
-                        $validator->errors()->add("classes.{$index}.name", 'This class is listed twice.');
+                        $validator->errors()->add("classes.{$index}.name", __('This class is listed twice.'));
                     }
 
                     $seen[$key] = true;

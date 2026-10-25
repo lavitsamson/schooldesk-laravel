@@ -35,13 +35,13 @@ class ApplyGradeScaleRequest extends SetupStepRequest
         return [
             function (Validator $validator): void {
                 $missing = array_keys(array_filter([
-                    'an academic year' => ! AcademicYear::query()->where('is_current', true)->exists(),
-                    'at least one class' => ! SchoolClass::query()->exists(),
-                    'at least one subject' => ! Subject::query()->exists(),
+                    __('an academic year') => ! AcademicYear::query()->where('is_current', true)->exists(),
+                    __('at least one class') => ! SchoolClass::query()->exists(),
+                    __('at least one subject') => ! Subject::query()->exists(),
                 ]));
 
                 if ($missing !== []) {
-                    $validator->errors()->add('preset', 'Before finishing, add '.implode(', ', $missing).'.');
+                    $validator->errors()->add('preset', __('Before finishing, add :missing.', ['missing' => implode(', ', $missing)]));
                 }
             },
         ];

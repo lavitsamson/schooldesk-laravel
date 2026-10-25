@@ -72,10 +72,10 @@ class SaveGradesRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'grades.*.marks.max' => 'At most :max marks.',
-            'grades.*.marks.min' => 'Marks cannot be negative.',
-            'grades.*.marks.numeric' => 'Enter a number.',
-            'grades.*.marks.decimal' => 'At most two decimals.',
+            'grades.*.marks.max' => __('At most :max marks.'),
+            'grades.*.marks.min' => __('Marks cannot be negative.'),
+            'grades.*.marks.numeric' => __('Enter a number.'),
+            'grades.*.marks.decimal' => __('At most two decimals.'),
         ];
     }
 
@@ -96,7 +96,7 @@ class SaveGradesRequest extends FormRequest
                 $unknown = array_diff(array_column($this->entries(), 'student_id'), LoadGradeSheet::studentIds($this->assessment()));
 
                 if ($unknown !== []) {
-                    $validator->errors()->add('grades', 'Some students are not in this class on the day of the assessment. Reload the page and try again.');
+                    $validator->errors()->add('grades', __('Some students are not in this class on the day of the assessment. Reload the page and try again.'));
                 }
             },
         ];

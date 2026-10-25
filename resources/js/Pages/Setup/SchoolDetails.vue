@@ -8,7 +8,7 @@ import SetupLayout from '@/Layouts/SetupLayout.vue';
 import type { Option } from '@/types';
 import type { SetupStepProps } from '@/types/setup';
 import { useForm } from '@inertiajs/vue3';
-import { getActiveLanguage } from 'laravel-vue-i18n';
+import { localeForIntl } from '@/composables/locale';
 import { computed } from 'vue';
 
 const props = defineProps<
@@ -28,13 +28,13 @@ const props = defineProps<
 
 // Country names come from the browser's Intl data, in the active language.
 const countries = computed<Option[]>(() => {
-    const names = new Intl.DisplayNames(getActiveLanguage(), {
+    const names = new Intl.DisplayNames(localeForIntl(), {
         type: 'region',
     });
 
     return ['AT', 'BE', 'FR', 'DE', 'IN', 'IE', 'LU', 'NL', 'CH', 'GB', 'US']
         .map((code) => ({ value: code, label: names.of(code) ?? code }))
-        .sort((a, b) => a.label.localeCompare(b.label, getActiveLanguage()));
+        .sort((a, b) => a.label.localeCompare(b.label, localeForIntl()));
 });
 
 const form = useForm({ ...props.school });

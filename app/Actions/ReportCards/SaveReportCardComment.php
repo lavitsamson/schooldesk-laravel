@@ -20,7 +20,7 @@ final class SaveReportCardComment
     public function handle(ReportCard $card, ?string $comment, ?AiCommentDraft $draft = null): ReportCard
     {
         if (! $card->isDraft()) {
-            throw ValidationException::withMessages(['comment' => 'Reopen the report card to change the comment.']);
+            throw ValidationException::withMessages(['comment' => __('Reopen the report card to change the comment.')]);
         }
 
         $comment = $comment === null ? null : (trim($comment) === '' ? null : trim($comment));
