@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\ActivityArea;
 use App\Enums\InvoiceStatus;
 use App\Models\Concerns\BelongsToSchool;
+use App\Models\Concerns\LogsSchoolActivity;
 use App\Policies\InvoicePolicy;
 use App\Support\CurrentSchool;
 use App\Support\Money;
@@ -54,6 +56,8 @@ class Invoice extends Model
     /** @use HasFactory<InvoiceFactory> */
     use HasFactory;
 
+    use LogsSchoolActivity;
+
     /**
      * Invoice and receipt PDFs live on the private disk and are served through signed,
      * authorised links only.
@@ -73,6 +77,26 @@ class Invoice extends Model
             'voided_at' => 'datetime',
             'reminders_sent' => 'integer',
         ];
+    }
+
+    public function activityArea(): ActivityArea
+    {
+        return ActivityArea::Invoices;
+    }
+
+    /**
+     * Generation, payments (status) and voiding are logged; reminders are not.
+     *
+     * @return list<string>
+     */
+    public function loggedAttributes(): array
+    {
+        return ['number', 'total', 'status', 'due_on', 'voided_at'];
+    }
+
+    public function activityStudentId(): ?int
+    {
+        return $this->student_id;
     }
 
     /**

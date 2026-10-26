@@ -25,6 +25,7 @@ use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Events\ImportFailed;
 use PhpOffice\PhpSpreadsheet\Cell\StringValueBinder;
+use Spatie\Activitylog\Support\CauserResolver;
 
 /**
  * Adapter between Laravel Excel's queued chunk reading and the import actions. It is
@@ -74,7 +75,11 @@ final class StudentsImport extends StringValueBinder implements ShouldQueue, ToC
             $rows[$first + $index] = $row->all();
         }
 
-        $this->inSchool(fn (ImportBatch $batch) => app(ImportStudentRows::class)->handle($batch, $rows));
+        // The audit log names the admin who uploaded the file as the author of the changes.
+        $this->inSchool(fn (ImportBatch $batch) => app(CauserResolver::class)->withCauser(
+            $batch->user()->first(),
+            fn () => app(ImportStudentRows::class)->handle($batch, $rows),
+        ));
     }
 
     /**

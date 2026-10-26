@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\ActivityArea;
 use App\Models\Concerns\BelongsToSchool;
+use App\Models\Concerns\LogsSchoolActivity;
 use App\Policies\GradePolicy;
 use Database\Factories\GradeFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -38,6 +40,8 @@ class Grade extends Model
     /** @use HasFactory<GradeFactory> */
     use HasFactory;
 
+    use LogsSchoolActivity;
+
     /**
      * @return array<string, string>
      */
@@ -46,6 +50,24 @@ class Grade extends Model
         return [
             'marks' => 'decimal:2',
         ];
+    }
+
+    public function activityArea(): ActivityArea
+    {
+        return ActivityArea::Grades;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function loggedAttributes(): array
+    {
+        return ['marks', 'remarks'];
+    }
+
+    public function activityStudentId(): ?int
+    {
+        return $this->student_id;
     }
 
     /**

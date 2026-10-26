@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\ActivityArea;
 use App\Enums\Gender;
 use App\Enums\StudentStatus;
 use App\Models\Concerns\BelongsToSchool;
+use App\Models\Concerns\LogsSchoolActivity;
 use App\Policies\StudentPolicy;
 use Carbon\CarbonImmutable;
 use Database\Factories\StudentFactory;
@@ -46,6 +48,7 @@ class Student extends Model
     /** @use HasFactory<StudentFactory> */
     use HasFactory;
 
+    use LogsSchoolActivity;
     use SoftDeletes;
 
     /**
@@ -64,6 +67,27 @@ class Student extends Model
             'status' => StudentStatus::class,
             'anonymised_at' => 'datetime',
         ];
+    }
+
+    public function activityArea(): ActivityArea
+    {
+        return ActivityArea::Students;
+    }
+
+    /**
+     * The personal fields are logged too (who changed an address, and when); erasing a
+     * student also clears them from the log. The photo is not: only its path would show.
+     *
+     * @return list<string>
+     */
+    public function loggedAttributes(): array
+    {
+        return ['admission_no', 'first_name', 'last_name', 'date_of_birth', 'gender', 'address', 'status'];
+    }
+
+    public function activityStudentId(): int
+    {
+        return $this->id;
     }
 
     public function fullName(): string

@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Models\Grade;
+use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\PersonalAccessToken;
+use App\Models\ReportCard;
+use App\Models\Student;
 use App\Notifications\Channels\SchoolDatabaseChannel;
 use App\Services\Llm\AnthropicLlmClient;
 use App\Services\Llm\FakeLlmClient;
@@ -14,6 +19,7 @@ use App\Support\CurrentSchool;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Channels\DatabaseChannel;
@@ -74,6 +80,15 @@ class AppServiceProvider extends ServiceProvider
         Model::preventSilentlyDiscardingAttributes(! $this->app->isProduction());
 
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+
+        // Subjects of the audit log: stored by name, so renaming a class keeps old entries readable.
+        Relation::morphMap([
+            'student' => Student::class,
+            'grade' => Grade::class,
+            'invoice' => Invoice::class,
+            'payment' => Payment::class,
+            'report_card' => ReportCard::class,
+        ]);
 
         // Parent API: per token once signed in, per IP address before.
         RateLimiter::for('api', function (Request $request): Limit {

@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Actions\Grades\CalculateReportCard;
+use App\Enums\ActivityArea;
 use App\Enums\CommentSource;
 use App\Enums\ReportCardStatus;
 use App\Models\Concerns\BelongsToSchool;
+use App\Models\Concerns\LogsSchoolActivity;
 use App\Policies\ReportCardPolicy;
 use Database\Factories\ReportCardFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -17,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Support\LogOptions;
 
 /**
  * A student's report card for a term. `data` is the snapshot of CalculateReportCard, so a
@@ -51,6 +54,17 @@ class ReportCard extends Model
     /** @use HasFactory<ReportCardFactory> */
     use HasFactory;
 
+    use LogsSchoolActivity {
+        getActivitylogOptions as schoolActivitylogOptions;
+    }
+
+    /**
+     * Generating and recalculating drafts is routine; the audit log records the sign-offs.
+     *
+     * @var list<string>
+     */
+    protected static array $recordEvents = ['updated'];
+
     /**
      * Rendered PDFs live on the private disk and are only served through signed, authorised links.
      */
@@ -68,6 +82,37 @@ class ReportCard extends Model
             'approved_at' => 'datetime',
             'published_at' => 'datetime',
         ];
+    }
+
+    public function activityArea(): ActivityArea
+    {
+        return ActivityArea::ReportCards;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function loggedAttributes(): array
+    {
+        return ['status'];
+    }
+
+    public function activityStudentId(): int
+    {
+        return $this->student_id;
+    }
+
+    /**
+     * Entries say what happened to the card: approved, published or reopened.
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return $this->schoolActivitylogOptions()
+            ->setDescriptionForEvent(fn (): string => match ($this->status) {
+                ReportCardStatus::Draft => 'reopened',
+                ReportCardStatus::Approved => 'approved',
+                ReportCardStatus::Published => 'published',
+            });
     }
 
     public function isDraft(): bool

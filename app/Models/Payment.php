@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\ActivityArea;
 use App\Enums\PaymentMethod;
 use App\Models\Concerns\BelongsToSchool;
+use App\Models\Concerns\LogsSchoolActivity;
 use Database\Factories\PaymentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -43,6 +45,8 @@ class Payment extends Model
     /** @use HasFactory<PaymentFactory> */
     use HasFactory;
 
+    use LogsSchoolActivity;
+
     /**
      * @return array<string, string>
      */
@@ -55,6 +59,29 @@ class Payment extends Model
             'paid_at' => 'datetime',
             'refunded_at' => 'datetime',
         ];
+    }
+
+    public function activityArea(): ActivityArea
+    {
+        return ActivityArea::Payments;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function loggedAttributes(): array
+    {
+        return ['amount', 'refunded_amount', 'method', 'reference', 'paid_at', 'refunded_at'];
+    }
+
+    public function activityStudentId(): int
+    {
+        if ($this->relationLoaded('invoice')) {
+            return $this->invoice->student_id;
+        }
+
+        // The invoice of this very payment, so no school scope is needed (seeders have none).
+        return (int) Invoice::query()->withoutGlobalScopes()->whereKey($this->invoice_id)->value('student_id');
     }
 
     /**
