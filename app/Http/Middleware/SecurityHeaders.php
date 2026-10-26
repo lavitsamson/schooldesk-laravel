@@ -36,11 +36,12 @@ class SecurityHeaders
             'X-Frame-Options' => 'DENY',
             'Referrer-Policy' => 'strict-origin-when-cross-origin',
             'Permissions-Policy' => 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
-            'Cross-Origin-Opener-Policy' => 'same-origin',
         ]);
 
+        // Browsers ignore both on plain HTTP (and log an error for the opener policy).
         if ($request->isSecure()) {
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+            $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin');
         }
 
         if (! (config('app.debug') && $response->getStatusCode() >= 500)) {

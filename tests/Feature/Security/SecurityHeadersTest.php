@@ -39,13 +39,16 @@ it('sends the other security headers, on API responses too', function (string $u
     $this->getJson($uri)->assertHeader('X-Content-Type-Options', 'nosniff')
         ->assertHeader('X-Frame-Options', 'DENY')
         ->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
-        ->assertHeader('Cross-Origin-Opener-Policy', 'same-origin')
         ->assertHeader('Content-Security-Policy');
 })->with(['/login', '/api/v1/me']);
 
-it('asks browsers to keep to HTTPS only on HTTPS requests', function (): void {
-    $this->get('http://localhost/login')->assertHeaderMissing('Strict-Transport-Security');
-    $this->get('https://localhost/login')->assertHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+it('sends HSTS and the opener policy only on HTTPS requests', function (): void {
+    $this->get('http://localhost/login')
+        ->assertHeaderMissing('Strict-Transport-Security')
+        ->assertHeaderMissing('Cross-Origin-Opener-Policy');
+    $this->get('https://localhost/login')
+        ->assertHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
+        ->assertHeader('Cross-Origin-Opener-Policy', 'same-origin');
 });
 
 it('allows eval only for the Horizon dashboard', function (): void {
