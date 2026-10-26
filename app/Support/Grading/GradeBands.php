@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Support\Grading;
 
 use App\Models\GradeScale;
+use App\Support\CurrentSchool;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 /**
  * A school's grade scale as bands from best to worst, e.g. A = 90.00–100.00 %. Bands are
@@ -15,17 +18,23 @@ use App\Models\GradeScale;
  */
 final class GradeBands
 {
+    private const KEY = 'grade-scale:';
+
     /**
      * @param  array<int, array{label: string, min_percent: string, max_percent: string}>  $bands  best first
      */
     public function __construct(private readonly array $bands) {}
 
     /**
-     * The current school's scale.
+     * The current school's scale, cached per school (tagged with the school, so everything
+     * cached for a school can be dropped together) until the scale changes.
      */
     public static function current(): self
     {
-        return new self(GradeScale::query()
+        $schoolId = app(CurrentSchool::class)->id();
+
+        /** @var array<int, array{label: string, min_percent: string, max_percent: string}> $bands */
+        $bands = Cache::tags(self::tags($schoolId))->rememberForever(self::KEY.$schoolId, fn (): array => GradeScale::query()
             ->orderByDesc('min_percent')
             ->get(['label', 'min_percent', 'max_percent'])
             ->map(fn (GradeScale $band): array => [
@@ -35,6 +44,25 @@ final class GradeBands
             ])
             ->values()
             ->all());
+
+        return new self($bands);
+    }
+
+    /**
+     * Drops the cached scale once the transaction that changed it has committed (at once
+     * outside a transaction), so no request can cache the old scale again in between.
+     */
+    public static function forget(int $schoolId): void
+    {
+        DB::afterCommit(fn () => Cache::tags(self::tags($schoolId))->forget(self::KEY.$schoolId));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function tags(int $schoolId): array
+    {
+        return ["school:{$schoolId}", 'grade-scales'];
     }
 
     /**

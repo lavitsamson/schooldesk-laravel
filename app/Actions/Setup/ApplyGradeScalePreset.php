@@ -6,6 +6,8 @@ namespace App\Actions\Setup;
 
 use App\Enums\GradeScalePreset;
 use App\Models\GradeScale;
+use App\Support\CurrentSchool;
+use App\Support\Grading\GradeBands;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -13,6 +15,8 @@ use Illuminate\Support\Facades\DB;
  */
 final class ApplyGradeScalePreset
 {
+    public function __construct(private readonly CurrentSchool $currentSchool) {}
+
     public function handle(GradeScalePreset $preset): void
     {
         DB::transaction(function () use ($preset): void {
@@ -21,6 +25,8 @@ final class ApplyGradeScalePreset
             foreach ($preset->bands() as $band) {
                 GradeScale::query()->create($band);
             }
+
+            GradeBands::forget($this->currentSchool->id());
         });
     }
 }

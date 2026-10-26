@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Actions\GradeScales;
 
 use App\Models\GradeScale;
+use App\Support\CurrentSchool;
+use App\Support\Grading\GradeBands;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -14,6 +16,8 @@ use Illuminate\Support\Facades\DB;
  */
 final class SaveGradeScale
 {
+    public function __construct(private readonly CurrentSchool $currentSchool) {}
+
     /**
      * @param  list<array{label: string, min_percent: string, max_percent: string}>  $bands
      */
@@ -25,6 +29,8 @@ final class SaveGradeScale
             foreach ($bands as $band) {
                 GradeScale::query()->create($band);
             }
+
+            GradeBands::forget($this->currentSchool->id());
         });
     }
 }
