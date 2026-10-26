@@ -55,11 +55,11 @@ const save = () =>
 
 const statusStyles: Record<AttendanceStatus, string> = {
     present:
-        'peer-checked:border-green-600 peer-checked:bg-green-600 peer-checked:text-white',
+        'peer-checked:border-green-700 peer-checked:bg-green-700 peer-checked:text-white',
     absent: 'peer-checked:border-red-600 peer-checked:bg-red-600 peer-checked:text-white',
     late: 'peer-checked:border-amber-500 peer-checked:bg-amber-500 peer-checked:text-gray-900',
     excused:
-        'peer-checked:border-sky-600 peer-checked:bg-sky-600 peer-checked:text-white',
+        'peer-checked:border-sky-700 peer-checked:bg-sky-700 peer-checked:text-white',
 };
 
 const recordedAt = computed(() =>

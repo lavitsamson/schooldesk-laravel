@@ -149,7 +149,7 @@ const dayLabel = (date: string, status: AttendanceStatus | null) =>
                             :class="
                                 day.status
                                     ? statuses[day.status].classes
-                                    : 'text-gray-400 dark:text-gray-500'
+                                    : 'text-gray-500 dark:text-gray-400'
                             "
                         >
                             <span class="tabular-nums">

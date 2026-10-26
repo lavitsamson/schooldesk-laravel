@@ -125,6 +125,13 @@ const isActive = (patterns: string | string[]) =>
 
 <template>
     <div>
+        <!-- First stop for keyboard users: past the navigation to the page itself. -->
+        <a
+            href="#main"
+            class="sr-only rounded-md bg-white px-4 py-2 font-medium text-indigo-700 focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-indigo-300"
+        >
+            {{ $t('Skip to main content') }}
+        </a>
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
             <nav
                 :aria-label="$t('Main')"
@@ -136,7 +143,10 @@ const isActive = (patterns: string | string[]) =>
                         <div class="flex">
                             <!-- Logo -->
                             <div class="flex shrink-0 items-center">
-                                <Link :href="route('dashboard')">
+                                <Link
+                                    :href="route('dashboard')"
+                                    :aria-label="$t('Dashboard')"
+                                >
                                     <ApplicationLogo
                                         class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200"
                                     />
@@ -332,7 +342,7 @@ const isActive = (patterns: string | string[]) =>
             </header>
 
             <!-- Page Content -->
-            <main>
+            <main id="main" tabindex="-1" class="focus:outline-hidden">
                 <FlashMessage />
                 <slot />
             </main>

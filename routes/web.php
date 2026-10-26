@@ -38,20 +38,14 @@ use App\Http\Controllers\Web\StudentGuardianController;
 use App\Http\Controllers\Web\StudentPhotoController;
 use App\Http\Controllers\Web\SubjectController;
 use App\Models\Membership;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/privacy', PrivacyNoticeController::class)->name('privacy');
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
+Route::get('/', fn () => Inertia::render('Welcome', [
+    'canRegister' => Route::has('register'),
+]))->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/schools', [SchoolSelectionController::class, 'index'])->name('schools.select');

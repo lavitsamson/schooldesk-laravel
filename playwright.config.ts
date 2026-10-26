@@ -20,6 +20,11 @@ export default defineConfig({
     expect: { timeout: Number(process.env.E2E_EXPECT_TIMEOUT ?? 5_000) },
     use: {
         baseURL,
+        // Clicks and fills fail after this instead of waiting for the test timeout.
+        actionTimeout: Math.max(
+            30_000,
+            Number(process.env.E2E_EXPECT_TIMEOUT ?? 0),
+        ),
         trace: 'retain-on-failure',
     },
     projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
