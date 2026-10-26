@@ -117,7 +117,7 @@ class DemoSchoolsSeeder extends Seeder
      * @param  list<string>  $terms
      * @param  array<string, string>  $subjects
      */
-    private function school(array $attributes, GradeScalePreset $preset, array $terms, array $subjects): School
+    public function school(array $attributes, GradeScalePreset $preset, array $terms, array $subjects): School
     {
         $school = School::query()->create([
             ...$attributes,
@@ -159,7 +159,7 @@ class DemoSchoolsSeeder extends Seeder
         return $school;
     }
 
-    private function member(School $school, string $email, string $name, Role $role): User
+    public function member(School $school, string $email, string $name, Role $role): User
     {
         $user = User::query()->create([
             'name' => $name,
