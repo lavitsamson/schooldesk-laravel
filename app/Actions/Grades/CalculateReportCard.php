@@ -14,6 +14,7 @@ use App\Models\Student;
 use App\Models\Subject;
 use App\Models\TeachingAssignment;
 use App\Models\Term;
+use App\Support\Grading\Decimal;
 use App\Support\Grading\GradeBands;
 use App\Support\Grading\ReportCardCalculator;
 use Illuminate\Support\Collection;
@@ -96,10 +97,21 @@ final class CalculateReportCard
         $studentIds = $students->map(fn (Student $s): int => $s->id)->all();
         $classIds = $classes->filter()->map(fn (SchoolClass $c): int => $c->id)->unique()->values()->all();
 
+        // IN (subquery) rather than whereHas: MySQL turns it into a semi-join on the unique
+        // (assessment_id, student_id) index instead of a dependent subquery per mark.
+        // Plain rows: hydrating and casting every mark of a class was a third of the time.
         $grades = Grade::query()
             ->whereIn('student_id', $studentIds)
-            ->whereHas('assessment', fn ($q) => $q->where('term_id', $term->id))
-            ->get(['assessment_id', 'student_id', 'marks', 'remarks']);
+            ->whereIn('assessment_id', Assessment::query()->where('term_id', $term->id)->select('id'))
+            ->toBase()
+            ->get(['assessment_id', 'student_id', 'marks', 'remarks'])
+            ->map(fn (object $row): array => [
+                'assessment_id' => (int) $row->assessment_id,
+                'student_id' => (int) $row->student_id,
+                // As the model's decimal:2 cast would give it: "17.50".
+                'marks' => $row->marks === null ? null : Decimal::fixed((string) $row->marks),
+                'remarks' => $row->remarks === null ? null : (string) $row->remarks,
+            ]);
 
         $assessments = Assessment::query()
             ->where('term_id', $term->id)
@@ -117,46 +129,62 @@ final class CalculateReportCard
             ->get();
 
         $taught = TeachingAssignment::query()->whereIn('class_id', $classIds)->get(['class_id', 'subject_id'])->groupBy('class_id');
-        $gradesByStudent = $grades->groupBy('student_id');
         $attendance = $this->attendance($term, $studentIds);
         $bands = GradeBands::current();
         $calculator = new ReportCardCalculator($bands);
         $calculatedAt = now()->toIso8601String();
 
+        // Casts (dates, enums, decimals) once per assessment and mark, not once per student:
+        // a class of 40 with 40 assessments would otherwise cast them 1,600 times.
+        $prepared = $assessments->map(fn (Assessment $a): array => [
+            'class_id' => $a->class_id,
+            'subject_id' => $a->subject_id,
+            'details' => [
+                'id' => $a->id,
+                'name' => $a->name,
+                'type' => $a->type->value,
+                'held_on' => $a->held_on->toDateString(),
+                'max_marks' => $a->max_marks,
+                'weight' => $a->weight,
+            ],
+        ])->all();
+
+        $marks = [];
+        foreach ($grades as $grade) {
+            $marks[$grade['student_id']][$grade['assessment_id']] = ['marks' => $grade['marks'], 'remarks' => $grade['remarks']];
+        }
+
         $snapshots = [];
 
         foreach ($students as $student) {
             $class = $classes->get($student->id);
-            /** @var Collection<int, Grade> $own */
-            $own = $gradesByStudent->get($student->id, collect())->keyBy('assessment_id');
+            $own = $marks[$student->id] ?? [];
             $taughtHere = $class === null ? [] : $taught->get($class->id, collect())->pluck('subject_id')->all();
 
-            $relevant = $assessments->filter(fn (Assessment $a): bool => $a->class_id === $class?->id || $own->has($a->id));
-            $bySubject = $relevant->groupBy('subject_id');
+            $bySubject = [];
+            foreach ($prepared as $assessment) {
+                $id = $assessment['details']['id'];
+                if ($assessment['class_id'] === $class?->id || isset($own[$id])) {
+                    $bySubject[$assessment['subject_id']][] = [
+                        ...$assessment['details'],
+                        'marks' => $own[$id]['marks'] ?? null,
+                        'remarks' => $own[$id]['remarks'] ?? null,
+                    ];
+                }
+            }
 
             $results = $subjects
-                ->filter(fn (Subject $s): bool => $bySubject->has($s->id) || in_array($s->id, $taughtHere, true))
-                ->map(function (Subject $subject) use ($bySubject, $own, $calculator): array {
-                    /** @var Collection<int, Assessment> $list */
-                    $list = $bySubject->get($subject->id, collect());
-                    $details = $list->map(fn (Assessment $a): array => [
-                        'id' => $a->id,
-                        'name' => $a->name,
-                        'type' => $a->type->value,
-                        'held_on' => $a->held_on->toDateString(),
-                        'max_marks' => $a->max_marks,
-                        'weight' => $a->weight,
-                        'marks' => $own->get($a->id)?->marks,
-                        'remarks' => $own->get($a->id)?->remarks,
-                    ])->values();
+                ->filter(fn (Subject $s): bool => isset($bySubject[$s->id]) || in_array($s->id, $taughtHere, true))
+                ->map(function (Subject $subject) use ($bySubject, $calculator): array {
+                    $details = $bySubject[$subject->id] ?? [];
 
                     return [
                         'id' => $subject->id,
                         'name' => $subject->name,
                         'code' => $subject->code,
-                        ...$calculator->subject($details->all()),
-                        'assessments_count' => $details->count(),
-                        'assessments' => $details->all(),
+                        ...$calculator->subject($details),
+                        'assessments_count' => count($details),
+                        'assessments' => $details,
                     ];
                 })
                 ->values();
