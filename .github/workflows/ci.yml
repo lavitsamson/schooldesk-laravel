@@ -155,6 +155,10 @@ jobs:
         options: >-
           --health-cmd="redis-cli ping"
           --health-interval=5s --health-timeout=5s --health-retries=20
+      # The journey spec follows the links in verification and invitation mails.
+      mailpit:
+        image: axllent/mailpit:v1.31.5
+        ports: ['1025:1025', '8025:8025']
 
     env:
       APP_URL: http://127.0.0.1:8000
@@ -168,7 +172,10 @@ jobs:
       CACHE_STORE: redis
       REDIS_HOST: 127.0.0.1
       QUEUE_CONNECTION: sync
-      MAIL_MAILER: log
+      MAIL_MAILER: smtp
+      MAIL_HOST: 127.0.0.1
+      MAIL_PORT: 1025
+      E2E_MAILPIT_URL: http://127.0.0.1:8025
       # A test secret: the fees spec signs a simulated Stripe webhook with it (no Stripe account needed).
       STRIPE_WEBHOOK_SECRET: whsec_e2e_test_only
       E2E_STRIPE_WEBHOOK_SECRET: whsec_e2e_test_only
