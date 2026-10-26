@@ -95,7 +95,12 @@
 
 ## 10. GDPR, i18n, audit
 
-- [ ] Export, anonymisation, German translation, activity log UI
+- [x] English, German and Hindi everywhere: UI, validation, mails, notifications, exports and PDFs (ADR 0010); language per user, else school, else browser; profile language picker
+- [x] Queued work and scheduled commands run in the school's language; dates and numbers per language (British English); notification titles built in the reader's language
+- [x] Hindi PDFs with a bundled Noto Sans Devanagari font (dompdf's shaping limits documented); Hindi is machine quality, noted in the README
+- [x] `npm run i18n:check` in CI (missing and unused keys) and a Pest test for placeholders
+- [x] Activity log (spatie/laravel-activitylog) for students, marks, invoices, payments, report-card approvals and GDPR actions, per school; audit log page with filters and a "History" link per student
+- [x] GDPR: student data export (JSON + PDFs in a ZIP, queued, emailed signed link, expires after 24 h), anonymisation (personal fields, files, audit log values), attendance-note retention per school, privacy notice template in en/de/hi (`docs/GDPR.md`)
 
 ## 11. Performance & hardening
 

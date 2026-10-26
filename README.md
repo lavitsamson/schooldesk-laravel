@@ -46,9 +46,11 @@ Available now:
 - **Parent portal.** Parents land on a family overview: per child this month's attendance, what is left to pay and the latest report card. Each child has an attendance calendar, the results so far in the term, and the published report cards as PDFs, with a switcher between siblings. Invoices are paid online from the portal. Notifications (absences, report cards, invoices, payments, reminders) have an unread badge, and a parent with children at two schools sees each school's notifications only there.
 - **Parent API** for a mobile app (`/api/v1`, Sanctum bearer tokens). Each token is for one device and one school, and every request acts for that school only. The endpoints are children, attendance by month, grades by term, report cards and their PDFs, invoices with Stripe Checkout, notifications and `/me`. Lists use cursor pagination, errors have one JSON shape (`message`, `code`, `errors`), and requests are rate-limited to 60 a minute. The portal and the API share the same actions, Form Requests and resources. Docs: [/docs](http://localhost/docs/) (Scribe, with OpenAPI and Postman exports).
 
-Planned for v1:
-- **GDPR.** Data export, right to erasure (anonymisation) and retention settings.
-- **Fully bilingual** in English and German.
+- **English, German and Hindi.** The whole app is translated: pages, validation messages, emails, notifications, Excel exports and PDFs. Each user picks a language on their profile; otherwise the school's language applies, and guests get their browser's. Emails, queued work and report cards use the school's language unless the reader chose another, and dates and numbers follow the language ("26 October 2026", "26. Oktober 2026"). Hindi PDFs use a bundled Devanagari font. A CI check fails when a translation is missing. _The Hindi translation is machine quality and has not been reviewed by a native speaker._
+- **Audit log.** Changes to students, marks, invoices, payments and report-card approvals are recorded with who made them, when, and the old and new values. GDPR exports and erasures are recorded too. School admins filter the log by area, person and date, and each student page links to that student's history.
+- **GDPR.** Admins export everything held about a student (JSON plus the PDFs, in a ZIP prepared in the background, with an emailed link that expires after 24 hours). The right to erasure anonymises a student: personal fields, photos, comments, generated PDFs and the personal values in the audit log are removed, while marks and financial records stay for legal retention. Each school sets how long attendance notes are kept, and a privacy notice template is included in all three languages. Details: [docs/GDPR.md](docs/GDPR.md).
+
+Planned for v1: performance targets and a security review (milestone 11), then the release.
 
 ## Architecture
 
@@ -98,6 +100,9 @@ Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) _(coming soon)_.
 | Cache / queues / sessions | Redis, Laravel Horizon |
 | Auth | Breeze (session), Sanctum (parent API) |
 | API docs | Scribe (static HTML, OpenAPI, Postman) |
+| Localisation | Laravel JSON translations (en, de, hi), laravel-vue-i18n |
+| Audit trail | spatie/laravel-activitylog |
+| PDFs | dompdf |
 | Testing | Pest (feature, unit, architecture), Playwright (E2E) |
 | Quality | Larastan level 8, Pint, ESLint, Prettier, vue-tsc |
 | Local dev | Laravel Sail (MySQL, Redis, Mailpit) |
@@ -188,6 +193,10 @@ A guard test fails when a new route is neither listed nor explicitly exempted. T
 its own list: a parent with a token for School A gets 404 for School B's records. A second guard
 checks that every model with a `school_id` column uses `BelongsToSchool`.
 
+**Translations.** `./vendor/bin/sail npm run i18n:check` fails when a key used in the code is
+missing from `lang/de.json` or `lang/hi.json`, or when a language file has unused keys. A Pest
+test checks that translations keep their placeholders.
+
 Pest runs against a real database (the `testing` database Sail creates), not SQLite, so behaviour
 matches production. CI runs the suite on both **MySQL 8.4** and **PostgreSQL 17**.
 
@@ -204,10 +213,13 @@ matches production. CI runs the suite on both **MySQL 8.4** and **PostgreSQL 17*
 | [0007 — Report cards and AI comment drafts](docs/adr/0007-report-cards-and-ai-comment-drafts.md) | A report card stores the calculated snapshot, and approval freezes it and renders the PDF, so parents always read what was signed off. Class generation is a Laravel job batch with one job per student. AI drafts are off by default, sit beside the comment instead of in it, and get only a minimised, test-enforced payload. |
 | [0008 — Fees, invoices and Stripe payments](docs/adr/0008-fees-invoices-and-stripe-payments.md) | Money is integer cents. Term invoices are generated idempotently (unique per student and term, a lock per run) with gapless numbers from a locked counter. Card payments exist only once Stripe's signed webhook confirms them; the event id is claimed in the same transaction as the payment, so duplicates do nothing and failures retry. What is paid is derived from payments, never stored twice. |
 | [0009 — Parent portal and API](docs/adr/0009-parent-portal-and-api.md) | One Sanctum token per device and school. `SetCurrentSchool` reads the school from the token, as it reads it from the session on the web, and checks the membership on every request. Notifications store their school. The portal and the API share actions, Form Requests and resources. API errors have one shape, lists use cursor pagination, and the docs are generated by Scribe as static files. |
+| [0010 — Localisation](docs/adr/0010-localisation.md) | English text is the translation key, shared by PHP and Vue, and a CI check keeps German and Hindi complete. The language is the user's, else the school's, else the browser's. Queued work and PDFs use the school's language, and notifications are translated when read. Hindi PDFs use a bundled font; dompdf's lack of Devanagari shaping is a known limit. |
 
 ## Security and GDPR
 
-See [docs/SECURITY.md](docs/SECURITY.md) and [docs/GDPR.md](docs/GDPR.md) _(coming in later milestones)_.
+GDPR: [docs/GDPR.md](docs/GDPR.md) covers the personal data held, data export, erasure by
+anonymisation, retention and data minimisation in the AI feature. Security:
+[docs/SECURITY.md](docs/SECURITY.md) _(coming in milestone 11)_.
 
 ## How I used AI
 
