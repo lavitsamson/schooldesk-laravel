@@ -54,6 +54,12 @@ jobs:
       - name: Translations
         run: npm run i18n:check
 
+      # Known vulnerabilities in the locked dependencies (docs/SECURITY.md).
+      - name: Dependency audit
+        run: |
+          composer audit --locked
+          npm audit --audit-level=high
+
       - name: vue-tsc
         run: npm run typecheck
 
