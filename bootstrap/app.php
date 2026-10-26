@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Exceptions\ApiExceptionRenderer;
 use App\Http\Middleware\EnsureSchoolMembership;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetCurrentSchool;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
@@ -26,6 +27,9 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // CSP and other security headers on every response (docs/SECURITY.md).
+        $middleware->append(SecurityHeaders::class);
+
         $middleware->web(append: [
             // Before Inertia, so the shared props can include the current school.
             SetCurrentSchool::class,

@@ -35,7 +35,9 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            // Off: Laravel's /storage route would serve any file on a valid signature, past the
+            // policies. Files go out only through controllers that authorise (docs/SECURITY.md).
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],
