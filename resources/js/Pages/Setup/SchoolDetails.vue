@@ -13,7 +13,7 @@ import { computed } from 'vue';
 
 const props = defineProps<
     SetupStepProps & {
-        school: {
+        details: {
             name: string;
             country: string;
             timezone: string;
@@ -37,7 +37,7 @@ const countries = computed<Option[]>(() => {
         .sort((a, b) => a.label.localeCompare(b.label, localeForIntl()));
 });
 
-const form = useForm({ ...props.school });
+const form = useForm({ ...props.details });
 
 const submit = () => form.put(route('setup.school'));
 </script>

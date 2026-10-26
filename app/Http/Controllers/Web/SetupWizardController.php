@@ -119,7 +119,8 @@ class SetupWizardController extends Controller
 
         return match ($step) {
             SetupStep::SchoolDetails => [
-                'school' => $school->only(['name', 'country', 'timezone', 'locale', 'currency']),
+                // Not "school": that would replace the shared `school` prop the layout reads.
+                'details' => $school->only(['name', 'country', 'timezone', 'locale', 'currency']),
                 'locales' => array_map(fn (Locale $l): array => ['value' => $l->value, 'label' => $l->label()], Locale::cases()),
                 'currencies' => UpdateSchoolDetailsRequest::CURRENCIES,
                 'timezones' => timezone_identifiers_list(),

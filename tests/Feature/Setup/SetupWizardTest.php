@@ -42,7 +42,10 @@ it('sends a school admin of a new school to the wizard', function (): void {
 it('renders every step', function (string $step, string $component): void {
     ($this->as)()->get(route('setup.show', $step))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page->component($component)->has('steps', 5)->where('current', $step));
+        ->assertInertia(fn (Assert $page) => $page->component($component)->has('steps', 5)->where('current', $step)
+            // The layout reads the shared school prop (permissions); no step may replace it.
+            ->where('school.id', $this->school->id)
+            ->has('school.permissions'));
 })->with([
     ['school', 'Setup/SchoolDetails'],
     ['academic-year', 'Setup/AcademicYear'],
