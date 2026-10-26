@@ -50,7 +50,9 @@ Available now:
 - **Audit log.** Changes to students, marks, invoices, payments and report-card approvals are recorded with who made them, when, and the old and new values. GDPR exports and erasures are recorded too. School admins filter the log by area, person and date, and each student page links to that student's history.
 - **GDPR.** Admins export everything held about a student (JSON plus the PDFs, in a ZIP prepared in the background, with an emailed link that expires after 24 hours). The right to erasure anonymises a student: personal fields, photos, comments, generated PDFs and the personal values in the audit log are removed, while marks and financial records stay for legal retention. Each school sets how long attendance notes are kept, and a privacy notice template is included in all three languages. Details: [docs/GDPR.md](docs/GDPR.md).
 
-Planned for v1: performance targets and a security review (milestone 11), then the release.
+- **Security and accessibility.** A nonce-based Content Security Policy and security headers on every response, rate limits on everything that signs in, sends mail or calls an API, and no third-party requests from the browser (fonts are self-hosted). Every main page is checked with axe (WCAG 2.1 AA) in light and dark mode in CI. Details: [docs/SECURITY.md](docs/SECURITY.md), [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md).
+
+Planned for v1: the release (production Docker setup and deployment).
 
 ## Architecture
 
@@ -103,7 +105,7 @@ Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) _(coming soon)_.
 | Localisation | Laravel JSON translations (en, de, hi), laravel-vue-i18n |
 | Audit trail | spatie/laravel-activitylog |
 | PDFs | dompdf |
-| Testing | Pest (feature, unit, architecture), Playwright (E2E) |
+| Testing | Pest (feature, unit, architecture), Playwright (E2E) with axe-core for accessibility |
 | Quality | Larastan level 8, Pint, ESLint, Prettier, vue-tsc |
 | Local dev | Laravel Sail (MySQL, Redis, Mailpit) |
 | CI | GitHub Actions |
@@ -183,9 +185,49 @@ times faster: `./vendor/bin/sail php -d opcache.enable_cli=1 vendor/bin/pest`.
 The E2E tests expect the demo seed (`migrate:fresh --seed`). If the local app is slow (Sail on a
 Windows-mounted folder), set `E2E_EXPECT_TIMEOUT=90000` and run with `--workers=1`: Sail's dev
 server handles one request at a time. Without `E2E_BASE_URL`, Playwright starts
-`php artisan serve` itself, which is what CI does. The fees spec simulates Stripe by posting a
-signed webhook: give the app a test `STRIPE_WEBHOOK_SECRET` and Playwright the same value in
-`E2E_STRIPE_WEBHOOK_SECRET` (the spec is skipped without it).
+`php artisan serve` itself, which is what CI does. The fees and journey specs simulate Stripe by
+posting a signed webhook: give the app a test `STRIPE_WEBHOOK_SECRET` and Playwright the same
+value in `E2E_STRIPE_WEBHOOK_SECRET` (those specs are skipped without it).
+
+- `journey.spec.ts` runs a new school end to end: registration and email verification, the setup
+  wizard, a teacher invited by email, a student imported with a guardian, invoices, attendance,
+  marks, an approved and published report card, and the parent reading it and paying. It follows
+  the emailed links through Mailpit's API (`E2E_MAILPIT_URL`, default `http://127.0.0.1:8025`),
+  so `APP_URL` must be the address Playwright uses, and the queue must run.
+- `pages.spec.ts` opens every main page per role in light and dark mode and fails on any axe
+  (WCAG 2.1 AA) or Content Security Policy violation.
+
+## Performance
+
+`./vendor/bin/sail artisan db:seed --class=PerformanceSeeder` (after the demo seed, about 10–30
+minutes) adds 20 schools with **10,080 students, 4.3 million attendance records** (every school
+day of the last two years), **1.5 million marks** and 40,000 invoices. Then:
+
+```bash
+./vendor/bin/sail bash scripts/benchmark.sh   # needs Horizon running for the report-card batch
+```
+
+The script copies the app to the container's own file system and serves it like a deployment
+(optimised autoloader, cached config and routes, opcache, no debug): on a Windows or macOS bind
+mount, every request would spend about 85 ms just reading the framework's files. It signs in as a
+school admin and requests each page 30 times the way the app navigates (Inertia JSON requests).
+
+| Page (school of 504 students) | Target | Before (p50 / p95) | After (p50 / p95) |
+|---|---|---|---|
+| Student list | < 200 ms | 56 / 67 ms | 56 / 70 ms |
+| Student list, search | | 53 / 60 ms | 54 / 64 ms |
+| Student list, sorted by class | | 62 / 70 ms | 62 / 69 ms |
+| Attendance grid (class of 42) | < 150 ms | 61 / 71 ms | 63 / 71 ms |
+| Attendance month report | | **196 / 238 ms** | **64 / 73 ms** |
+| Class results (all subjects) | | **384 / 420 ms** | **137 / 154 ms** |
+| Fees dashboard | | 52 / 60 ms | 55 / 63 ms |
+| Invoice list | | 70 / 86 ms | 66 / 73 ms |
+| Report cards for a class of 42 (queued batch) | < 60 s | 3.6–5.9 s | 3.6–5.9 s |
+
+Measured back to back in Sail on a laptop (Windows 11, WSL2). The targets were met before any
+tuning, thanks to composite indexes that start with `school_id` and eager loading. The two slow
+pages hydrated thousands of models and cast the same dates and decimals again and again; they now
+read plain rows. Grade scales are cached per school. Details in ADR 0011.
 
 **Tenant isolation.** [`tests/Support/CrossSchoolRoutes.php`](tests/Support/CrossSchoolRoutes.php)
 lists, for every route with a parameter, a request for another school's record. Each must return 404.
@@ -214,12 +256,16 @@ matches production. CI runs the suite on both **MySQL 8.4** and **PostgreSQL 17*
 | [0008 — Fees, invoices and Stripe payments](docs/adr/0008-fees-invoices-and-stripe-payments.md) | Money is integer cents. Term invoices are generated idempotently (unique per student and term, a lock per run) with gapless numbers from a locked counter. Card payments exist only once Stripe's signed webhook confirms them; the event id is claimed in the same transaction as the payment, so duplicates do nothing and failures retry. What is paid is derived from payments, never stored twice. |
 | [0009 — Parent portal and API](docs/adr/0009-parent-portal-and-api.md) | One Sanctum token per device and school. `SetCurrentSchool` reads the school from the token, as it reads it from the session on the web, and checks the membership on every request. Notifications store their school. The portal and the API share actions, Form Requests and resources. API errors have one shape, lists use cursor pagination, and the docs are generated by Scribe as static files. |
 | [0010 — Localisation](docs/adr/0010-localisation.md) | English text is the translation key, shared by PHP and Vue, and a CI check keeps German and Hindi complete. The language is the user's, else the school's, else the browser's. Queued work and PDFs use the school's language, and notifications are translated when read. Hindi PDFs use a bundled font; dompdf's lack of Devanagari shaping is a known limit. |
+| [0011 — Performance and hardening](docs/adr/0011-performance-and-hardening.md) | Measure on a production-like copy before optimising: the targets were already met, and only two pages needed plain rows instead of models. Grade scales are cached per school and dropped after the change commits; school settings are not, because they come with the membership check. A nonce-based CSP with narrow, documented exceptions, typed spreadsheet exports, and browser checks (axe, CSP) for every page in CI. |
 
 ## Security and GDPR
 
 GDPR: [docs/GDPR.md](docs/GDPR.md) covers the personal data held, data export, erasure by
 anonymisation, retention and data minimisation in the AI feature. Security:
-[docs/SECURITY.md](docs/SECURITY.md) _(coming in milestone 11)_.
+[docs/SECURITY.md](docs/SECURITY.md) lists the threats considered (cross-school leakage, IDOR,
+invitation abuse, webhook spoofing, file access, prompt injection, XSS, spreadsheet formula
+injection, authentication attacks), each mitigation and its tests, and the findings of the
+milestone 11 review. Accessibility: [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md).
 
 ## How I used AI
 

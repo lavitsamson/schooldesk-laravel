@@ -104,7 +104,11 @@
 
 ## 11. Performance & hardening
 
-- [ ] Performance seeder and targets, security review, `docs/SECURITY.md`, accessibility pass, Playwright suite
+- [x] `PerformanceSeeder` (20 schools, 10,080 students, 4.3M attendance records, 1.5M marks, 40,000 invoices) and `scripts/benchmark.sh` on a production-like copy; all targets met, before/after in the README (ADR 0011)
+- [x] Monthly attendance report and class results 3× faster (plain rows instead of models); grade scales cached per school (tagged, dropped after commit)
+- [x] Security review (`docs/SECURITY.md`): nonce-based CSP and security headers, self-hosted fonts, private disk not served by the storage route, spreadsheet formula injection fixed, 12-character passwords (breach check in production), no account enumeration, auth rate limits, `Secure` cookies in production, dependency audit in CI
+- [x] Accessibility pass (`docs/ACCESSIBILITY.md`): axe (WCAG 2.1 AA) on every main page per role in light and dark mode in CI, contrast and link-name fixes, skip link, a SchoolDesk landing page and logo
+- [x] Playwright suite: the full journey (registration → setup wizard → invitations → import → invoices → attendance and marks → report card → parent reads and pays), following emails through Mailpit
 
 ## 12. Release
 
