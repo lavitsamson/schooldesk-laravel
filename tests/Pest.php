@@ -8,15 +8,22 @@ use App\Actions\Members\GrantRole;
 use App\Actions\ReportCards\SaveReportCardSnapshot;
 use App\Actions\Setup\ApplyGradeScalePreset;
 use App\Enums\GradeScalePreset;
+use App\Enums\ImportRowOutcome;
+use App\Enums\ReportCardStatus;
 use App\Enums\Role;
 use App\Http\Middleware\SetCurrentSchool;
 use App\Models\AcademicYear;
+use App\Models\AiCommentDraft;
 use App\Models\Assessment;
+use App\Models\AttendanceRecord;
 use App\Models\Enrollment;
 use App\Models\FeeStructure;
 use App\Models\Grade;
 use App\Models\Guardian;
+use App\Models\ImportBatch;
+use App\Models\Invoice;
 use App\Models\Membership;
+use App\Models\Payment;
 use App\Models\ReportCard;
 use App\Models\School;
 use App\Models\SchoolClass;
@@ -28,6 +35,8 @@ use App\Models\User;
 use App\Support\CurrentSchool;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
@@ -219,6 +228,70 @@ function setUpFamily(): array
     $setup['students'][1]->guardians()->attach($guardian, ['is_primary' => true]);
 
     return [...$setup, 'parent' => $parent];
+}
+
+/**
+ * setUpFamily() with a school admin (Alice Admin) and a full record for Ada (admission number
+ * S-1): a photo, an address, a mark with a remark, an absence with a note, a published report
+ * card with a stored PDF and an AI comment draft, an invoice with a payment and its stored
+ * receipt, a second guardian who is hers alone (Greta Gran), in-app notifications about her
+ * and Ben, and an import row. Paula Parent stays the guardian of Ada and Ben. Fakes the local
+ * disk.
+ *
+ * @return array{school: School, year: AcademicYear, class: SchoolClass, term: Term, nextTerm: Term, subject: Subject, teacher: User, students: Collection<int, Student>, classTeacher: User, assessment: Assessment, parent: User, admin: User, ada: Student, ben: Student, card: ReportCard, invoice: Invoice, payment: Payment, greta: Guardian}
+ */
+function setUpStudentRecords(): array
+{
+    Storage::fake('local');
+    $setup = setUpFamily();
+    $school = $setup['school'];
+    [$ada, $ben] = [$setup['students'][0], $setup['students'][1]];
+    $admin = memberOf($school, Role::SchoolAdmin, ['name' => 'Alice Admin']);
+
+    $records = inSchool($school, function () use ($setup, $school, $ada): array {
+        $photo = "schools/{$school->id}/students/{$ada->id}/photo.jpg";
+        Storage::disk('local')->put($photo, 'jpeg');
+        $ada->update(['admission_no' => 'S-1', 'address' => 'Hauptstr. 1', 'photo_path' => $photo]);
+
+        Grade::query()->where('student_id', $ada->id)->sole()->update(['remarks' => 'Ada was unwell before the test.']);
+        AttendanceRecord::factory()->absent()->for($setup['class'], 'schoolClass')->for($ada)
+            ->create(['date' => '2026-10-05', 'note' => 'Flu']);
+
+        $card = reportCardFor($school, $ada, $setup['term'], $setup['class']);
+        $card->update([
+            'status' => ReportCardStatus::Published, 'approved_at' => now(), 'published_at' => now(),
+            'teacher_comment' => 'Ada has worked steadily.', 'pdf_path' => $card->pdfPath(),
+        ]);
+        Storage::disk('local')->put($card->pdfPath(), 'report card pdf');
+        AiCommentDraft::query()->create([
+            'school_id' => $school->id, 'report_card_id' => $card->id, 'prompt_hash' => str_repeat('a', 64),
+            'draft_text' => 'Ada has worked steadily.', 'model' => 'fake', 'input_tokens' => 10, 'output_tokens' => 10, 'accepted' => true,
+        ]);
+
+        $invoice = Invoice::factory()->for($ada)->create(['term_id' => $setup['term']->id, 'number' => 'SD-2026-000001']);
+        $payment = Payment::factory()->for($invoice)->create();
+        $payment->forceFill(['receipt_path' => $payment->receiptPath()])->save();
+        Storage::disk('local')->put($payment->receiptPath(), 'receipt pdf');
+
+        Guardian::query()->where('user_id', $setup['parent']->id)->update(['name' => 'Paula Parent']);
+        $greta = Guardian::factory()->for($school)->create(['name' => 'Greta Gran']);
+        $ada->guardians()->attach($greta, ['is_primary' => false]);
+
+        $batch = ImportBatch::factory()->for($school)->create();
+        $batch->rows()->create(['row_number' => 2, 'key' => 'S-1', 'outcome' => ImportRowOutcome::Updated, 'values' => ['first_name' => 'Ada']]);
+
+        return compact('card', 'invoice', 'payment', 'greta');
+    });
+
+    $notify = fn (array $data, string $type) => $setup['parent']->notifications()->create([
+        'id' => (string) Str::uuid(), 'school_id' => $school->id, 'type' => $type, 'data' => $data,
+    ]);
+    $notify(['student_id' => $ada->id, 'first_name' => 'Ada', 'class' => 'Grade 7 A', 'date' => '2026-10-05'], 'student-absent');
+    $notify(['invoice_id' => $records['invoice']->id, 'number' => 'SD-2026-000001', 'student_id' => $ada->id, 'first_name' => 'Ada', 'term' => 'Autumn term', 'total' => 120_000], 'invoice-issued');
+    $notify(['payment_id' => $records['payment']->id, 'invoice_id' => $records['invoice']->id, 'number' => 'SD-2026-000001', 'amount' => 50_000], 'payment-received');
+    $notify(['student_id' => $ben->id, 'first_name' => 'Ben', 'class' => 'Grade 7 A', 'date' => '2026-10-05'], 'student-absent');
+
+    return [...$setup, ...$records, 'admin' => $admin, 'ada' => $ada->refresh(), 'ben' => $ben];
 }
 
 /**

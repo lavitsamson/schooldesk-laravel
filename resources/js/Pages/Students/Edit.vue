@@ -15,7 +15,7 @@ const form = useForm<StudentFormData>({
     admission_no: props.student.admission_no,
     first_name: props.student.first_name,
     last_name: props.student.last_name,
-    date_of_birth: props.student.date_of_birth,
+    date_of_birth: props.student.date_of_birth ?? '',
     gender: props.student.gender,
     address: props.student.address ?? '',
     photo: null,

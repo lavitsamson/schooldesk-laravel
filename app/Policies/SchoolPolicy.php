@@ -29,4 +29,13 @@ class SchoolPolicy
         return $this->currentSchool->idOrNull() === $school->id
             && $user->hasPermissionTo(Permission::ManageSchool);
     }
+
+    /**
+     * The data protection page: retention settings, exports and erasure.
+     */
+    public function manageDataProtection(User $user, School $school): bool
+    {
+        return $this->currentSchool->idOrNull() === $school->id
+            && $user->hasPermissionTo(Permission::ManageDataProtection);
+    }
 }

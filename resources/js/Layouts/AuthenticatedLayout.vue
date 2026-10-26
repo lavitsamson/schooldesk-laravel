@@ -110,6 +110,12 @@ const links = computed<NavItem[]>(() =>
             active: 'audit-log.*',
             permission: 'audit.view',
         },
+        {
+            label: trans('Data protection'),
+            route: 'data-protection.edit',
+            active: 'data-protection.*',
+            permission: 'data_protection.manage',
+        },
     ].filter((link) => !link.permission || can(link.permission)),
 );
 
@@ -330,6 +336,14 @@ const isActive = (patterns: string | string[]) =>
                 <FlashMessage />
                 <slot />
             </main>
+
+            <footer
+                class="mx-auto max-w-7xl px-4 pb-8 text-sm text-gray-600 sm:px-6 lg:px-8 dark:text-gray-400"
+            >
+                <Link :href="route('privacy')" class="hover:underline">
+                    {{ $t('Privacy notice') }}
+                </Link>
+            </footer>
         </div>
     </div>
 </template>

@@ -18,5 +18,12 @@ import { Link } from '@inertiajs/vue3';
         >
             <slot />
         </div>
+
+        <Link
+            :href="route('privacy')"
+            class="mt-4 mb-6 text-sm text-gray-600 hover:underline dark:text-gray-400"
+        >
+            {{ $t('Privacy notice') }}
+        </Link>
     </div>
 </template>

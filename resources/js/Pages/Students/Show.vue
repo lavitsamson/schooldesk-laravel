@@ -94,6 +94,32 @@ const unlink = () => {
 const confirmingDelete = ref(false);
 const destroy = () =>
     router.delete(route('students.destroy', props.student.id));
+
+// GDPR: the export is built in the background and its link emailed.
+const exporting = ref(false);
+const requestExport = () =>
+    router.post(
+        route('students.export', props.student.id),
+        {},
+        {
+            preserveScroll: true,
+            onStart: () => (exporting.value = true),
+            onFinish: () => (exporting.value = false),
+        },
+    );
+
+const confirmingAnonymise = ref(false);
+const anonymiseForm = useForm({ confirmation: '' });
+const anonymise = () =>
+    anonymiseForm.post(route('students.anonymise', props.student.id), {
+        preserveScroll: true,
+        onSuccess: () => (confirmingAnonymise.value = false),
+    });
+const closeAnonymise = () => {
+    confirmingAnonymise.value = false;
+    anonymiseForm.reset();
+    anonymiseForm.clearErrors();
+};
 </script>
 
 <template>
@@ -171,6 +197,19 @@ const destroy = () =>
             <div
                 class="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 lg:grid-cols-3 lg:px-8"
             >
+                <p
+                    v-if="student.anonymised_on"
+                    role="status"
+                    class="rounded-md bg-amber-50 p-4 text-sm text-amber-900 lg:col-span-3 dark:bg-amber-900/30 dark:text-amber-100"
+                >
+                    {{
+                        $t(
+                            "This student's personal data was erased on :date. Marks, attendance and invoices are kept without anything that identifies them.",
+                            { date: student.anonymised_on },
+                        )
+                    }}
+                </p>
+
                 <div class="space-y-6 lg:col-span-1">
                     <section
                         class="bg-white p-6 shadow-xs sm:rounded-lg dark:bg-gray-800"
@@ -188,7 +227,7 @@ const destroy = () =>
                                     {{ $t('Date of birth') }}
                                 </dt>
                                 <dd class="text-gray-900 dark:text-gray-100">
-                                    {{ student.date_of_birth }}
+                                    {{ student.date_of_birth ?? '—' }}
                                 </dd>
                             </div>
                             <div>
@@ -264,6 +303,45 @@ const destroy = () =>
                             class="mt-2"
                             :message="errors.class_id ?? errors.student_ids"
                         />
+                    </section>
+
+                    <section
+                        v-if="student.can.export || student.can.anonymise"
+                        class="bg-white p-6 shadow-xs sm:rounded-lg dark:bg-gray-800"
+                        aria-labelledby="data-protection-title"
+                    >
+                        <h3
+                            id="data-protection-title"
+                            class="text-lg font-medium text-gray-900 dark:text-gray-100"
+                        >
+                            {{ $t('Data protection') }}
+                        </h3>
+                        <p
+                            class="mt-2 text-sm text-gray-600 dark:text-gray-400"
+                        >
+                            {{
+                                $t(
+                                    'For requests from the family under the GDPR: a copy of everything held about the student, or erasure of their personal data.',
+                                )
+                            }}
+                        </p>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <SecondaryButton
+                                v-if="student.can.export"
+                                type="button"
+                                :disabled="exporting"
+                                @click="requestExport"
+                            >
+                                {{ $t('Export data') }}
+                            </SecondaryButton>
+                            <DangerButton
+                                v-if="student.can.anonymise"
+                                type="button"
+                                @click="confirmingAnonymise = true"
+                            >
+                                {{ $t('Erase personal data') }}
+                            </DangerButton>
+                        </div>
                     </section>
                 </div>
 
@@ -665,6 +743,64 @@ const destroy = () =>
                     </DangerButton>
                 </div>
             </div>
+        </Modal>
+
+        <Modal
+            :show="confirmingAnonymise"
+            max-width="lg"
+            @close="closeAnonymise"
+        >
+            <form class="p-6" @submit.prevent="anonymise">
+                <h2
+                    class="text-lg font-medium text-gray-900 dark:text-gray-100"
+                >
+                    {{
+                        $t('Erase the personal data of :name?', {
+                            name: student.name,
+                        })
+                    }}
+                </h2>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                    {{
+                        $t(
+                            'Name, admission number, date of birth, address, photo, guardians, remarks, attendance notes, report-card comments and stored PDFs are removed. Marks, attendance, report-card results, invoices and payments are kept, as the school must keep them, without anything that identifies the student. This cannot be undone.',
+                        )
+                    }}
+                </p>
+                <div class="mt-4">
+                    <InputLabel
+                        for="anonymise-confirmation"
+                        :value="
+                            $t('Type the admission number :number to confirm', {
+                                number: student.admission_no,
+                            })
+                        "
+                    />
+                    <TextInput
+                        id="anonymise-confirmation"
+                        v-model="anonymiseForm.confirmation"
+                        class="mt-1 block w-full font-mono"
+                        autocomplete="off"
+                    />
+                    <InputError
+                        class="mt-2"
+                        :message="anonymiseForm.errors.confirmation"
+                    />
+                </div>
+                <div class="mt-6 flex justify-end gap-3">
+                    <SecondaryButton type="button" @click="closeAnonymise">
+                        {{ $t('Cancel') }}
+                    </SecondaryButton>
+                    <DangerButton
+                        :disabled="
+                            anonymiseForm.processing ||
+                            anonymiseForm.confirmation !== student.admission_no
+                        "
+                    >
+                        {{ $t('Erase personal data') }}
+                    </DangerButton>
+                </div>
+            </form>
         </Modal>
     </AuthenticatedLayout>
 </template>

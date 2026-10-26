@@ -48,9 +48,29 @@ class StudentPolicy
         return $user->hasPermissionTo(Permission::ManageStudents);
     }
 
+    /**
+     * An anonymised student's record is kept for grades and finances only: it is not edited
+     * again (nor linked to guardians), so no personal data comes back.
+     */
     public function update(User $user, Student $student): bool
     {
-        return $user->hasPermissionTo(Permission::ManageStudents);
+        return $user->hasPermissionTo(Permission::ManageStudents) && $student->anonymised_at === null;
+    }
+
+    /**
+     * GDPR access request: a ZIP of everything held about the student, emailed as a link.
+     */
+    public function exportData(User $user, Student $student): bool
+    {
+        return $user->hasPermissionTo(Permission::ManageDataProtection) && $student->anonymised_at === null;
+    }
+
+    /**
+     * GDPR erasure. Cannot be undone, and is done once.
+     */
+    public function anonymise(User $user, Student $student): bool
+    {
+        return $user->hasPermissionTo(Permission::ManageDataProtection) && $student->anonymised_at === null;
     }
 
     /**

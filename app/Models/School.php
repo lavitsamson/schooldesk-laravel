@@ -56,6 +56,19 @@ class School extends Model
      */
     public const SETTING_AI_COMMENT_DRAFTS = 'ai_comment_drafts';
 
+    /**
+     * settings key: months after which attendance notes are deleted (null: kept). Notes often
+     * give the reason for an absence, such as an illness (docs/GDPR.md).
+     */
+    public const SETTING_ATTENDANCE_NOTE_RETENTION_MONTHS = 'attendance_note_retention_months';
+
+    public function attendanceNoteRetentionMonths(): ?int
+    {
+        $months = $this->settings[self::SETTING_ATTENDANCE_NOTE_RETENTION_MONTHS] ?? null;
+
+        return is_int($months) ? $months : null;
+    }
+
     public function isSetUp(): bool
     {
         return $this->setup_completed_at !== null;

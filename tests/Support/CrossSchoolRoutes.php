@@ -16,6 +16,7 @@ use App\Models\ReportCard;
 use App\Models\School;
 use App\Models\SchoolClass;
 use App\Models\Student;
+use App\Models\StudentExport;
 use App\Models\Subject;
 use App\Models\TeachingAssignment;
 use App\Models\User;
@@ -161,6 +162,12 @@ final class CrossSchoolRoutes
             'imports.show' => fn (School $other): array => ['get', route('imports.show', ImportBatch::factory()->for($other)->create())],
             'imports.error-report' => fn (School $other): array => [
                 'get', route('imports.error-report', ImportBatch::factory()->for($other)->withErrorReport()->create()),
+            ],
+
+            'students.export' => fn (School $other): array => ['post', route('students.export', self::student($other))],
+            'students.anonymise' => fn (School $other): array => ['post', route('students.anonymise', self::student($other))],
+            'student-exports.download' => fn (School $other): array => [
+                'get', URL::temporarySignedRoute('student-exports.download', now()->addMinutes(5), ['studentExport' => StudentExport::factory()->for($other)->completed()->create()]),
             ],
 
             'family.attendance' => fn (School $other): array => ['get', route('family.attendance', self::student($other))],

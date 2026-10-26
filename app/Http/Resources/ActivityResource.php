@@ -92,6 +92,8 @@ class ActivityResource extends JsonResource
             [ActivityArea::ReportCards, 'approved'] => __('Report card approved'),
             [ActivityArea::ReportCards, 'published'] => __('Report card published'),
             [ActivityArea::ReportCards, 'reopened'] => __('Report card reopened'),
+            [ActivityArea::Gdpr, 'exported'] => __('Data export requested'),
+            [ActivityArea::Gdpr, 'anonymised'] => __('Personal data erased'),
             default => $this->description,
         };
     }

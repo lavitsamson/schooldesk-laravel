@@ -38,6 +38,7 @@ enum Role: string
                 Permission::GenerateReportCards,
                 Permission::ManageFees,
                 Permission::ViewAuditLog,
+                Permission::ManageDataProtection,
             ],
             self::Teacher => [
                 Permission::TakeAttendance,

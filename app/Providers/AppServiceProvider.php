@@ -108,6 +108,10 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('imports', fn (Request $request): Limit => Limit::perHour(30)
             ->by('imports:school:'.($this->app->make(CurrentSchool::class)->idOrNull() ?? $request->ip())));
 
+        // Each GDPR export renders every PDF of a student into a ZIP.
+        RateLimiter::for('exports', fn (Request $request): Limit => Limit::perHour(20)
+            ->by('exports:school:'.($this->app->make(CurrentSchool::class)->idOrNull() ?? $request->ip())));
+
         // Every attempt creates a Stripe Checkout session.
         RateLimiter::for('checkout', fn (Request $request): Limit => Limit::perMinute(10)
             ->by('checkout:user:'.($request->user()?->getAuthIdentifier() ?? $request->ip())));

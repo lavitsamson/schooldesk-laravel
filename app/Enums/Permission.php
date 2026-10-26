@@ -18,4 +18,5 @@ enum Permission: string
     case ManageFees = 'fees.manage';
     case ViewOwnChildren = 'children.view';
     case ViewAuditLog = 'audit.view';
+    case ManageDataProtection = 'data_protection.manage';
 }

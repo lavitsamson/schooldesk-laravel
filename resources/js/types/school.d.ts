@@ -59,11 +59,17 @@ export interface StudentRow {
 }
 
 export interface StudentProfile extends StudentRow {
-    date_of_birth: string;
+    date_of_birth: string | null;
     gender: string | null;
     gender_label: string | null;
     address: string | null;
-    can: { update: boolean; delete: boolean };
+    anonymised_on: string | null;
+    can: {
+        update: boolean;
+        delete: boolean;
+        export: boolean;
+        anonymise: boolean;
+    };
 }
 
 export interface Guardian {

@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\PrivacyNoticeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\AcademicYearController;
 use App\Http\Controllers\Web\AssessmentController;
 use App\Http\Controllers\Web\AttendanceController;
 use App\Http\Controllers\Web\AuditLogController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\DataProtectionController;
 use App\Http\Controllers\Web\FamilyController;
 use App\Http\Controllers\Web\FamilyInvoiceController;
 use App\Http\Controllers\Web\FeeController;
@@ -31,6 +33,7 @@ use App\Http\Controllers\Web\SchoolSelectionController;
 use App\Http\Controllers\Web\SetupWizardController;
 use App\Http\Controllers\Web\StudentBulkActionController;
 use App\Http\Controllers\Web\StudentController;
+use App\Http\Controllers\Web\StudentDataProtectionController;
 use App\Http\Controllers\Web\StudentGuardianController;
 use App\Http\Controllers\Web\StudentPhotoController;
 use App\Http\Controllers\Web\SubjectController;
@@ -38,6 +41,8 @@ use App\Models\Membership;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+Route::get('/privacy', PrivacyNoticeController::class)->name('privacy');
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -199,6 +204,15 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
         Route::get('/payments/{payment}/receipt', [PaymentController::class, 'receipt'])->middleware('signed')->name('payments.receipt');
 
         Route::get('/audit-log', [AuditLogController::class, 'index'])->name('audit-log.index');
+
+        // Data protection (GDPR): retention settings, and exports and erasure of a student's data
+        Route::get('/data-protection', [DataProtectionController::class, 'edit'])->name('data-protection.edit');
+        Route::put('/data-protection', [DataProtectionController::class, 'update'])->name('data-protection.update');
+        Route::controller(StudentDataProtectionController::class)->group(function (): void {
+            Route::post('/students/{student}/export', 'export')->middleware('throttle:exports')->name('students.export');
+            Route::post('/students/{student}/anonymise', 'anonymise')->name('students.anonymise');
+            Route::get('/student-exports/{studentExport}', 'download')->middleware('signed')->name('student-exports.download');
+        });
 
         // Parent portal (the family overview is the parents' dashboard)
         Route::controller(FamilyController::class)->prefix('family/children/{student}')->group(function (): void {

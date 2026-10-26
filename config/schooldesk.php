@@ -37,6 +37,13 @@ return [
         'invoice_prefix' => env('FEES_INVOICE_PREFIX', 'SD'),
     ],
 
+    'gdpr' => [
+        // Student data exports: the emailed download link and the ZIP itself expire after this.
+        'export_link_hours' => (int) env('GDPR_EXPORT_LINK_HOURS', 24),
+        // Choices for how long attendance notes (often health reasons) are kept, in months.
+        'attendance_note_retention_months' => [6, 12, 24, 36],
+    ],
+
     'api' => [
         // Parent API tokens (one per device and school) expire after this many days.
         'token_days' => (int) env('API_TOKEN_DAYS', 90),

@@ -90,9 +90,12 @@ class Student extends Model
         return $this->id;
     }
 
+    /**
+     * An anonymised student is named as such, in the reader's language.
+     */
     public function fullName(): string
     {
-        return "{$this->first_name} {$this->last_name}";
+        return $this->anonymised_at === null ? "{$this->first_name} {$this->last_name}" : (string) __('Anonymised student');
     }
 
     /**
