@@ -19,8 +19,8 @@ test('new users register a school, become its admin and start the setup wizard',
         'school_name' => 'Riverside International School',
         'name' => 'Test User',
         'email' => 'test@example.com',
-        'password' => 'password',
-        'password_confirmation' => 'password',
+        'password' => 'correct-horse-battery',
+        'password_confirmation' => 'correct-horse-battery',
     ]);
 
     $this->assertAuthenticated();
@@ -42,8 +42,8 @@ test('a school name is required', function (): void {
     $this->post('/register', [
         'name' => 'Test User',
         'email' => 'test@example.com',
-        'password' => 'password',
-        'password_confirmation' => 'password',
+        'password' => 'correct-horse-battery',
+        'password_confirmation' => 'correct-horse-battery',
     ])->assertSessionHasErrors('school_name');
 
     $this->assertGuest();
@@ -56,8 +56,8 @@ test('school slugs stay unique', function (): void {
         'school_name' => 'Riverside',
         'name' => 'Test User',
         'email' => 'test@example.com',
-        'password' => 'password',
-        'password_confirmation' => 'password',
+        'password' => 'correct-horse-battery',
+        'password_confirmation' => 'correct-horse-battery',
     ]);
 
     expect(School::query()->where('slug', 'like', 'riverside-%')->count())->toBe(1);

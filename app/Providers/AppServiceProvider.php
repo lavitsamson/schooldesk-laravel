@@ -26,6 +26,7 @@ use Illuminate\Notifications\Channels\DatabaseChannel;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
@@ -80,6 +81,12 @@ class AppServiceProvider extends ServiceProvider
         Model::preventSilentlyDiscardingAttributes(! $this->app->isProduction());
 
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+
+        // Length over composition rules (NIST SP 800-63B). In production also not in a known
+        // breach: Have I Been Pwned's range API only ever sees 5 characters of a SHA-1 hash.
+        Password::defaults(fn (): Password => $this->app->isProduction()
+            ? Password::min(12)->max(255)->uncompromised()
+            : Password::min(12)->max(255));
 
         // Subjects of the audit log: stored by name, so renaming a class keeps old entries readable.
         Relation::morphMap([
