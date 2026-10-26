@@ -8,6 +8,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import SelectInput from '@/Components/SelectInput.vue';
 import TextInput from '@/Components/TextInput.vue';
+import { usePermissions } from '@/composables/usePermissions';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import type { Option } from '@/types';
 import type {
@@ -27,6 +28,7 @@ const props = defineProps<{
     relationships: Option[];
 }>();
 
+const { can } = usePermissions();
 const errors = computed(() => usePage().props.errors);
 const initials = computed(
     () =>
@@ -138,6 +140,15 @@ const destroy = () =>
                     </div>
                 </div>
                 <div class="flex gap-2">
+                    <Link
+                        v-if="can('audit.view')"
+                        :href="
+                            route('audit-log.index', { student: student.id })
+                        "
+                        class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-semibold tracking-widest text-gray-700 uppercase shadow-xs hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden dark:border-gray-500 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                    >
+                        {{ $t('History') }}
+                    </Link>
                     <Link
                         v-if="student.can.update"
                         :href="route('students.edit', student.id)"

@@ -104,6 +104,12 @@ const links = computed<NavItem[]>(() =>
             active: 'members.*',
             permission: 'members.manage',
         },
+        {
+            label: trans('Audit log'),
+            route: 'audit-log.index',
+            active: 'audit-log.*',
+            permission: 'audit.view',
+        },
     ].filter((link) => !link.permission || can(link.permission)),
 );
 

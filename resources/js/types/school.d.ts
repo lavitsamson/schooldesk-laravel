@@ -364,3 +364,23 @@ export interface FeeClassTotals extends FeeTotals {
     id: number | null;
     name: string;
 }
+
+export interface ActivityChange {
+    field: string;
+    old: string | null;
+    new: string | null;
+}
+
+/** An audit log entry (ActivityResource), already in the reader's language. */
+export interface ActivityEntry {
+    id: number;
+    at: string;
+    area: string | null;
+    summary: string;
+    /** Null for changes made by the system (scheduled invoices, Stripe). */
+    causer: string | null;
+    student: { id: number; name: string; admission_no: string } | null;
+    /** Null once the record was deleted. */
+    record: { label: string; url: string | null } | null;
+    changes: ActivityChange[];
+}

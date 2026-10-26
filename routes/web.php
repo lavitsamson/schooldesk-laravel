@@ -6,6 +6,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\AcademicYearController;
 use App\Http\Controllers\Web\AssessmentController;
 use App\Http\Controllers\Web\AttendanceController;
+use App\Http\Controllers\Web\AuditLogController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\FamilyController;
 use App\Http\Controllers\Web\FamilyInvoiceController;
@@ -196,6 +197,8 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
         });
         Route::post('/invoices/{invoice}/payments', [PaymentController::class, 'store'])->name('invoices.payments.store');
         Route::get('/payments/{payment}/receipt', [PaymentController::class, 'receipt'])->middleware('signed')->name('payments.receipt');
+
+        Route::get('/audit-log', [AuditLogController::class, 'index'])->name('audit-log.index');
 
         // Parent portal (the family overview is the parents' dashboard)
         Route::controller(FamilyController::class)->prefix('family/children/{student}')->group(function (): void {
