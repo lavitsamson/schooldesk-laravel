@@ -13,6 +13,7 @@ The first run (milestone 11) found, and the milestone fixed:
 | Logo links with no accessible name (every page) | The logo is decorative (`aria-hidden`); the links are named "Dashboard" and "Home" |
 | White on green and on light blue in the attendance grid: 3.3:1 and 4.1:1 | Darker shades, at least 5:1 |
 | Day numbers in the parents' attendance calendar and disabled pagination links below 4.5:1 | Darker grey in light mode, lighter in dark mode |
+| A link in running text (invoice list) told apart from the text by colour only | Underlined |
 | The landing page was Laravel's scaffold, with low-contrast text and images from laravel.com | A SchoolDesk landing page |
 
 ## Manual checklist

@@ -44,7 +44,7 @@ const text = (label: string) =>
                 </Link>
                 <span
                     v-else
-                    class="block px-3 py-1.5 text-gray-500 dark:text-gray-400"
+                    class="block px-3 py-1.5 text-gray-600 dark:text-gray-400"
                     aria-hidden="true"
                 >
                     {{ text(link.label) }}

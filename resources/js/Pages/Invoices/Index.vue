@@ -72,7 +72,7 @@ watch(() => [filters.class_id, filters.status], reload);
                         {{ year }} · {{ term.name }} ·
                         <Link
                             :href="route('fees.index', { term: term.id })"
-                            class="text-indigo-700 hover:underline dark:text-indigo-300"
+                            class="text-indigo-700 underline dark:text-indigo-300"
                             >{{ $t('Fees overview') }}</Link
                         >
                     </p>
