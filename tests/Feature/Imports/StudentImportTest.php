@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 use Maatwebsite\Excel\Jobs\QueueImport;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
@@ -165,7 +166,7 @@ it('imports valid rows and reports the invalid ones', function (int $chunkSize):
         studentRow('S-3', ['class' => 'Grade 13 Z']),
         studentRow('S-1', ['first_name' => 'Twin']),
         studentRow('GONE'),
-        studentRow('S-4', ['last_name' => '', 'address' => 'Main St, 5']),
+        studentRow('S-4', ['first_name' => '=HYPERLINK("https://example.com","Hi")', 'last_name' => '', 'address' => 'Main St, 5']),
     ]));
 
     $batch = latestBatch($this->school);
@@ -187,16 +188,23 @@ it('imports valid rows and reports the invalid ones', function (int $chunkSize):
 
     $report = actingInSchool($this->admin, $this->school)->get(route('imports.error-report', $batch))
         ->assertOk()
-        ->assertDownload('students-errors.csv')
+        ->assertDownload('students-errors.xlsx')
         ->streamedContent();
 
-    $lines = array_map(str_getcsv(...), explode("\n", trim($report)));
+    $path = tempnam(sys_get_temp_dir(), 'report').'.xlsx';
+    file_put_contents($path, $report);
+    $sheet = IOFactory::load($path)->getActiveSheet();
+    $lines = $sheet->toArray(null, false, false);
+
     expect($lines)->toHaveCount(6)
         ->and($lines[0])->toBe(['row', ...StudentSheet::headings(), 'errors'])
         ->and($lines[1][0])->toBe('3')
         ->and($lines[1][4])->toBe('31.02.2014')
         ->and($lines[5][7])->toBe('Main St, 5')
-        ->and(end($lines[5]))->toBe('The last name field is required.');
+        ->and(end($lines[5]))->toBe('The last name field is required.')
+        // Uploaded values come back as text, never as formulas (docs/SECURITY.md).
+        ->and($sheet->getCell('C6')->getValue())->toBe('=HYPERLINK("https://example.com","Hi")')
+        ->and($sheet->getCell('C6')->getDataType())->toBe(DataType::TYPE_STRING);
 })->with(['one chunk' => 200, 'chunks of two rows' => 2]);
 
 it('reads Excel files with date cells and number cells', function (): void {

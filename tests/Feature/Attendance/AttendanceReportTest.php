@@ -9,6 +9,7 @@ use App\Models\Enrollment;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use Inertia\Testing\AssertableInertia as Assert;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 beforeEach(function (): void {
@@ -98,6 +99,17 @@ it('exports the month as a spreadsheet', function (): void {
         ->and($rows[3])->toBe([3, 'Cleo Test', 'S-3', null, null, 0, 0, 0, 0, null])
         ->and($rows[4][1])->toBe('Class Grade 7 A')
         ->and($rows[4][9])->toBe(50.0);
+});
+
+it('writes names as text, never as formulas', function (): void {
+    inSchool($this->school, fn () => $this->ada->update(['first_name' => '=HYPERLINK("https://example.com","Ada")']));
+
+    $response = ($this->as)()->get(route('attendance.export', [$this->class, 'month' => '2026-10']))->assertOk();
+    $sheet = IOFactory::load($response->getFile()->getPathname())->getActiveSheet();
+
+    expect($sheet->getCell('B2')->getDataType())->toBe(DataType::TYPE_STRING)
+        ->and($sheet->getCell('B2')->getValue())->toBe('=HYPERLINK("https://example.com","Ada") Test')
+        ->and($sheet->getCell('F2')->getDataType())->toBe(DataType::TYPE_NUMERIC);
 });
 
 it('is only for teachers of the class and school admins', function (): void {

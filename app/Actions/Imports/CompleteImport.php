@@ -23,9 +23,11 @@ final class CompleteImport
     {
         $reportPath = null;
 
+        // XLSX, not CSV: the report repeats uploaded values, and only a typed file keeps a cell
+        // like "=HYPERLINK(…)" as text when it is opened in Excel (docs/SECURITY.md).
         if ($batch->rows()->where('outcome', ImportRowOutcome::Failed)->exists()) {
-            $reportPath = "schools/{$batch->school_id}/imports/{$batch->id}-errors.csv";
-            $this->excel->store(new ImportErrorReport($batch->id), $reportPath, ImportBatch::DISK, Excel::CSV);
+            $reportPath = "schools/{$batch->school_id}/imports/{$batch->id}-errors.xlsx";
+            $this->excel->store(new ImportErrorReport($batch->id), $reportPath, ImportBatch::DISK, Excel::XLSX);
         }
 
         if ($batch->file_path !== null) {

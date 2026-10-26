@@ -109,10 +109,12 @@ class ImportController extends Controller
         $disk = Storage::disk(ImportBatch::DISK);
         abort_if($importBatch->error_report_path === null || ! $disk->exists($importBatch->error_report_path), 404);
 
-        $name = pathinfo($importBatch->original_name, PATHINFO_FILENAME).'-errors.csv';
+        // XLSX since milestone 11; reports written as CSV before are pruned after 30 days.
+        $csv = str_ends_with($importBatch->error_report_path, '.csv');
+        $name = pathinfo($importBatch->original_name, PATHINFO_FILENAME).($csv ? '-errors.csv' : '-errors.xlsx');
 
         return $disk->download($importBatch->error_report_path, $name, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Type' => $csv ? 'text/csv; charset=UTF-8' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'Cache-Control' => 'private, no-store',
         ]);
     }

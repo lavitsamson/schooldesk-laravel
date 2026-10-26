@@ -8,17 +8,22 @@ use App\Support\LocalDate;
 use Carbon\CarbonImmutable;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use PhpOffice\PhpSpreadsheet\Cell\StringValueBinder;
 
 /**
  * The monthly attendance report as one sheet: a row per student with a status letter per day
  * (P, A, L, E), their totals and rate, and a class total row at the bottom. The report comes
  * from BuildMonthlyAttendanceReport. Strict null comparison keeps zero counts (by default
  * Laravel Excel writes 0 as an empty cell).
+ *
+ * Numbers are written as numbers, everything else as text: a name like "=HYPERLINK(…)" stays
+ * text instead of becoming a formula (spreadsheet formula injection, docs/SECURITY.md).
  */
-final class AttendanceReportExport implements FromArray, ShouldAutoSize, WithHeadings, WithStrictNullComparison, WithTitle
+final class AttendanceReportExport extends StringValueBinder implements FromArray, ShouldAutoSize, WithCustomValueBinder, WithHeadings, WithStrictNullComparison, WithTitle
 {
     /**
      * @param  array{days: array<int, string>, students: array<int, array{roll_no: int|null, name: string, admission_no: string, statuses: array<string, string>, totals: array<string, int>, rate: float|null}>, totals: array{present: int, absent: int, late: int, excused: int, rate: float|null}}  $report
@@ -27,7 +32,9 @@ final class AttendanceReportExport implements FromArray, ShouldAutoSize, WithHea
         private readonly string $className,
         private readonly CarbonImmutable $month,
         private readonly array $report,
-    ) {}
+    ) {
+        $this->setNumericConversion(false)->setNullConversion(false);
+    }
 
     /**
      * @return list<string>

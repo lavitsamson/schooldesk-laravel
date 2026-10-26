@@ -51,7 +51,7 @@ test('an admin imports students and downloads the error report', async ({
 
     const download = page.waitForEvent('download');
     await page.getByRole('link', { name: 'Download error report' }).click();
-    expect((await download).suggestedFilename()).toBe('roster-errors.csv');
+    expect((await download).suggestedFilename()).toBe('roster-errors.xlsx');
 
     await page.getByRole('link', { name: 'View students' }).click();
     await page.getByLabel('Search').fill(admissionNo);
