@@ -6,27 +6,41 @@ Rebuilt from a school management system the author built in PHP and ran in a rea
 
 [![CI](https://github.com/lavitsamson/schooldesk-laravel/actions/workflows/ci.yml/badge.svg)](https://github.com/lavitsamson/schooldesk-laravel/actions/workflows/ci.yml)
 
-> 🚧 **Work in progress.** Built milestone by milestone. See [docs/PROGRESS.md](docs/PROGRESS.md).
+Built in 12 milestones ([docs/PROGRESS.md](docs/PROGRESS.md)), with an ADR for every
+non-obvious decision.
 
 ## Live demo
 
-Coming with the release milestone. Locally, `migrate:fresh --seed` creates these logins
-(password `DemoPass123!`):
+**Demo: _link to follow_** (resets every night). The demo seed (`migrate:fresh --seed`, also
+used locally) creates these logins, all with the password `DemoPass123!`. On the demo, the
+sign-in page offers them as buttons:
 
-| Role | Email |
-|---|---|
-| School admin (Riverside, EN) | `admin@riverside.demo` |
-| Teacher | `teacher@riverside.demo` |
-| Parent | `parent@riverside.demo` |
-| School admin (Gymnasium, DE) | `admin@gymnasium.demo` |
+| Role | Email | Try |
+|---|---|---|
+| School admin (Riverside, EN) | `admin@riverside.demo` | Students, fees dashboard, audit log, GDPR export |
+| Teacher | `teacher@riverside.demo` | Attendance grid, mark entry, report cards with AI drafts |
+| Parent | `parent@riverside.demo` | Family overview, attendance calendar, report cards, paying an invoice |
+| School admin (Gymnasium, DE) | `admin@gymnasium.demo` | The German UI and the German 1–6 grade scale |
 
 ## Screenshots
 
-_Coming soon._
+| | |
+|---|---|
+| ![Report card with an AI comment draft beside the teacher's comment](docs/screenshots/report-card-ai-draft.png) | ![Fees dashboard with collected and outstanding amounts per class](docs/screenshots/fees-dashboard.png) |
+| **Report card** with an AI comment draft beside the teacher's comment | **Fees dashboard** per term and class |
+| ![Spreadsheet-like mark entry grid](docs/screenshots/mark-entry.png) | ![Attendance grid for a class and day](docs/screenshots/attendance-grid.png) |
+| **Mark entry** that saves as you type | **Attendance** in one click per absent student |
+| ![Class results across all subjects](docs/screenshots/class-results.png) | ![German fees dashboard in dark mode](docs/screenshots/german-dark.png) |
+| **Class results** across subjects | **German**, in dark mode |
+| ![Parent portal: family overview](docs/screenshots/parent-portal.png) | ![Audit log with old and new values](docs/screenshots/audit-log.png) |
+| **Parent portal** | **Audit log** |
+
+More: [student list](docs/screenshots/students.png), [monthly attendance report](docs/screenshots/attendance-report.png),
+[report cards of a class](docs/screenshots/report-cards.png), [a parent's attendance calendar on a phone](docs/screenshots/parent-attendance-mobile.png),
+[landing page](docs/screenshots/landing.png). They are taken from the demo seed by
+`tests/e2e/screenshots.spec.ts` (`SCREENSHOTS=1`).
 
 ## Features
-
-Available now:
 
 - **Multi-school tenancy.** One database, with strict per-school isolation that fails closed. Users can belong to several schools and switch between them.
 - **Roles.** School admin, teacher and parent, scoped per school (spatie teams mode) and enforced with policies. Platform admin is a separate flag.
@@ -52,7 +66,7 @@ Available now:
 
 - **Security and accessibility.** A nonce-based Content Security Policy and security headers on every response, rate limits on everything that signs in, sends mail or calls an API, and no third-party requests from the browser (fonts are self-hosted). Every main page is checked with axe (WCAG 2.1 AA) in light and dark mode in CI. Details: [docs/SECURITY.md](docs/SECURITY.md), [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md).
 
-Planned for v1: the release (production Docker setup and deployment).
+- **Production-ready deployment.** Multi-stage Docker images without dev dependencies, and one Compose stack for a VPS: Caddy (automatic HTTPS) → Nginx → PHP-FPM, plus Horizon, the scheduler, MySQL and Redis. A deploy script migrates with the new image before the restart and ends with a smoke test, and CI builds and runs the whole production stack on every push. A demo mode adds a banner and the demo logins, and rebuilds the demo every night. Details: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Architecture
 
@@ -85,12 +99,13 @@ flowchart LR
     Q --> R
     W --> R
     Q --> MAIL
-    Q --> L
+    ACT --> L
     ACT --> S
     S -- webhooks --> W
 ```
 
-Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) _(coming soon)_.
+Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (code layout, a request end to end, tenancy,
+queues) and [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) (the production containers).
 
 ## Tech stack
 
@@ -108,7 +123,8 @@ Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) _(coming soon)_.
 | Testing | Pest (feature, unit, architecture), Playwright (E2E) with axe-core for accessibility |
 | Quality | Larastan level 8, Pint, ESLint, Prettier, vue-tsc |
 | Local dev | Laravel Sail (MySQL, Redis, Mailpit) |
-| CI | GitHub Actions |
+| Production | Docker Compose: Caddy, Nginx, PHP-FPM, Horizon, scheduler, MySQL, Redis |
+| CI | GitHub Actions (lint, Pest on MySQL and PostgreSQL, Playwright, production stack) |
 
 ## Local setup
 
@@ -123,6 +139,8 @@ docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/var/www/html" -w /var/www/htm
 ```
 
 The app runs at <http://localhost>. Mailpit runs at <http://localhost:8025>.
+
+To run the **production stack** instead (or deploy it to a VPS), see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 Invitation emails, absence emails, student imports, report-card batches, payment receipts and
 fee emails are queued. Run the
@@ -257,6 +275,7 @@ matches production. CI runs the suite on both **MySQL 8.4** and **PostgreSQL 17*
 | [0009 — Parent portal and API](docs/adr/0009-parent-portal-and-api.md) | One Sanctum token per device and school. `SetCurrentSchool` reads the school from the token, as it reads it from the session on the web, and checks the membership on every request. Notifications store their school. The portal and the API share actions, Form Requests and resources. API errors have one shape, lists use cursor pagination, and the docs are generated by Scribe as static files. |
 | [0010 — Localisation](docs/adr/0010-localisation.md) | English text is the translation key, shared by PHP and Vue, and a CI check keeps German and Hindi complete. The language is the user's, else the school's, else the browser's. Queued work and PDFs use the school's language, and notifications are translated when read. Hindi PDFs use a bundled font; dompdf's lack of Devanagari shaping is a known limit. |
 | [0011 — Performance and hardening](docs/adr/0011-performance-and-hardening.md) | Measure on a production-like copy before optimising: the targets were already met, and only two pages needed plain rows instead of models. Grade scales are cached per school and dropped after the change commits; school settings are not, because they come with the membership check. A nonce-based CSP with narrow, documented exceptions, typed spreadsheet exports, and browser checks (axe, CSP) for every page in CI. |
+| [0012 — Production deployment and demo](docs/adr/0012-production-deployment-and-demo.md) | One multi-stage Dockerfile builds an `app` image (PHP-FPM, also running Horizon and the scheduler) and a `web` image (Nginx). Caddy in front gets certificates by itself; Laravel trusts forwarded headers from the Docker network only. Deploys are a script that migrates with the new image first and ends with a smoke test, which CI also runs against the production stack. The demo resets nightly in maintenance mode and signs everyone out, because new sign-ups reuse yesterday's user ids. |
 
 ## Security and GDPR
 
@@ -264,8 +283,8 @@ GDPR: [docs/GDPR.md](docs/GDPR.md) covers the personal data held, data export, e
 anonymisation, retention and data minimisation in the AI feature. Security:
 [docs/SECURITY.md](docs/SECURITY.md) lists the threats considered (cross-school leakage, IDOR,
 invitation abuse, webhook spoofing, file access, prompt injection, XSS, spreadsheet formula
-injection, authentication attacks), each mitigation and its tests, and the findings of the
-milestone 11 review. Accessibility: [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md).
+injection, authentication attacks, spoofed proxy headers, the public demo), each mitigation and its
+tests, and the findings of the milestone 11 review. Accessibility: [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md).
 
 ## How I used AI
 

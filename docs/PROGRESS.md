@@ -112,4 +112,11 @@
 
 ## 12. Release
 
-- [ ] Production Docker setup, `docs/DEPLOYMENT.md`, deploy, screenshots, README polish
+- [x] Production images (multi-stage Dockerfile: PHP-FPM 8.4 `app`, Nginx `web`) and `compose.prod.yaml` with Caddy (automatic HTTPS), Horizon, the scheduler, MySQL and Redis (ADR 0012)
+- [x] Forwarded headers trusted only from configured proxies (`TRUSTED_PROXIES`)
+- [x] `scripts/deploy.sh` (build, migrate with the new image, restart, smoke test) and `scripts/smoke-test.sh`; `docs/DEPLOYMENT.md` (VPS setup, updates, rollbacks, backups, operations)
+- [x] CI job that builds, starts, seeds and smoke-tests the production stack, and runs a demo reset
+- [x] Demo mode: banner, demo logins on the sign-in page, nightly `demo:reset` in maintenance mode that also ends every session
+- [x] `docs/ARCHITECTURE.md`, screenshots from the demo seed (`tests/e2e/screenshots.spec.ts`), README polish
+- [x] Fixes found on the production stack: Nginx kept a recreated app container's old address (502), the school admin's navigation overflowed (now a School menu)
+- [ ] Deploy the public demo to a VPS and link it in the README
