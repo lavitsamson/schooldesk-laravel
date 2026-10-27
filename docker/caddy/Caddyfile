@@ -1,0 +1,19 @@
+# The public edge: HTTPS with automatic Let's Encrypt certificates for SITE_ADDRESS
+# (e.g. demo.schooldesk.example), HTTP → HTTPS redirects, compression. Everything goes to Nginx.
+# SITE_ADDRESS=:80 serves plain HTTP (the CI smoke test and local trials).
+{
+	email {$ACME_EMAIL:admin@example.com}
+}
+
+{$SITE_ADDRESS:localhost} {
+	encode zstd gzip
+
+	# Caddy trusts no upstream proxy, so it replaces any X-Forwarded-For a client sends with
+	# the real client address and sets X-Forwarded-Proto. Laravel's rate limits rely on that.
+	reverse_proxy web:80
+
+	log {
+		output stdout
+		format json
+	}
+}

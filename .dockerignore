@@ -1,0 +1,35 @@
+# Build context of docker/Dockerfile: only what the image needs (docs/DEPLOYMENT.md).
+.git
+.github
+.env
+.env.*
+!.env.example
+node_modules
+vendor
+public/build
+public/hot
+public/storage
+storage/app/*
+storage/fonts/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/testing/*
+storage/framework/views/*
+storage/logs/*
+bootstrap/cache/*.php
+tests
+test-results
+playwright-report
+blob-report
+coverage
+.phpunit.cache
+.scribe
+docs
+*.log
+
+# AI assistant / agent files
+CLAUDE.md
+CLAUDE.local.md
+AGENTS.md
+.claude
+.mcp.json
