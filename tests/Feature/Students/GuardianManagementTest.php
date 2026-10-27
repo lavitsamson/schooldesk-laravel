@@ -132,7 +132,8 @@ describe('primary and unlinking', function (): void {
 describe('guardian list', function (): void {
     it('lists and searches guardians with their children', function (): void {
         $ada = Guardian::factory()->for($this->school)->create(['name' => 'Ada Okafor', 'email' => 'ada@example.com']);
-        Guardian::factory()->for($this->school)->create(['name' => 'Ben Smith']);
+        // A fixed email: a random one can contain "ada" and match the search.
+        Guardian::factory()->for($this->school)->create(['name' => 'Ben Smith', 'email' => 'ben@example.com']);
         Guardian::factory()->for(School::factory())->create(['name' => 'Ada Elsewhere']);
         inSchool($this->school, fn () => app(LinkGuardian::class)->handle($this->student, $ada));
 
