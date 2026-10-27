@@ -219,3 +219,72 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  # The production images (docker/Dockerfile) and stack (compose.prod.yaml), as deployed:
+  # build, start, migrate and seed, then the smoke test a deploy runs (docs/DEPLOYMENT.md).
+  production-image:
+    name: Production image
+    runs-on: ubuntu-latest
+    needs: [static-analysis]
+
+    env:
+      ENV_FILE: .env.ci
+      IMAGE_TAG: ci
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build app image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: app
+          tags: schooldesk-app:ci
+          load: true
+          cache-from: type=gha,scope=app
+          cache-to: type=gha,scope=app,mode=max
+
+      - name: Build web image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: web
+          tags: schooldesk-web:ci
+          load: true
+          cache-from: type=gha,scope=app
+
+      # The production example with throwaway secrets, plain HTTP and mail to the log.
+      - name: Configure
+        run: |
+          sed -e "s|^SITE_ADDRESS=.*|SITE_ADDRESS=:80|" \
+              -e "s|^APP_KEY=.*|APP_KEY=base64:$(openssl rand -base64 32)|" \
+              -e "s|^APP_URL=.*|APP_URL=http://localhost|" \
+              -e "s|^SESSION_SECURE_COOKIE=.*|SESSION_SECURE_COOKIE=false|" \
+              -e "s|^MAIL_MAILER=.*|MAIL_MAILER=log|" \
+              -e "s|^DEMO_MODE=.*|DEMO_MODE=true|" \
+              -e "s|change-me-too|ci-root-password|" \
+              -e "s|=change-me$|=ci-password|" \
+              .env.production.example > .env.ci
+
+      - name: Start the stack
+        run: docker compose -f compose.prod.yaml --env-file .env.ci up -d --no-build --wait --wait-timeout 180
+
+      - name: Migrate and seed
+        run: docker compose -f compose.prod.yaml --env-file .env.ci exec -T app php artisan migrate --force --seed
+
+      - name: Smoke test
+        run: scripts/smoke-test.sh http://localhost admin@riverside.demo DemoPass123!
+
+      - name: Horizon and the nightly demo reset
+        run: |
+          docker compose -f compose.prod.yaml --env-file .env.ci exec -T horizon php artisan horizon:status
+          docker compose -f compose.prod.yaml --env-file .env.ci exec -T scheduler php artisan demo:reset
+          scripts/smoke-test.sh http://localhost admin@riverside.demo DemoPass123!
+
+      - name: Logs
+        if: failure()
+        run: docker compose -f compose.prod.yaml --env-file .env.ci logs --tail 200
