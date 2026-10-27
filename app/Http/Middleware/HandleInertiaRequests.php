@@ -68,6 +68,8 @@ class HandleInertiaRequests extends Middleware
             'unreadNotifications' => fn (): int => $user instanceof User && $this->currentSchool->check()
                 ? $this->notifications->unreadCount($user)
                 : 0,
+            // The public demo shows a banner and the demo logins (DEMO_MODE).
+            'demo' => (bool) config('schooldesk.demo.enabled'),
             'flash' => [
                 'status' => fn (): mixed => $request->session()->get('status'),
             ],

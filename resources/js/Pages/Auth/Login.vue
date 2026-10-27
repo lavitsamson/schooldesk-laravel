@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import Checkbox from '@/Components/Checkbox.vue';
+import DemoAccounts from '@/Components/DemoAccounts.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { PageProps } from '@/types';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 
 defineProps<{
     canResetPassword?: boolean;
@@ -17,6 +19,13 @@ const form = useForm({
     password: '',
     remember: false,
 });
+
+const page = usePage<PageProps>();
+
+const useDemoAccount = (email: string, password: string) => {
+    form.email = email;
+    form.password = password;
+};
 
 const submit = () => {
     form.post(route('login'), {
@@ -34,6 +43,8 @@ const submit = () => {
         <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
             {{ status }}
         </div>
+
+        <DemoAccounts v-if="page.props.demo" @choose="useDemoAccount" />
 
         <form @submit.prevent="submit">
             <div>

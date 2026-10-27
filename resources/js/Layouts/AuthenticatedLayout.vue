@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
+import DemoBanner from '@/Components/DemoBanner.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import FlashMessage from '@/Components/FlashMessage.vue';
 import NavLink from '@/Components/NavLink.vue';
@@ -132,6 +133,7 @@ const isActive = (patterns: string | string[]) =>
         >
             {{ $t('Skip to main content') }}
         </a>
+        <DemoBanner />
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
             <nav
                 :aria-label="$t('Main')"

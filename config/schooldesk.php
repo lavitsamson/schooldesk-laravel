@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 return [
 
+    // The public demo (docs/DEPLOYMENT.md): a banner on every page, and `demo:reset` rebuilds
+    // the demo data every night. Never on a server with real schools.
+    'demo' => [
+        'enabled' => (bool) env('DEMO_MODE', false),
+        // Server time (UTC).
+        'reset_at' => env('DEMO_RESET_AT', '04:00'),
+    ],
+
     'invitations' => [
         'expire_after_days' => (int) env('INVITATION_EXPIRE_DAYS', 7),
     ],

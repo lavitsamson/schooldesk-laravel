@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
+import DemoBanner from '@/Components/DemoBanner.vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import { computed } from 'vue';
@@ -22,6 +23,7 @@ const features = computed(() => [
 
 <template>
     <Head title="SchoolDesk" />
+    <DemoBanner />
 
     <div
         class="flex min-h-screen flex-col bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100"

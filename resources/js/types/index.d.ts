@@ -43,4 +43,6 @@ export type PageProps<
     flash: {
         status: string | null;
     };
+    /** The public demo (DEMO_MODE): banner and demo logins. */
+    demo: boolean;
 };

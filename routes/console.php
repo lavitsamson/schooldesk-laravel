@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Console\Commands\GenerateTermInvoicesCommand;
 use App\Console\Commands\PruneAttendanceNotesCommand;
+use App\Console\Commands\ResetDemoCommand;
 use App\Console\Commands\SendOverdueRemindersCommand;
 use App\Models\StudentExport;
 use Illuminate\Database\Console\PruneCommand;
@@ -30,6 +31,10 @@ Schedule::command(SendOverdueRemindersCommand::class)->dailyAt('07:00')->onOneSe
 
 // Expired parent API tokens are deleted a day after they expire.
 Schedule::command(PruneExpired::class, ['--hours' => 24])->daily()->onOneServer();
+
+// The public demo starts afresh every night (DEMO_MODE only; the command refuses otherwise).
+Schedule::command(ResetDemoCommand::class)->dailyAt((string) config('schooldesk.demo.reset_at'))
+    ->when(fn (): bool => (bool) config('schooldesk.demo.enabled'))->onOneServer()->withoutOverlapping();
 
 // Horizon's metrics (throughput, runtime) need regular snapshots.
 Schedule::command(SnapshotCommand::class)->everyFiveMinutes();
