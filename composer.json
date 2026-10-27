@@ -90,6 +90,11 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
+        "audit": {
+            "ignore": {
+                "PKSA-qhjm-rpqc-qkn6": "PHPUnit (dev only, via Pest): needs other local users and PHPT coverage, neither of which this project has. The fix (13.4.4) was released on 2026-10-27; upgrade from 2026-11-10 (14-day rule, docs/SECURITY.md)."
+            }
+        },
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true

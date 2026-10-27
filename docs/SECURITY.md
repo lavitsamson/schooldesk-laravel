@@ -87,7 +87,7 @@ A student called `=HYPERLINK("https://evil.example","Click")` would become a liv
 
 ### Dependencies and secrets
 
-- Versions are pinned by `composer.lock` and `package-lock.json`; nothing published in the 14 days before it was added. CI runs `composer audit` and `npm audit` on every push.
+- Versions are pinned by `composer.lock` and `package-lock.json`; nothing published in the 14 days before it was added. CI runs `composer audit` and `npm audit` on every push. When an advisory's fix is younger than 14 days, the advisory is ignored by id in `composer.json` (`config.audit.ignore`) with the reason and the date to upgrade, never by turning the audit off. Currently: PHPUnit PKSA-qhjm-rpqc-qkn6 (dev only; needs other local users and PHPT coverage), upgrade from 2026-11-10.
 - No secrets in the repository: configuration comes from the environment (`.env.example` documents every variable). `APP_DEBUG` must be false in production; with it on, server error pages are sent without a CSP so the debug page works.
 
 ### Abuse of expensive operations
