@@ -94,6 +94,14 @@ A student called `=HYPERLINK("https://evil.example","Click")` would become a liv
 
 Per-school or per-user rate limits on everything that sends mail, calls an external API or does heavy work: invitations (50/h), imports (30/h), GDPR exports (20/h), AI drafts (100/h), Stripe Checkout (10/min per user).
 
+### Deployment (milestone 12)
+
+- **Spoofed client addresses.** Rate limits and the audit log need the real client IP. Caddy discards any `X-Forwarded-For` a client sends and sets its own; Laravel trusts `X-Forwarded-*` only from `TRUSTED_PROXIES` (the private Docker network in production, nobody by default). Tests: `tests/Feature/Security/TrustedProxiesTest.php`.
+- **Small attack surface.** Only Caddy publishes ports (80, 443); MySQL and Redis (with a password) are on the internal network. PHP-FPM runs as `www-data`; the images hold no dev dependencies, tests, `.env` or `.git`. Nginx serves no PHP file other than the front controller, and no dotfiles. Containers get their configuration from `.env.production` (mode 600) at start; nothing secret is in an image.
+- **HTTPS everywhere.** Caddy redirects HTTP and renews certificates; cookies are `Secure` and HSTS is sent once Laravel sees HTTPS through the trusted proxy. Sessions are encrypted (`SESSION_ENCRYPT=true`).
+- **The public demo** (`DEMO_MODE`) sends no email (`MAIL_MAILER=log`), so its forms cannot be used to mail strangers, and asks visitors not to enter real personal data. Everything they enter is deleted every night, and every session ends (sessions have their own Redis database, which the reset empties): otherwise a new sign-up could reuse the id of yesterday's user and inherit their session. `demo:reset` refuses to run without `DEMO_MODE`. Tests: `tests/Feature/Demo/DemoModeTest.php`; CI runs a reset on the production stack.
+- Details: `docs/DEPLOYMENT.md`, ADR 0012.
+
 ## Audit trail
 
 Changes to students, marks, invoices, payments, report-card approvals and GDPR actions are logged per school with the user, the changed fields and old and new values (spatie/laravel-activitylog, ADR 0010). School admins can filter the log; anonymising a student also scrubs their personal values from it (`docs/GDPR.md`).
