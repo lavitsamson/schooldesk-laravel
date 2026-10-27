@@ -19,7 +19,9 @@ test('a school admin sees their school and its members', async ({ page }) => {
         page.getByRole('heading', { name: 'Riverside International School' }),
     ).toBeVisible();
 
-    await page.getByRole('link', { name: 'Members' }).first().click();
+    const nav = page.getByRole('navigation', { name: 'Main' });
+    await nav.getByRole('button', { name: 'School' }).click();
+    await nav.getByRole('link', { name: 'Members' }).first().click();
 
     const members = page.getByRole('table', { name: 'School members' });
     await expect(members.getByText('teacher@riverside.demo')).toBeVisible();

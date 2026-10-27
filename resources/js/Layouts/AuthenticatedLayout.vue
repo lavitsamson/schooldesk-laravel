@@ -23,6 +23,8 @@ interface NavItem {
     active: string | string[];
     permission?: string;
     badge?: number;
+    /** On wide screens, inside the "School" menu instead of the bar. */
+    group?: 'school';
 }
 
 const links = computed<NavItem[]>(() =>
@@ -77,42 +79,49 @@ const links = computed<NavItem[]>(() =>
         },
         {
             label: trans('Guardians'),
+            group: 'school' as const,
             route: 'guardians.index',
             active: 'guardians.*',
             permission: 'students.manage',
         },
         {
             label: trans('Classes'),
+            group: 'school' as const,
             route: 'classes.index',
             active: 'classes.*',
             permission: 'school.manage',
         },
         {
             label: trans('Subjects'),
+            group: 'school' as const,
             route: 'subjects.index',
             active: 'subjects.*',
             permission: 'school.manage',
         },
         {
             label: trans('Academic years'),
+            group: 'school' as const,
             route: 'academic-years.index',
             active: 'academic-years.*',
             permission: 'school.manage',
         },
         {
             label: trans('Members'),
+            group: 'school' as const,
             route: 'members.index',
             active: 'members.*',
             permission: 'members.manage',
         },
         {
             label: trans('Audit log'),
+            group: 'school' as const,
             route: 'audit-log.index',
             active: 'audit-log.*',
             permission: 'audit.view',
         },
         {
             label: trans('Data protection'),
+            group: 'school' as const,
             route: 'data-protection.edit',
             active: 'data-protection.*',
             permission: 'data_protection.manage',
@@ -122,6 +131,13 @@ const links = computed<NavItem[]>(() =>
 
 const isActive = (patterns: string | string[]) =>
     [patterns].flat().some((pattern) => route().current(pattern));
+
+// A school admin has more links than fit in one bar: the setup and admin pages go in a menu.
+const barLinks = computed(() => links.value.filter((link) => !link.group));
+const schoolLinks = computed(() => links.value.filter((link) => link.group));
+const schoolMenuActive = computed(() =>
+    schoolLinks.value.some((link) => isActive(link.active)),
+);
 </script>
 
 <template>
@@ -160,7 +176,7 @@ const isActive = (patterns: string | string[]) =>
                                 class="hidden space-x-6 lg:-my-px lg:ms-8 lg:flex"
                             >
                                 <NavLink
-                                    v-for="link in links"
+                                    v-for="link in barLinks"
                                     :key="link.route"
                                     :href="route(link.route)"
                                     :active="isActive(link.active)"
@@ -176,6 +192,53 @@ const isActive = (patterns: string | string[]) =>
                                         }}</span>
                                     </span>
                                 </NavLink>
+                                <div
+                                    v-if="schoolLinks.length > 0"
+                                    class="relative flex items-center"
+                                >
+                                    <Dropdown align="left" width="48">
+                                        <template #trigger>
+                                            <button
+                                                type="button"
+                                                class="inline-flex h-16 items-center border-b-2 px-1 pt-1 text-sm leading-5 font-medium transition duration-150 ease-in-out focus:outline-hidden"
+                                                :class="
+                                                    schoolMenuActive
+                                                        ? 'border-indigo-400 text-gray-900 dark:border-indigo-600 dark:text-gray-100'
+                                                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 focus:border-gray-300 focus:text-gray-700 dark:text-gray-400 dark:hover:border-gray-700 dark:hover:text-gray-300'
+                                                "
+                                            >
+                                                {{ $t('School') }}
+                                                <svg
+                                                    class="ms-1 h-4 w-4"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                    aria-hidden="true"
+                                                >
+                                                    <path
+                                                        fill-rule="evenodd"
+                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                        clip-rule="evenodd"
+                                                    />
+                                                </svg>
+                                            </button>
+                                        </template>
+                                        <template #content>
+                                            <DropdownLink
+                                                v-for="link in schoolLinks"
+                                                :key="link.route"
+                                                :href="route(link.route)"
+                                                :aria-current="
+                                                    isActive(link.active)
+                                                        ? 'page'
+                                                        : undefined
+                                                "
+                                            >
+                                                {{ link.label }}
+                                            </DropdownLink>
+                                        </template>
+                                    </Dropdown>
+                                </div>
                             </div>
                         </div>
 
